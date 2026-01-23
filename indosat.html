@@ -1,0 +1,1059 @@
+
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indosat Data Plan - LinkQu Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .shimmer-effect {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        #custom-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 9999;
+        }
+
+        #custom-toast.show {
+            transform: translateX(0);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            transform: translateY(100%);
+            transition: 0.3s;
+            z-index: 1001;
+        }
+
+        .bottom-sheet.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="custom-toast" class="bg-black text-white px-4 py-2 rounded-lg shadow-lg text-sm"></div>
+
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg pb-24 relative overflow-hidden">
+
+        <div id="layanan-screen" class="bg-gray-50 min-height-screen pb-10">
+            <div class="h-[70px]">
+
+                <div class="fixed top-0 left-0 right-0 z-50 p-4 bg-[#24b3ae] text-white shadow-md">
+                    <div class="flex flex-col">
+                        <h1 class="text-lg font-bold italic leading-tight">Indosat Ooredoo Hutchison</h1>
+                        <p class="text-[10px] opacity-90">Pilih kuota data Platinum (3 - 24 Bulan)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-3 py-3 relative">
+
+                <a href="https://wa.me/6282226666610" target="_blank" class="block">
+                    <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1765686398/WhatsApp_Image_2025-12-14_at_11.23.56_nw4cuz.jpg"
+                        class="w-full h-auto rounded-xl shadow-md border border-gray-100" alt="Promo Indosat">
+                </a>
+
+                <a href="https://wa.me/6282226666610" target="_blank" class="absolute bottom-5 right-5 bg-[#e03f7d] hover:bg-green-600 text-white 
+                          font-semibold py-1.5 px-3 rounded-full shadow-lg flex items-center 
+                          transition duration-200 stop-propagation">
+
+                    <i data-lucide="send" class="w-3 h-3 mr-1"></i>
+                    <span style="font-size: 10px;">Pesan Sekarang</span>
+                </a>
+            </div>
+
+            <div class="p-4 space-y-6">
+
+                <div style="margin-top: -15px;">
+                    <h2 class="text-[#24b3ae] font-bold mb-3 flex items-center">
+                        <i data-lucide="calendar" class="w-4 h-4 mr-2"></i> Durasi 3 Bulan
+                    </h2>
+                    <div class="space-y-3">
+                        <div onclick="selectPaket('Platinum 50GB/bulan - Selama 3 Bulan', 315000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">
+                                    Platinum 50GB<span class="text-black font-medium">/bulan</span>
+                                </h3>
+                                <p class="text-xs text-gray-500">Selama 3 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp315.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 100GB/bulan - Selama 3 Bulan', 450000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 100GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 3 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp450.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 125GB/bulan - Selama 3 Bulan', 550000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 125GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 3 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp550.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 200GB/bulan - Selama 3 Bulan', 600000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 200GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 3 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp600.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 300GB/bulan - Selama 3 Bulan', 900000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 300GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 3 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp900.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-[#24b3ae] font-bold mb-3 flex items-center">
+                        <i data-lucide="calendar" class="w-4 h-4 mr-2"></i> Durasi 6 Bulan
+                    </h2>
+                    <div class="space-y-3">
+                        <div onclick="selectPaket('Platinum 15GB/bulan - Selama 6 Bulan', 450000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+                            <div class="absolute top-4 right-4 text-sm font-bold text-white uppercase rounded-full shadow-md py-1 pr-3 pl-3 flex items-center justify-center"
+                                style="background-color: #e03f7d; margin-top: -30px; font-size: 12px !important;">
+                                BEST SELLER
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 15GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 6 Bulan • Include nomor cantik</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp450.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 50GB/bulan - Selama Bulan', 600000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 50GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 6 Bulan • Include nomor cantik</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp600.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 100GB/bulan - Selama Bulan', 850000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 100GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 6 Bulan • Include nomor cantik</p>
+                            </div>
+
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp850.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 125GB/bulan - Selama 6 Bulan', 1000000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 125GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 6 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.000.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 200GB/bulan - Selama 6 Bulan', 1130000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 200GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 6 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.130.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 300GB/bulan - Selama 6 Bulan', 1700000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 300GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 6 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.170.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-[#24b3ae] font-bold mb-3 flex items-center">
+                        <i data-lucide="calendar" class="w-4 h-4 mr-2"></i> Durasi 12 Bulan
+                    </h2>
+                    <div class="space-y-3">
+                        <div onclick="selectPaket('Platinum 1TB - Aktif hinggan 1 Tahun', 1000000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+                            <div class="absolute top-4 right-4 text-sm font-bold text-white uppercase rounded-full shadow-md py-1 pr-3 pl-3 flex items-center justify-center"
+                                style="background-color: #e03f7d; margin-top: -30px; font-size: 12px !important;">
+                                BEST SELLER
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 1TB</h3>
+                                <p class="text-xs text-gray-500">Aktif hingga 1 Tahun • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.000.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 15GB/bulan - Selama 12 Bulan', 750000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 15GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 12 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp750.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 50GB/bulan - Selama 12 Bulan', 950000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 50GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 12 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp950.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 100GB/bulan - Selama 12 Bulan', 1350000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 100GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 12 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.350.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 125GB/bulan - Selama 12 Bulan', 1700000)"
+                            class="relative border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+
+
+
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 125GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 12 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.700.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 200GB/bulan - Selama 12 Bulan', 1800000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 200GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 12 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.800.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 300GB/bulan - Selama 12 Bulan', 2700000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 300GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 12 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp2.700.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-[#24b3ae] font-bold mb-3 flex items-center">
+                        <i data-lucide="calendar" class="w-4 h-4 mr-2"></i> Durasi 24 Bulan
+                    </h2>
+                    <div class="space-y-3">
+                        <div onclick="selectPaket('Platinum 15GB/bulan - Selama 24 Bulan', 1400000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 15GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 24 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.400.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 50GB/bulan - Selama 24 Bulan', 1875000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 50GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 24 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp1.875.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 100GB/bulan - Selama 24 Bulan', 2600000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 100GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 24 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp2.600.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 125GB/bulan - Selama 24 Bulan', 3100000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 125GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 24 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp3.100.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 200GB/bulan - Selama 24 Bulan', 3450000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 200GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 24 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp3.450.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                        <div onclick="selectPaket('Platinum 300GB/bulan - Selama 24 Bulan', 5200000)"
+                            class="border-2 border-gray-100 rounded-2xl p-4 hover:border-[#24b3ae] cursor-pointer flex justify-between items-center transition bg-white shadow-sm">
+                            <div>
+                                <h3 class="font-bold text-lg">Platinum 300GB<span
+                                        class="text-black font-medium">/bulan</span></h3>
+                                <p class="text-xs text-gray-500">Selama 24 Bulan • Include nomor cantik</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[#24b3ae] font-bold text-lg">Rp5.200.000</p>
+                                <span
+                                    class="text-[10px] bg-[#24b3ae] text-white px-2 py-1 rounded-full font-bold uppercase">Pilih</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="kontak-screen" class="hidden p-4">
+            <div
+                class="fixed top-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-sm border-b z-[100] px-4 py-3">
+                <button onclick="showScreen('layanan-screen')"
+                    class="flex items-center text-gray-700 hover:text-[#000] transition-colors group">
+                    <i data-lucide="arrow-left"
+                        class="w-7 h-7 mr-3 text-[#24b3ae] group-hover:-translate-x-1 transition-transform"></i>
+                    <span class="text-lg font-bold tracking-tight">Kembali ke Paket</span>
+                </button>
+            </div>
+
+            <div class="mt-16 space-y-4">
+                <h2 class="text-xl font-bold mb-2 text-gray-800">Lengkapi Data Order</h2>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Sesuai KTP</label>
+                    <input type="text" id="input-nama" placeholder="Contoh: Budi Santoso"
+                        class="w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-[#24b3ae]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nomor HP (WhatsApp)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-400 font-bold">+62</span>
+                        <input type="number" id="input-hp" placeholder="81234567xxx"
+                            class="w-full border rounded-xl p-3 pl-12 outline-none focus:ring-2 focus:ring-[#24b3ae]">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">NIK</label>
+                        <input type="number" id="input-nik" placeholder="16 Digit"
+                            class="w-full border rounded-xl p-3 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nomor KK</label>
+                        <input type="number" id="input-kk" placeholder="16 Digit"
+                            class="w-full border rounded-xl p-3 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Alamat Email</label>
+                    <input type="email" id="input-email" placeholder="emailku@gmail.com"
+                        class="w-full border rounded-xl p-3 outline-none focus:border-[#24b3ae]">
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                    <p class="text-xs font-bold text-gray-600 mb-3 uppercase">Verifikasi Gambar</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <label
+                                class="block p-3 border rounded-lg bg-white cursor-pointer hover:bg-gray-100 transition-all"
+                                id="label-selfie">
+                                <div id="icon-selfie">
+                                    <i data-lucide="camera" class="w-5 h-5 mx-auto mb-1 text-gray-400"></i>
+                                    <span class="text-[10px] block">Selfie</span>
+                                </div>
+                                <div id="progress-selfie" class="hidden">
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                                        <div class="bg-[#24b3ae] h-1.5 rounded-full animate-pulse w-full"></div>
+                                    </div>
+                                    <span
+                                        class="text-[8px] text-[#24b3ae] font-bold uppercase tracking-tighter">Memproses...</span>
+                                </div>
+                                <input type="file" id="foto-selfie" class="hidden" accept="image/*" capture="user"
+                                    onchange="handleFileUpload(this, 'selfie')">
+                            </label>
+                            <p id="name-selfie" class="text-[8px] mt-1 text-gray-400 truncate px-1 italic"></p>
+                        </div>
+
+                        <div class="text-center">
+                            <label
+                                class="block p-3 border rounded-lg bg-white cursor-pointer hover:bg-gray-100 transition-all"
+                                id="label-ktp">
+                                <div id="icon-ktp">
+                                    <i data-lucide="credit-card" class="w-5 h-5 mx-auto mb-1 text-gray-400"></i>
+                                    <span class="text-[10px] block">KTP</span>
+                                </div>
+                                <div id="progress-ktp" class="hidden">
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                                        <div class="bg-[#24b3ae] h-1.5 rounded-full animate-pulse w-full"></div>
+                                    </div>
+                                    <span
+                                        class="text-[8px] text-[#24b3ae] font-bold uppercase tracking-tighter">Memproses...</span>
+                                </div>
+                                <input type="file" id="foto-ktp" class="hidden" accept="image/*" capture="environment"
+                                    onchange="handleFileUpload(this, 'ktp')">
+                            </label>
+                            <p id="name-ktp" class="text-[8px] mt-1 text-gray-400 truncate px-1 italic"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Request / Catatan</label>
+                    <textarea id="input-catatan" rows="3"
+                        placeholder="Contoh: Request nomor cantik selama nomor yg di request masih tersedia..."
+                        class="w-full border rounded-xl p-3 outline-none focus:border-[#24b3ae] text-sm resize-none"></textarea>
+                </div>
+                <button onclick="validateAndGoToKonfirmasi()"
+                    class="w-full bg-[#24b3ae] text-white py-4 rounded-2xl font-bold shadow-lg mt-4">
+                    Lanjut Konfirmasi
+                </button>
+            </div>
+        </div>
+
+        <div id="konfirmasi-screen" class="hidden p-4">
+            <h2 class="text-xl font-bold mb-6">Review Pesanan</h2>
+            <div class="bg-white rounded-2xl p-5 mb-6 border border-[#24b3ae]">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-gray-600 italic" id="konf-service-name">Freedom Internet</span>
+                    <span class="font-bold" id="konf-service-price">Rp0</span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm text-gray-600">Biaya Admin</span>
+                    <span class="font-bold" id="konf-biaya-transaksi">Rp0</span>
+                </div>
+                <hr class="my-3 border-[#24b3ae]">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold">Total Pembayaran</span>
+                    <span class="text-xl font-black text-[#24b3ae]" id="konf-total">Rp0</span>
+                </div>
+            </div>
+
+            <p class="text-xs font-bold text-gray-400 uppercase mb-2">Pilih Metode Pembayaran</p>
+            <div onclick="showPaymentModal()"
+                class="flex justify-between items-center p-4 border rounded-xl bg-white mb-8 cursor-pointer shadow-sm">
+                <div class="flex items-center">
+                    <i data-lucide="wallet" class="w-5 h-5 mr-3 text-[#24b3ae]"></i>
+                    <span id="selected-payment-display" class="font-medium text-sm">QRIS</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+            </div>
+
+            <button onclick="simpanDataDanPesan()" id="pesan-sekarang-button"
+                class="w-full bg-[#24b3ae] text-white py-4 rounded-2xl font-bold shadow-xl">
+                BAYAR SEKARANG
+            </button>
+        </div>
+
+        <div id="vaPage" class="hidden absolute inset-0 bg-gray-50 z-50">
+            <div class="bg-white p-4 border-b flex items-center sticky top-0">
+                <i data-lucide="arrow-left" class="w-6 h-6 text-gray-600 cursor-pointer" onclick="goBackToInputs()"></i>
+                <span class="ml-4 font-bold">Instruksi Pembayaran VA</span>
+            </div>
+            <div class="p-4 space-y-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm space-y-3">
+                    <p id="va-bank-name" class="font-bold text-lg text-[#24b3ae] border-b pb-2">Bank VA</p>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase">Nama Akun</p>
+                        <p id="va-customer-name" class="font-bold uppercase tracking-wide"></p>
+                    </div>
+                    <div id="va-expiry-info-timer"
+                        class="text-xs text-red-500 font-bold bg-red-50 p-2 rounded text-center">Memuat sisa waktu...
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <p class="text-xs text-gray-400 mb-1">Nomor Virtual Account</p>
+                        <div class="flex justify-between items-center">
+                            <span id="va-number-display"
+                                class="text-xl font-bold tracking-widest text-gray-800">12345678</span>
+                            <button onclick="copyVaCode('va-number-display')"
+                                class="text-white bg-[#24b3ae] px-3 py-1 rounded text-xs font-bold">SALIN</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <p class="text-xs text-gray-400 mb-1">Nominal Transfer</p>
+                        <div class="flex justify-between items-center">
+                            <span id="va-total-amount" class="text-xl font-bold text-gray-800">Rp0</span>
+                            <button onclick="copyVaCode('va-total-amount')"
+                                class="text-white bg-[#24b3ae] px-3 py-1 rounded text-xs font-bold">SALIN</button>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="checkTransactionStatusManual()"
+                    class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-bold">Cek Status Pembayaran</button>
+            </div>
+        </div>
+
+        <div id="qrisPage" class="hidden absolute inset-0 bg-gray-50 z-50 overflow-y-auto">
+            <div class="bg-white p-4 border-b flex items-center">
+                <i data-lucide="arrow-left" class="w-6 h-6 text-gray-600 cursor-pointer" onclick="goBackToInputs()"></i>
+                <span class="ml-4 font-bold">QRIS OOREDOO</span>
+            </div>
+            <div class="p-4 text-center">
+                <div class="bg-white p-6 rounded-3xl shadow-sm mb-4">
+                    <div id="qrShimmer" class="w-64 h-64 mx-auto shimmer-effect rounded-2xl mb-4"></div>
+                    <img id="qrisImage" src=""
+                        class="hidden w-64 h-64 mx-auto border-2 border-[#24b3ae] p-2 rounded-2xl mb-4">
+
+                    <p class="text-2xl font-black text-gray-800" id="qris-total-amount">Rp0</p>
+                    <div id="qris-expiry-info-timer" class="text-xs text-red-500 font-bold mt-2">Timer...</div>
+
+                    <button id="downloadQR" onclick="handleDownloadQR()"
+                        class="hidden mt-4 flex items-center justify-center mx-auto border-2 border-[#24b3ae] text-[#24b3ae] px-6 py-2 rounded-full text-xs font-bold hover:bg-[#24b3ae] hover:text-white transition-all">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                        Unduh QR Code
+                    </button>
+                </div>
+                <button onclick="checkTransactionStatusManual()"
+                    class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-transform">
+                    SAYA SUDAH BAYAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-modal-overlay" class="modal-overlay" onclick="hidePaymentModal()">
+        <div id="payment-bottom-sheet" class="bottom-sheet" onclick="event.stopPropagation()">
+            <div class="p-6 pb-12">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-lg">Metode Pembayaran</h3>
+                    <i data-lucide="x" class="w-6 h-6 text-gray-300 cursor-pointer" onclick="hidePaymentModal()"></i>
+                </div>
+                <div id="payment-options-container" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay"
+        class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center">
+            <div class="w-12 h-12 border-4 border-gray-100 border-t-[#24b3ae] rounded-full animate-spin"></div>
+            <p class="mt-4 font-bold text-gray-700">Sedang Memproses...</p>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_SERVER_URL = "https://indosat.siappgo.id";
+        const PAYMENT_METHODS = [
+            { name: "QRIS", code: "QRIS", icon: "qr-code", type: "percent" },
+            { name: "VA BCA", code: "014", icon: "banknote", type: "fixed" },
+            { name: "VA BNI", code: "009", icon: "banknote", type: "fixed" },
+            { name: "VA BRI", code: "002", icon: "banknote", type: "fixed" },
+            { name: "VA Mandiri", code: "008", icon: "banknote", type: "fixed" },
+        ];
+
+        let orderData = {
+            paket: { nama: "", harga: 0 },
+            user: { nama: "", hp: "", nik: "", kk: "", email: "" },
+            metode: PAYMENT_METHODS[0],
+            total: 0,
+            biayaAdmin: 0, // TAMBAHKAN field untuk menyimpan biaya admin yang sudah dihitung
+            partner_reff: "" // Disimpan setelah create transaksi
+        };
+
+        let countdownInterval;
+
+        // FUNGSI UTAMA UI
+        function showScreen(id) {
+            ['layanan-screen', 'kontak-screen', 'konfirmasi-screen', 'vaPage', 'qrisPage'].forEach(s => {
+                const el = document.getElementById(s);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function goBackToInputs() { showScreen('konfirmasi-screen'); }
+
+        function selectPaket(nama, harga) {
+            orderData.paket = { nama, harga };
+            showScreen('kontak-screen');
+        }
+
+        // FUNGSI HANDLE UPLOAD & INDIKATOR
+        function handleFileUpload(input, type) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const label = document.getElementById(`label-${type}`);
+            const icon = document.getElementById(`icon-${type}`);
+            const progress = document.getElementById(`progress-${type}`);
+            const nameDisplay = document.getElementById(`name-${type}`);
+
+            icon.classList.add('hidden');
+            progress.classList.remove('hidden');
+            label.classList.add('border-[#24b3ae]', 'bg-[#f0f9f9]');
+
+            setTimeout(() => {
+                progress.classList.add('hidden');
+                icon.classList.remove('hidden');
+                icon.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 mx-auto mb-1 text-green-500"></i><span class="text-[10px] block text-green-500 font-bold uppercase">Siap</span>`;
+                nameDisplay.textContent = "📄 " + file.name;
+                lucide.createIcons();
+                showToast(`✅ ${type.toUpperCase()} Terpilih`);
+            }, 1000);
+        }
+
+        function validateAndGoToKonfirmasi() {
+            orderData.user.nama = document.getElementById('input-nama').value.trim();
+            orderData.user.hp = document.getElementById('input-hp').value.trim();
+            orderData.user.nik = document.getElementById('input-nik').value.trim();
+            orderData.user.kk = document.getElementById('input-kk').value.trim();
+            orderData.user.email = document.getElementById('input-email').value.trim();
+
+            // MENANGKAP INPUT CATATAN
+            const catatanInput = document.getElementById('input-catatan');
+            orderData.user.catatan = catatanInput ? catatanInput.value.trim() : "";
+
+            if (!orderData.user.nama || !orderData.user.hp || !orderData.user.nik) {
+                return showToast("⚠️ Lengkapi data Nama, HP, & NIK");
+            }
+
+            const ktp = document.getElementById('foto-ktp').files[0];
+            const selfie = document.getElementById('foto-selfie').files[0];
+            if (!ktp || !selfie) return showToast("⚠️ Upload KTP & Selfie dulu");
+
+            updateKonfirmasiDetails();
+            showScreen('konfirmasi-screen');
+        }
+
+        // FUNGSI YANG DIMODIFIKASI UNTUK PERHITUNGAN BIAYA ADMIN
+        function updateKonfirmasiDetails() {
+            let admin;
+
+            if (orderData.metode.code === '014') { // VA BCA
+                admin = 5000;
+            } else if (orderData.metode.code === 'QRIS') { // QRIS (persen)
+                admin = Math.round(orderData.paket.harga * 0.008);
+            } else { // VA Lain (fixed default)
+                admin = 2500;
+            }
+
+            orderData.biayaAdmin = admin; // Simpan biaya admin ke orderData
+            orderData.total = orderData.paket.harga + admin;
+
+            document.getElementById('konf-service-name').textContent = orderData.paket.nama;
+            document.getElementById('konf-service-price').textContent = formatRupiah(orderData.paket.harga);
+            document.getElementById('konf-biaya-transaksi').textContent = formatRupiah(admin);
+            document.getElementById('konf-total').textContent = formatRupiah(orderData.total);
+            document.getElementById('selected-payment-display').textContent = orderData.metode.name;
+        }
+
+        // FUNGSI KIRIM DATA KE BACKEND
+        async function simpanDataDanPesan() {
+            const loading = document.getElementById('loading-overlay');
+            loading.classList.replace('hidden', 'flex');
+
+            const formData = new FormData();
+            formData.append('nama', orderData.user.nama);
+            formData.append('email', orderData.user.email);
+            formData.append('nik', orderData.user.nik);
+            formData.append('kk', orderData.user.kk);
+            formData.append('nomorHp', orderData.user.hp);
+            formData.append('item', orderData.paket.nama);
+            formData.append('amount', orderData.total);
+            formData.append('method', orderData.metode.code);
+
+            // MENGGUNAKAN BIAYA ADMIN YANG SUDAH DIHITUNG DI updateKonfirmasiDetails
+            formData.append('biayaAdmin', orderData.biayaAdmin);
+
+            // MENAMBAHKAN CATATAN KE PAYLOAD
+            formData.append('catatan', orderData.user.catatan);
+
+            formData.append('ktp', document.getElementById('foto-ktp').files[0]);
+            formData.append('selfie', document.getElementById('foto-selfie').files[0]);
+
+            const isQris = orderData.metode.code === 'QRIS';
+            const endpoint = isQris ? '/create-qris' : '/create-va';
+
+            try {
+                const response = await fetch(`${BACKEND_SERVER_URL}${endpoint}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || "Gagal Request ke Server");
+
+                orderData.partner_reff = result.partner_reff;
+
+                if (isQris) {
+                    document.getElementById('qris-total-amount').textContent = formatRupiah(orderData.total);
+                    document.getElementById('qrisImage').src = result.imageqris;
+                    document.getElementById('qrisImage').classList.remove('hidden');
+                    document.getElementById('qrShimmer').classList.add('hidden');
+                    document.getElementById('downloadQR').classList.remove('hidden');
+                    showScreen('qrisPage');
+                } else {
+                    document.getElementById('va-bank-name').textContent = orderData.metode.name;
+                    document.getElementById('va-customer-name').textContent = orderData.user.nama;
+                    document.getElementById('va-number-display').textContent = result.virtual_account;
+                    document.getElementById('va-total-amount').textContent = formatRupiah(orderData.total);
+                    showScreen('vaPage');
+                }
+                startCountdown(result.expired, isQris ? 'qris-expiry-info-timer' : 'va-expiry-info-timer');
+
+            } catch (err) {
+                Swal.fire('Error', err.message, 'error');
+            } finally {
+                loading.classList.replace('flex', 'hidden');
+            }
+        }
+
+        // FUNGSI UNDUH QRIS (Tidak berubah)
+        async function handleDownloadQR() {
+            if (!orderData.partner_reff) return showToast("⚠️ Data tidak ditemukan");
+
+            const btn = document.getElementById('downloadQR');
+            const originalHTML = btn.innerHTML;
+
+            try {
+                btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i> Mengunduh...`;
+                lucide.createIcons();
+
+                const response = await fetch(`${BACKEND_SERVER_URL}/download-qr/${orderData.partner_reff}`);
+                if (!response.ok) throw new Error("Gagal mengunduh gambar");
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `QRIS-${orderData.partner_reff}.png`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showToast("✅ Berhasil diunduh");
+            } catch (e) {
+                showToast("❌ Gagal unduh QR");
+            } finally {
+                btn.innerHTML = originalHTML;
+                lucide.createIcons();
+            }
+        }
+
+        // CEK STATUS TRANSAKSI (Tidak berubah)
+        async function checkTransactionStatusManual() {
+            if (!orderData.partner_reff) return;
+
+            Swal.fire({
+                title: 'Mengecek Pembayaran...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const res = await fetch(`${BACKEND_SERVER_URL}/check-status/${orderData.partner_reff}`);
+                const data = await res.json();
+
+                // PENYESUAIAN LOGIKA: Cek 'rc' atau 'data.status_paid'
+                if (data.rc === '00' && (data.data.status_paid === 'paid' || data.data.status_trx === 'success')) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Pembayaran lunas. Paket Anda segera aktif.',
+                        confirmButtonText: 'Lanjut'
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Belum Bayar', 'Silakan selesaikan pembayaran Anda di aplikasi.', 'warning');
+                }
+            } catch (e) {
+                console.error(e);
+                Swal.fire('Error', 'Gagal cek status. Coba lagi nanti.', 'error');
+            }
+        }
+
+        // UTILS (Tidak berubah)
+        function startCountdown(expiry, elementId) {
+            clearInterval(countdownInterval);
+            const display = document.getElementById(elementId);
+
+            // expiry format: 20251214153000 (LinkQu format)
+            // Kita ubah menjadi format ISO dengan penanda zona waktu WIB (+07:00)
+            // Hasil format: 2025-12-14T15:30:00+07:00
+            const formattedExpiry = expiry.replace(
+                /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/,
+                '$1-$2-$3T$4:$5:$6+07:00'
+            );
+
+            const endTime = new Date(formattedExpiry).getTime();
+
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime(); // Waktu lokal HP user (sudah otomatis diconvert ke UTC oleh browser)
+                const dist = endTime - now;
+
+                if (dist <= 0) {
+                    display.innerHTML = '<span class="text-red-600 font-bold">WAKTU HABIS</span>';
+                    clearInterval(countdownInterval);
+                    // Opsional: Sembunyikan tombol bayar jika waktu habis
+                    return;
+                }
+
+                const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((dist % (1000 * 60)) / 1000);
+
+                // Menampilkan dengan format 00:00 agar lebih rapi
+                const displayM = m < 10 ? '0' + m : m;
+                const displayS = s < 10 ? '0' + s : s;
+
+                display.innerHTML = `SISA WAKTU BAYAR: <span class="font-mono font-bold">${displayM}:${displayS}</span>`;
+            }, 1000);
+        }
+
+        function formatRupiah(n) { return "Rp" + n.toLocaleString('id-ID'); }
+
+        function showToast(m) {
+            const t = document.getElementById('custom-toast');
+            t.textContent = m;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function copyVaCode(id) {
+            const txt = document.getElementById(id).textContent;
+            navigator.clipboard.writeText(txt);
+            showToast("✅ Nomor VA Tersalin");
+        }
+
+        function showPaymentModal() {
+            const container = document.getElementById('payment-options-container');
+            container.innerHTML = '';
+            PAYMENT_METHODS.forEach(m => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-4 border rounded-xl cursor-pointer hover:bg-gray-50 mb-2 transition-all active:scale-95";
+                div.innerHTML = `
+            <div class="flex items-center">
+                <i data-lucide="${m.icon}" class="w-5 h-5 mr-3 text-[#24b3ae]"></i> 
+                <span class="text-sm font-bold">${m.name}</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+        `;
+                div.onclick = () => {
+                    orderData.metode = m;
+                    updateKonfirmasiDetails();
+                    hidePaymentModal();
+                };
+                container.appendChild(div);
+            });
+            document.getElementById('payment-modal-overlay').style.display = 'block';
+            setTimeout(() => document.getElementById('payment-bottom-sheet').classList.add('show'), 10);
+            lucide.createIcons();
+        }
+
+        function hidePaymentModal() {
+            document.getElementById('payment-bottom-sheet').classList.remove('show');
+            setTimeout(() => document.getElementById('payment-modal-overlay').style.display = 'none', 300);
+        }
+
+        // Jalankan auto-cek setiap 15 detik (15000 ms)
+        const autoCheckInterval = setInterval(async () => {
+            if (!orderData.partner_reff) return;
+
+            try {
+                const res = await fetch(`${BACKEND_SERVER_URL}/check-status/${orderData.partner_reff}`);
+                const data = await res.json();
+
+                // Jika lunas
+                if (data.rc === '00' && data.data.status_paid === 'paid') {
+                    // Berhenti cek otomatis agar tidak looping
+                    clearInterval(autoCheckInterval);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran Diterima!',
+                        text: 'Halaman akan dimuat ulang...',
+                        showConfirmButton: false,
+                        timer: 3000
+                    }).then(() => location.reload());
+                }
+            } catch (e) {
+                console.log("Auto-check error (silent)");
+            }
+        }, 15000);
+
+        // Opsional: Hentikan interval jika user menutup halaman untuk menghemat RAM
+        window.onbeforeunload = () => clearInterval(autoCheckInterval);
+
+        window.onload = () => lucide.createIcons();
+    </script>
+</body>
+
+</html>
