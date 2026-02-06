@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Store | HiFi & Rabit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .bg-primary {
+            background-color: #24b3ae;
+        }
+
+        .text-primary {
+            color: #24b3ae;
+        }
+
+        .bg-secondary {
+            background-color: #e03f7d;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #24b3ae !important;
+            outline: none;
+            ring: 2px #24b3ae;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans" x-data="shopCart()">
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="shopping-bag" class="text-primary"></i>
+                <h1 class="text-2xl font-bold text-gray-800">Smart<span class="text-primary">Store</span></h1>
+            </div>
+            <div class="relative cursor-pointer" @click="showCart = !showCart">
+                <i data-lucide="shopping-cart" class="text-gray-600"></i>
+                <span
+                    class="absolute -top-2 -right-2 bg-secondary text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center"
+                    x-text="cart.length"></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <div
+            class="bg-primary rounded-2xl p-8 mb-12 text-white flex justify-between items-center overflow-hidden relative">
+            <div class="relative z-10">
+                <h2 class="text-3xl font-bold mb-2">Keamanan & Koneksi Terbaik</h2>
+                <p class="opacity-90">Koleksi CCTV PTZ Pro+ dan Modem High-Speed.</p>
+            </div>
+            <i data-lucide="wifi" class="w-32 h-32 absolute -right-4 opacity-20 rotate-12 text-white"></i>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <template x-for="product in products" :key="product.id">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group"
+                    x-data="{ 
+                        activeImg: 0, 
+                        images: typeof product.foto_produk === 'string' ? JSON.parse(product.foto_produk) : product.foto_produk,
+                        init() {
+                            if(this.images && this.images.length > 1) {
+                                setInterval(() => { this.activeImg = (this.activeImg + 1) % this.images.length }, 3000);
+                            }
+                        }
+                     }">
+
+                    <div class="relative w-full overflow-hidden bg-gray-100 rounded-[5px]">
+
+                        <template x-for="(img, index) in images" :key="index">
+                            <img :src="img" x-show="activeImg === index"
+                                x-transition:enter="transition ease-out duration-700"
+                                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                class="relative w-full h-auto object-contain block transition-transform duration-500 group-hover:scale-105"
+                                alt="Product Image">
+                        </template>
+
+                        <div class="absolute bottom-3 left-0 right-0 flex justify-center space-x-1.5 z-10"
+                            x-show="images.length > 1">
+                            <template x-for="(img, index) in images" :key="index">
+                                <div class="h-1 rounded-full transition-all duration-300"
+                                    :class="activeImg === index ? 'bg-primary w-5' : 'bg-black/20 w-1.5'"></div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <span class="text-[10px] uppercase tracking-widest font-bold text-primary"
+                            x-text="product.kategori"></span>
+                        <h3 class="font-semibold text-gray-800 mt-1 truncate" x-text="product.nama_produk"></h3>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2 h-8" x-text="product.deskripsi"></p>
+
+                        <div class="mt-4 flex justify-between items-center">
+                            <div>
+                                <span class="text-[10px] text-gray-400 block">Harga</span>
+                                <span class="font-bold text-lg text-gray-900">Rp <span
+                                        x-text="formatNumber(product.harga)"></span></span>
+                            </div>
+                            <button @click="addToCart(product)"
+                                class="bg-primary text-white p-2 rounded-lg hover:bg-opacity-90 transition-transform active:scale-95">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </main>
+
+    <div x-show="showCart" x-cloak class="fixed inset-0 z-[60]">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showCart = false"></div>
+        <div class="absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="shopping-cart" class="text-primary"></i>
+                    <h2 class="text-lg font-bold">Checkout</h2>
+                </div>
+                <button @click="showCart = false" class="p-2 hover:bg-gray-100 rounded-full"><i
+                        data-lucide="x"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar">
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Item Pesanan</h3>
+                    <template x-if="cart.length === 0">
+                        <p class="text-center py-4 text-gray-400 text-sm italic">Keranjang kosong</p>
+                    </template>
+                    <template x-for="(item, index) in cart" :key="index">
+                        <div class="flex items-center space-x-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                            <img :src="getThumbnail(item)" class="w-14 h-14 rounded-lg object-cover">
+                            <div class="flex-1">
+                                <h4 class="text-xs font-bold text-gray-800 truncate w-32" x-text="item.nama_produk">
+                                </h4>
+                                <p class="text-primary font-bold text-xs mt-1">Rp <span
+                                        x-text="formatNumber(cleanPrice(item.harga) * item.qty)"></span></p>
+                            </div>
+                            <div class="flex items-center bg-white border rounded-lg overflow-hidden">
+                                <button @click="updateQty(index, -1)" class="px-2 py-1 hover:bg-gray-100">-</button>
+                                <span class="px-2 text-xs font-bold" x-text="item.qty"></span>
+                                <button @click="updateQty(index, 1)" class="px-2 py-1 hover:bg-gray-100">+</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="space-y-4 border-t pt-6" x-show="cart.length > 0">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Informasi Pengiriman</h3>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 ml-1">NAMA LENGKAP</label>
+                            <input type="text" x-model="checkoutForm.nama" placeholder="Contoh: Budi Santoso"
+                                class="w-full p-3 bg-gray-50 border rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 ml-1">NO. WHATSAPP (AKTIF)</label>
+                            <input type="number" x-model="checkoutForm.no_hp" placeholder="0812..."
+                                class="w-full p-3 bg-gray-50 border rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 ml-1">EMAIL</label>
+                            <input type="email" x-model="checkoutForm.email" placeholder="budi@email.com"
+                                class="w-full p-3 bg-gray-50 border rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 ml-1">ALAMAT LENGKAP / CATATAN</label>
+                            <textarea x-model="checkoutForm.alamat" rows="3" placeholder="Jl. Merdeka No. 1..."
+                                class="w-full p-3 bg-gray-50 border rounded-xl text-sm"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 ml-1">LINK SHARELOCK (OPSIONAL)</label>
+                            <input type="url" x-model="checkoutForm.sharelock" placeholder="https://maps.app.goo.gl/..."
+                                class="w-full p-3 bg-gray-50 border rounded-xl text-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-white border-t shadow-[0_-4px_10px_rgba(0,0,0,0.05)]" x-show="cart.length > 0">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-500 font-medium">Total Tagihan</span>
+                    <span class="text-primary text-xl font-black">Rp <span
+                            x-text="formatNumber(totalPrice())"></span></span>
+                </div>
+
+                <button @click="doCheckout()" :disabled="loading || !isFormValid()"
+                    class="w-full bg-secondary text-white py-4 rounded-2xl font-bold flex justify-center items-center shadow-lg shadow-pink-200 active:scale-95 disabled:opacity-50 disabled:grayscale transition-all">
+                    <span x-show="!loading">Bayar Sekarang</span>
+                    <span x-show="loading" class="flex items-center"><i data-lucide="loader-2"
+                            class="animate-spin mr-2"></i> Memproses...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="paymentData" x-cloak
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-8 text-center shadow-2xl" x-transition>
+            <div
+                class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="qr-code" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Scan untuk Membayar</h3>
+            <p class="text-sm text-gray-500 mb-6">Silakan selesaikan pembayaran agar pesanan segera kami proses.</p>
+
+            <div class="bg-white p-4 border-2 border-primary rounded-2xl inline-block mb-6 shadow-md">
+                <template x-if="paymentData?.payment_info?.imageqris">
+                    <img :src="paymentData.payment_info.imageqris" class="w-48 h-48 mx-auto">
+                </template>
+            </div>
+
+            <button @click="paymentData = null; showCart = false; cart = []"
+                class="bg-primary text-white w-full py-3 rounded-xl font-bold shadow-lg shadow-teal-100 transition">Saya
+                Sudah Bayar</button>
+        </div>
+    </div>
+
+    <script>
+        function shopCart() {
+            return {
+                products: [],
+                cart: [],
+                showCart: false,
+                loading: false,
+                paymentData: null,
+                checkoutForm: {
+                    nama: '',
+                    no_hp: '',
+                    email: '',
+                    alamat: '',
+                    sharelock: '',
+                    method: 'QRIS'
+                },
+                async init() {
+                    try {
+                        const resp = await fetch('https://cctv.siappgo.id/products');
+                        this.products = await resp.json();
+                        this.$nextTick(() => lucide.createIcons());
+                    } catch (e) { console.error("Load failed", e); }
+                },
+                isFormValid() {
+                    return this.checkoutForm.nama.length > 2 &&
+                        this.checkoutForm.no_hp.length > 8 &&
+                        this.checkoutForm.alamat.length > 5;
+                },
+                cleanPrice(val) {
+                    if (typeof val === 'number') return val;
+                    return parseInt(val.replace(/\./g, '')) || 0;
+                },
+                formatNumber(val) {
+                    return this.cleanPrice(val).toLocaleString('id-ID');
+                },
+                getThumbnail(item) {
+                    const imgs = typeof item.foto_produk === 'string' ? JSON.parse(item.foto_produk) : item.foto_produk;
+                    return imgs ? imgs[0] : 'https://via.placeholder.com/150';
+                },
+                addToCart(p) {
+                    let item = this.cart.find(i => i.id === p.id);
+                    if (item) item.qty++;
+                    else this.cart.push({ ...p, qty: 1 });
+                    this.showCart = true;
+                },
+                updateQty(idx, v) {
+                    this.cart[idx].qty += v;
+                    if (this.cart[idx].qty < 1) this.cart.splice(idx, 1);
+                },
+                totalPrice() {
+                    return this.cart.reduce((s, i) => s + (this.cleanPrice(i.harga) * i.qty), 0);
+                },
+                async doCheckout() {
+                    this.loading = true;
+                    try {
+                        const resp = await fetch('https://cctv.siappgo.id/checkout-and-pay', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...this.checkoutForm,
+                                items: this.cart.map(i => ({
+                                    produk_id: i.id,
+                                    qty: i.qty,
+                                    harga: this.cleanPrice(i.harga)
+                                })),
+                                total_bayar: this.totalPrice()
+                            })
+                        });
+                        const result = await resp.json();
+                        this.paymentData = result;
+                        this.$nextTick(() => lucide.createIcons());
+                    } catch (e) {
+                        alert("Gagal memproses pembayaran. Silakan coba lagi.");
+                    } finally { this.loading = false; }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
