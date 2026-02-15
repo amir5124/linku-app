@@ -3288,12 +3288,15 @@ this.vaBankName = selectedBank ? selectedBank.name : bankCode;
 this.vaBankName = 'QRIS';
 }
 
+const firstPax = this.passengers[0];
+const fullName = firstPax ? `${firstPax.firstName} ${firstPax.lastName}`.trim() : 'Guest';
+
 const payload = {
 booking_id: this.bookingData.id,
 amount: finalAmount,
-customer_name: this.bookingData.pengguna || 'Guest',
-customer_phone: this.bookingData.phone || '',
-customer_email: this.bookingData.email || 'customer@email.com',
+customer_name: fullName || 'Guest', // Diambil dari input Nama Depan + Belakang
+customer_phone: this.contactData.phone || '', // Diambil dari x-model contactData
+customer_email: this.contactData.email || '', // Diambil dari x-model contactData
 method: method,
 bank_code: bankCode
 };
@@ -3848,4 +3851,5 @@ this.loading = false;
 </script>
 
 </body>
+
 </html>
