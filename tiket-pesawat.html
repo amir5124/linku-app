@@ -542,9 +542,15 @@ type="number" x-model="p.IDNumber" placeholder="NIK / No KTP"
 class="w-full p-3 border border-slate-200 rounded-lg outline-none tracking-widest focus:border-[#24b3ae]" />
 <div class="grid grid-cols-2 gap-4">
 <div>
-<label class="text-[8px] font-bold text-gray-400 mb-1 block">TANGGAL
-LAHIR</label><input type="date" x-model="p.birthDate"
-class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 text-xs font-bold focus:border-[#24b3ae]" />
+<label
+class="text-[8px] font-bold text-gray-400 mb-1 block uppercase tracking-wider">
+TANGGAL LAHIR
+</label>
+<input type="date" x-model="p.birthDate" min="1940-01-01" max="2026-12-31"
+@click="$el.showPicker()"
+class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 text-xs font-bold focus:border-[#24b3ae] outline-none cursor-pointer" />
+<p class="text-[7px] text-gray-400 mt-1 italic">*Klik ikon kalender atau teks untuk
+memilih tahun</p>
 </div>
 <div>
 <label class="text-[8px] font-bold text-gray-400 mb-1 block">GENDER</label><select
@@ -1626,6 +1632,18 @@ favorit Anda.</p>
 </div>
 </div>
 
+<div class="mb-6 space-y-2 text-left bg-slate-50 p-4 border border-slate-200">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Total Tagihan</span>
+<span class="font-bold text-slate-800"
+x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBayar)"></span>
+</div>
+<div class="flex justify-between text-[10px] text-orange-600 italic">
+<span>*Termasuk Biaya Admin QRIS (0.7%)</span>
+<span x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(additionalAdminFee)"></span>
+</div>
+</div>
+
 <div class="bg-amber-50 p-4 border-l-4 border-amber-500 text-left mb-6">
 <div class="text-amber-800 font-bold text-sm mb-1 uppercase italic">Instruksi:</div>
 <ul class="text-xs text-amber-700 space-y-1 font-medium">
@@ -1671,6 +1689,11 @@ class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white px-4 py-2 border sh
 <div class="flex justify-between text-sm border-b pb-2">
 <span class="text-slate-500 font-medium">Metode Pembayaran</span>
 <span class="font-black text-slate-800 uppercase" x-text="'VA ' + vaBankName"></span>
+</div>
+<div class="flex justify-between text-sm border-b pb-2">
+<span class="text-slate-500 font-medium">Biaya Admin</span>
+<span class="font-bold text-slate-800"
+x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(additionalAdminFee)"></span>
 </div>
 <div class="flex justify-between text-sm border-b pb-2">
 <span class="text-slate-500 font-medium">Total Tagihan</span>
@@ -2293,6 +2316,7 @@ vaNumber: '', // Tempat menyimpan nomor VA dari backend
 vaBankName: '',
 bookingResult: null,
 bookingResultReturn: null,
+additionalAdminFee: 0,
 bookingData: {
 id: null,
 pengguna: '',
@@ -3261,27 +3285,50 @@ this.loading = false;
 selectPayment(method, bankCode = null) {
 console.log(`%c [PAYMENT START] Method: ${method} | Bank: ${bankCode}`, 'background: #222; color: #bada55');
 
-// 1. Ambil data booking
 const data = this.bookingDetail || this.bookingResult;
-
 if (!data || !this.bookingData.id) {
 this.showToast("Data booking tidak ditemukan!", "error");
 return;
 }
 
-// 2. Hitung Nominal Bayar (Sinkron dengan rumus UI kamu)
+// 1. Mapping Biaya Admin Berdasarkan Kode Bank (Angka sesuai Log)
+const adminFeeMapping = {
+'014': 4500, // BCA
+'009': 2500, // BNI
+'002': 2000, // BRI
+'451': 2500, // BSI
+'008': 2000, // MANDIRI
+'028': 1000, // OCBC
+'011': 1500, // DANAMON
+'013': 1500, // PERMATA
+'INDOMARET': 1000,
+'ALFAMART': 1000
+};
+
+// 2. Hitung Dasar Nominal (Harga + Admin Jagel - Diskon Komisi 50%)
 const ticketPrice = Number(data.adminFee?.ticketPrice || data.total_price || 0);
 const salesPrice = Number(data.adminFee?.salesPrice || data.sales_price || 0);
 const adminJagel = Number(this.biayaAdminJagel || 0);
 const komisi = ticketPrice - salesPrice;
 
-// Hitung final amount dengan diskon komisi 50%
-const finalAmount = Math.ceil((ticketPrice + adminJagel) - (komisi * 0.5));
-this.totalBayar = finalAmount;
+// Nominal dasar sebelum biaya bank/qris tambahan
+const baseAmount = (ticketPrice + adminJagel) - (komisi * 0.5);
+
+// 3. Logika Perhitungan Biaya Tambahan (Simpan ke this. agar UI update)
+if (method === 'QRIS') {
+// Biaya QRIS 0,7% dari total dasar
+this.additionalAdminFee = Math.ceil(baseAmount * 0.007);
+} else {
+// Biaya VA sesuai mapping bank (pastikan bankCode diproses sebagai string)
+const code = bankCode ? bankCode.toString().trim() : '';
+this.additionalAdminFee = adminFeeMapping[code] || 0;
+}
+
+// 4. Set total bayar ke state
+this.totalBayar = Math.ceil(baseAmount + this.additionalAdminFee);
 
 // --- LOGIKA MENCARI NAMA BANK ---
 if (method === 'VA' && bankCode) {
-// Cari di bankList yang ada di state
 const selectedBank = this.bankList.find(b => b.code === bankCode);
 this.vaBankName = selectedBank ? selectedBank.name : bankCode;
 } else if (method === 'QRIS') {
@@ -3293,15 +3340,16 @@ const fullName = firstPax ? `${firstPax.firstName} ${firstPax.lastName}`.trim() 
 
 const payload = {
 booking_id: this.bookingData.id,
-amount: finalAmount,
-customer_name: fullName || 'Guest', // Diambil dari input Nama Depan + Belakang
-customer_phone: this.contactData.phone || '', // Diambil dari x-model contactData
-customer_email: this.contactData.email || '', // Diambil dari x-model contactData
+amount: this.totalBayar,
+customer_name: fullName,
+customer_phone: this.contactData.phone || '',
+customer_email: this.contactData.email || '',
 method: method,
-bank_code: bankCode
+bank_code: bankCode,
+admin_fee_applied: this.additionalAdminFee
 };
 
-console.log("📤 Sending Payload to Backend:", payload);
+console.log(`📤 Final Amount: ${this.totalBayar} (Admin: ${this.additionalAdminFee})`);
 this.isLoading = true;
 
 fetch('https://darma.siappgo.id/api/create', {
@@ -3320,28 +3368,21 @@ this.currentPartnerReff = res.partner_reff;
 const paymentData = res.data;
 
 if (method === 'QRIS') {
-// Gunakan imageqris sesuai response LinkQu terbaru
 this.qrisImage = paymentData.imageqris || paymentData.qr_url || paymentData.qr_data;
 this.paymentStep = 'show_qris';
-console.log("🖼 QRIS Image URL:", this.qrisImage);
 } else {
-// VA: Gunakan virtual_account
 this.vaNumber = paymentData.virtual_account || paymentData.va_number || paymentData.payment_code;
-// this.vaBankName sudah kita set di atas sebelum fetch
 this.paymentStep = 'show_va';
-console.log(`💳 VA ${this.vaBankName} Created:`, this.vaNumber);
 }
-
 this.startPollingStatus(res.partner_reff);
 }
 })
 .catch(err => {
-console.error("❌ Error on selectPayment:", err.message);
+console.error("❌ Error:", err.message);
 this.showToast("Gagal memproses pembayaran: " + err.message, "error");
 })
 .finally(() => {
 this.isLoading = false;
-// Re-render icon lucide setelah perubahan DOM
 this.$nextTick(() => {
 if (typeof lucide !== 'undefined') lucide.createIcons();
 });
