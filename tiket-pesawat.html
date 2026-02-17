@@ -3389,75 +3389,99 @@ if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 },
 startPollingStatus(reff) {
-console.log("⏳ Memulai pemantauan status pembayaran:", reff);
-if (this.paymentInterval) clearInterval(this.paymentInterval);
+    console.log("⏳ Memulai pemantauan status pembayaran:", reff);
+    if (this.paymentInterval) clearInterval(this.paymentInterval);
 
-this.paymentInterval = setInterval(async () => {
-try {
-const response = await fetch(`https://darma.siappgo.id/api/status/${reff}`);
+    this.paymentInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`https://darma.siappgo.id/api/status/${reff}`);
 
-// Jika server error (500), jangan crash di console, tunggu interval berikutnya
-if (!response.ok) {
-console.warn("⚠️ Server belum siap/error 500, mencoba lagi...");
-return;
-}
+            if (!response.ok) {
+                console.warn("⚠️ Server belum siap/error 500, mencoba lagi...");
+                return;
+            }
 
-const result = await response.json();
-console.log("🔄 Cek Status LinkQu:", result.status);
+            const result = await response.json();
+            console.log("🔄 Cek Status LinkQu:", result.status);
 
-if (result.status === "SUCCESS" || result.status === "SETTLED") {
-clearInterval(this.paymentInterval);
-this.showToast("Pembayaran Berhasil! Menerbitkan tiket...", "success");
+            if (result.status === "SUCCESS" || result.status === "SETTLED") {
+                clearInterval(this.paymentInterval);
+                this.showToast("Pembayaran Berhasil! Menerbitkan tiket...", "success");
 
-try {
-await this.issueTicket();
-this.showConfirmModal = false;
-setTimeout(() => { window.location.reload(); }, 3000);
-} catch (issueErr) {
-this.showToast("Pembayaran Sukses, Gagal Terbit Otomatis.", "warning");
-}
-}
-} catch (e) {
-// Error network/fetch, abaikan dan coba lagi di interval berikutnya
-console.error("Polling Network Error:", e.message);
-}
-}, 5000); // Cek setiap 5 detik
+                try {
+                    // Eksekusi issue ticket
+                    const issueResult = await this.issueTicket();
+                    
+                    // Tutup modal pembayaran
+                    this.showConfirmModal = false;
+
+                    // ARAHKAN KE STEP E-TICKET
+                    // Pastikan data hasil issue disimpan ke bookingDetail agar UI terupdate
+                    if (issueResult && issueResult.data) {
+                        this.bookingDetail = { ...this.bookingDetail, ...issueResult.data };
+                    }
+                    
+                    this.step = 'e-ticket'; 
+                    this.showToast("E-Ticket berhasil terbit!", "success");
+
+                    // Opsional: Re-render icon lucide jika digunakan
+                    if (window.lucide) {
+                        setTimeout(() => lucide.createIcons(), 100);
+                    }
+
+                } catch (issueErr) {
+                    console.error("Issue Error:", issueErr);
+                    this.showToast("Pembayaran Sukses, Gagal Terbit Otomatis.", "warning");
+                    // Tetap pindah ke e-ticket tapi status mungkin masih 'PENDING'
+                    this.step = 'e-ticket';
+                }
+            }
+        } catch (e) {
+            console.error("Polling Network Error:", e.message);
+        }
+    }, 5000); 
 },
 
 async issueTicket() {
-// Gunakan data dari detail atau hasil booking terbaru
-const data = this.bookingDetail || this.bookingResult;
-if (!data) throw new Error("Data booking tidak ditemukan");
+    const data = this.bookingDetail || this.bookingResult;
+    if (!data) throw new Error("Data booking tidak ditemukan");
 
-console.log("🎟 Mengirim permintaan Issued untuk:", data.bookingCode);
+    console.log("🎟 Mengirim permintaan Issued untuk:", data.bookingCode);
 
-try {
-const res = await fetch('https://darma.siappgo.id/api/flights/issued-ticket', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-airlineID: data.airlineID,
-origin: (data.origin || "").substring(0, 3),
-destination: (data.destination || "").substring(0, 3),
-tripType: data.tripType || "OneWay",
-departDate: data.departDate,
-returnDate: data.returnDate || "0001-01-01T00:00:00",
-bookingCode: data.bookingCode,
-bookingDate: (data.bookingDate || "").split('.')[0],
-airlineAccessCode: data.airlineID,
-userID: "CF0X64HBR8"
-})
-});
+    try {
+        const res = await fetch('https://darma.siappgo.id/api/flights/issued-ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                airlineID: data.airlineID,
+                origin: (data.origin || "").substring(0, 3),
+                destination: (data.destination || "").substring(0, 3),
+                tripType: data.tripType || "OneWay",
+                departDate: data.departDate,
+                returnDate: data.returnDate || "0001-01-01T00:00:00",
+                bookingCode: data.bookingCode,
+                bookingDate: (data.bookingDate || "").split('.')[0],
+                airlineAccessCode: data.airlineID,
+                userID: "CF0X64HBR8"
+            })
+        });
 
-const result = await res.json();
-if (result.status !== "SUCCESS") {
-throw new Error(result.respMessage || "Gagal issued ke maskapai.");
-}
+        const result = await res.json();
+        
+        // Cek status sukses dari vendor maskapai
+        if (result.status !== "SUCCESS") {
+            throw new Error(result.respMessage || "Gagal issued ke maskapai.");
+        }
 
-return result;
-} catch (e) {
-throw e;
-}
+        // Perbarui status tiket lokal agar tampilan LUNAS/TICKETED muncul
+        if (this.bookingDetail) {
+            this.bookingDetail.ticketStatus = 'TICKETED';
+        }
+
+        return result; // Mengembalikan hasil agar startPollingStatus bisa membaca datanya
+    } catch (e) {
+        throw e;
+    }
 },
 
 downloadQR(url, reff) {
