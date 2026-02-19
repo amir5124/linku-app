@@ -2885,8 +2885,8 @@
                             // Fallback properti referensi
                             journeyDepartReference: f1.journeyReference || f1.journeyDepartReference,
                             journeyReturnReference: f2 ? (f2.journeyReference || f2.journeyReturnReference) : null,
-                            userID: "CF0X64HBR8",
-                            accessToken: "b5091f4209dc69aad82b606f636890dc" // Pastikan token terbaru ikut dikirim
+                            userID: "S8MFEIKENB",
+                            accessToken: "" // Pastikan token terbaru ikut dikirim
                         };
                     } else {
                         // --- MODE REGULAR (SINGLE AIRLINE) ---
@@ -2902,7 +2902,7 @@
                             paxInfant: this.paxCount.infant,
                             schDeparts: schDeparts,
                             schReturns: schReturns,
-                            userID: "CF0X64HBR8"
+                            userID: "S8MFEIKENB"
                         };
                     }
 
@@ -3021,7 +3021,7 @@
                                 };
                             }),
                             insurance: true,
-                            userID: "CF0X64HBR8",
+                            userID: "S8MFEIKENB",
                             accessToken: this.priceResult.accessToken || ""
                         };
 
@@ -3187,7 +3187,7 @@
                         }),
                         searchKey: priceData?.searchKey || null,
                         insurance: false,
-                        userID: "CF0X64HBR8",
+                        userID: "S8MFEIKENB",
                         accessToken: this.priceResult.accessToken || ""
                     };
                 },
@@ -3536,7 +3536,7 @@
                                 bookingCode: data.bookingCode,
                                 bookingDate: (data.bookingDate || "").split('.')[0],
                                 airlineAccessCode: data.airlineID,
-                                userID: "CF0X64HBR8"
+                                userID: "S8MFEIKENB"
                             })
                         });
 
