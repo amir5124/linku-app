@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ondelive Hotel Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes bounce-custom {
+
+            0%,
+            100% {
+                transform: translateY(-10px);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .dot-pulse {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #0194f3;
+            border-radius: 50%;
+            animation: wave 1.2s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes wave {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+    <div x-data="hotelApp()" x-init="init()" x-cloak>
+
+        <div class="fixed top-5 left-1/2 -translate-x-1/2 z-[600] w-full max-w-xs space-y-2 px-4">
+            <template x-for="toast in toasts" :key="toast.id">
+                <div x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform -translate-y-2"
+                    x-transition:enter-end="opacity-100 transform translate-y-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 transform translate-y-0"
+                    x-transition:leave-end="opacity-0 transform -translate-y-2"
+                    class="bg-slate-800 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 border-l-4 border-orange-500">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-orange-400"></i>
+                    <p class="text-[11px] font-bold uppercase tracking-tight" x-text="toast.message"></p>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="loading" x-cloak
+            class="fixed inset-0 bg-black/75 flex flex-col items-center justify-center z-[500] font-bold text-center p-6">
+            <div class="dot-pulse mb-4">
+                <div class="dot !bg-white"></div>
+                <div class="dot !bg-white"></div>
+                <div class="dot !bg-white"></div>
+            </div>
+            <p class="text-white text-sm tracking-widest uppercase italic">Sedang Memproses...</p>
+        </div>
+
+        <div class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-2xl relative overflow-hidden">
+
+            <template x-if="stage === 'search'">
+                <div class="pb-10">
+                    <div class="relative h-60 bg-blue-600">
+                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80"
+                            class="w-full h-full object-cover opacity-70">
+                        <div class="absolute bottom-16 left-6 text-white">
+                            <h1 class="text-2xl font-bold uppercase tracking-tighter italic">Booking Hotel</h1>
+                            <p class="text-sm opacity-90">Cari penginapan terbaik di seluruh dunia</p>
+                        </div>
+                    </div>
+                    <div class="relative -mt-10 px-4">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 space-y-6">
+                            <div x-on:click="openModal('destination')" class="border-b pb-3 cursor-pointer">
+                                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pilih
+                                    Destinasi</label>
+                                <div class="flex items-center gap-3 mt-1 text-blue-600 font-bold">
+                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                    <span class="text-slate-700" x-text="search.cityName"></span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div x-on:click="openModal('date')" class="border-b pb-3 cursor-pointer">
+                                    <label
+                                        class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Check-In</label>
+                                    <div class="flex items-center gap-2 mt-1"><i data-lucide="calendar"
+                                            class="w-4 h-4 text-slate-400"></i><span
+                                            class="font-bold text-slate-700 text-sm"
+                                            x-text="formatDisplayDate(search.checkInDate)"></span></div>
+                                </div>
+                                <div x-on:click="openModal('duration')" class="border-b pb-3 cursor-pointer">
+                                    <label
+                                        class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Durasi</label>
+                                    <div
+                                        class="flex items-center gap-2 mt-1 font-bold text-slate-700 text-sm underline decoration-blue-200">
+                                        <span x-text="search.duration + ' Malam'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-on:click="openModal('guest')" class="border-b pb-3 cursor-pointer">
+                                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Kamar &
+                                    Tamu</label>
+                                <div class="flex items-center gap-3 mt-1 text-slate-400"><i data-lucide="users"
+                                        class="w-5 h-5"></i><span class="font-bold text-slate-700 text-sm"
+                                        x-text="getGuestSummary()"></span></div>
+                            </div>
+                            <button x-on:click="performSearch()"
+                                class="w-full bg-[#0194f3] h-14 rounded-full text-white font-bold shadow-lg transition-all active:scale-95 uppercase">Cari
+                                Sekarang</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="stage === 'results'">
+                <div class="bg-gray-100 min-h-screen">
+                    <div
+                        class="fixed top-0 left-0 right-0 bg-[#0194f3] text-white p-4 z-[100] shadow-md flex items-center gap-3 max-w-md mx-auto">
+                        <button x-on:click="stage = 'search'" class="p-1 hover:bg-blue-700 rounded-full transition">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <div class="flex-1">
+                            <h2 class="font-bold text-base leading-tight text-white"
+                                x-text="search.cityName + ': ' + hotelList.length + ' Properti'"></h2>
+                            <p class="text-[10px] opacity-90"
+                                x-text="formatDisplayDate(search.checkInDate) + ' • ' + search.duration + ' Malam'"></p>
+                        </div>
+                    </div>
+
+                    <div class="pt-14">
+                    </div>
+                    <div class="px-3 space-y-4 pt-4 pb-10">
+                        <template x-for="(hotel, index) in hotelList" :key="index">
+                            <div x-on:click="getAvailableRooms(hotel)"
+                                class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 cursor-pointer active:scale-[0.98] transition-all">
+                                <div class="relative h-48">
+                                    <img :src="hotel.logo" class="w-full h-full object-cover bg-gray-200"
+                                        @error="$el.src=''">
+                                    <template x-if="hotel.promoCode">
+                                        <div
+                                            class="absolute top-3 left-3 bg-red-600 text-white text-[10px] px-2 py-1 rounded font-black shadow-lg">
+                                            PROMO: <span x-text="hotel.promoCode"></span></div>
+                                    </template>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h3 class="font-bold text-slate-800 text-lg leading-tight flex-1"
+                                            x-text="hotel.name"></h3>
+                                        <div class="text-right ml-2 text-blue-600 font-bold text-base"
+                                            x-text="hotel.ratingAverage || '9.0'"></div>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 mb-2 truncate" x-text="hotel.address"></p>
+                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed italic mb-3"
+                                        x-text="hotel.message"></p>
+                                    <div class="border-t border-dashed pt-3 text-right">
+                                        <p class="text-xl font-black text-[#ff5e1f]"
+                                            x-text="'Rp ' + hotel.priceStart.toLocaleString('id-ID')"></p>
+                                        <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">Termasuk Pajak</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="stage === 'detail'">
+                <div class="bg-white min-h-screen pb-32 overflow-y-auto no-scrollbar">
+                    <div class="relative h-64">
+                        <img :src="selectedHotel.logo" class="w-full h-full object-cover shadow-inner">
+                        <div class="absolute top-4 left-4">
+                            <button x-on:click="stage = 'results'"
+                                class="p-2 bg-black/40 rounded-full text-white shadow-lg"><i data-lucide="arrow-left"
+                                    class="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="p-4 -mt-6 relative bg-white rounded-t-3xl border-t shadow-2xl">
+                        <h1 class="text-xl font-bold text-slate-800" x-text="selectedHotel.name"></h1>
+                        <div class="mt-4 p-3 bg-slate-50 rounded-xl border">
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Tentang
+                                Hotel</h4>
+                            <div class="relative">
+                                <p class="text-[11px] text-slate-600 leading-relaxed transition-all duration-300"
+                                    :class="showFullMessage ? '' : 'line-clamp-3'" x-html="selectedHotel.message"></p>
+                                <button x-on:click="showFullMessage = !showFullMessage"
+                                    class="text-[11px] font-bold text-blue-600 mt-1 flex items-center gap-1">
+                                    <span x-text="showFullMessage ? 'Sembunyikan' : 'Lihat Selengkapnya'"></span>
+                                    <i data-lucide="chevron-down" class="w-3 h-3 transition-transform duration-300"
+                                        :class="showFullMessage ? 'rotate-180' : ''"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 space-y-4">
+                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b pb-1">
+                                Fasilitas Utama</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <template x-for="group in selectedHotel.facility" :key="group.facilityGroupName">
+                                    <div class="flex items-start gap-2">
+                                        <i data-lucide="check-circle" class="w-3 h-3 text-green-500 mt-0.5"></i>
+                                        <span class="text-[10px] text-slate-600 font-bold"
+                                            x-text="group.facilityGroupName"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50/50 p-4 font-black text-blue-600 text-xs uppercase tracking-widest border-y">
+                        Kamar Tersedia</div>
+
+                    <div class="p-4 space-y-6">
+                        <template x-for="room in roomList" :key="room.ID">
+                            <div class="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+                                <div class="relative h-44">
+                                    <img :src="'https://darma.siappgo.id/api/hotels/room-image?RoomID=' + selectedHotel.ID.split('~')[0] + '-' + room.ID.split('|')[0]"
+                                        class="w-full h-full object-cover bg-slate-50" @error="$el.src=''">
+                                    <div class="absolute bottom-3 left-3 bg-white/90 px-3 py-1 rounded-full text-[10px] font-black shadow-sm"
+                                        x-text="room.breakfast"></div>
+                                </div>
+                                <div class="p-5">
+                                    <h4 class="font-bold text-slate-800 text-sm uppercase mb-4" x-text="room.name"></h4>
+                                    <div class="flex justify-between items-end border-t pt-4 border-dashed">
+
+                                        <div class="flex-1 pr-4">
+                                            <div class="flex flex-wrap gap-1">
+                                                <template x-for="(fac, fIdx) in (room.facilites || []).slice(0, 4)"
+                                                    :key="fIdx">
+                                                    <span
+                                                        class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tighter"
+                                                        x-text="fac"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-right shrink-0">
+                                            <p class="text-xl font-black text-[#ff5e1f]"
+                                                x-text="'Rp ' + room.price.toLocaleString('id-ID')"></p>
+                                            <button x-on:click="openBookingPage(room)"
+                                                class="mt-2 bg-[#ff5e1f] text-white px-8 py-2.5 rounded-xl font-black text-xs active:scale-95 uppercase tracking-widest">Pilih</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="stage === 'booking'">
+                <div class="bg-gray-50 min-h-screen pb-32 overflow-y-auto no-scrollbar">
+                    <div
+                        class="fixed top-0 left-0 right-0 bg-[#0194f3] text-white p-4 z-[110] shadow-md flex items-center gap-3 max-w-md mx-auto">
+                        <button x-on:click="stage = 'detail'" class="p-1 hover:bg-blue-800 rounded-full transition">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <h2 class="font-black text-sm uppercase tracking-widest italic flex-1">Konfirmasi Pesanan</h2>
+                    </div>
+
+                    <div class="pt-14">
+                    </div>
+
+                    <div class="p-4 space-y-4">
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                            <h3 class="font-black text-xs text-blue-600 uppercase mb-2 italic"
+                                x-text="selectedHotel.name"></h3>
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200">
+                                <p class="text-[11px] font-black text-slate-700 uppercase" x-text="selectedRoom.name">
+                                </p>
+                                <div class="flex justify-between mt-2 text-[10px] font-bold text-slate-500 uppercase">
+                                    <span>Check-in</span>
+                                    <span x-text="formatDisplayDate(search.checkInDate)"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+                            <h3 class="font-black text-xs text-slate-800 uppercase italic">Kontak Pemesan</h3>
+                            <div class="space-y-3">
+                                <input type="email" x-model="bookingData.contactEmail" placeholder="Email (Wajib Diisi)"
+                                    class="w-full bg-slate-50 border rounded-2xl p-3 text-sm font-bold outline-none focus:border-blue-400">
+                                <input type="text" x-model="bookingData.contactPhone"
+                                    placeholder="Nomor WA (Wajib Diisi)"
+                                    class="w-full bg-slate-50 border rounded-2xl p-3 text-sm font-bold outline-none focus:border-blue-400">
+                            </div>
+                        </div>
+
+                        <template x-for="(pax, pIdx) in bookingData.paxes" :key="pIdx">
+                            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+                                <h3 class="font-black text-xs text-blue-600 uppercase italic"
+                                    x-text="'Informasi Tamu ' + (pIdx + 1)"></h3>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <select x-model="pax.title"
+                                        class="bg-slate-50 border rounded-xl p-2.5 text-xs font-bold outline-none uppercase italic">
+                                        <option value="Mr.">Mr.</option>
+                                        <option value="Mrs.">Mrs.</option>
+                                        <option value="Ms.">Ms.</option>
+                                    </select>
+                                    <input type="text" x-model="pax.firstName" placeholder="Nama Depan *"
+                                        class="col-span-2 bg-slate-50 border rounded-xl p-2.5 text-xs font-bold outline-none uppercase tracking-tighter">
+                                </div>
+                                <input type="text" x-model="pax.lastName" placeholder="Nama Belakang *"
+                                    class="w-full bg-slate-50 border rounded-xl p-2.5 text-xs font-bold outline-none uppercase tracking-tighter">
+                            </div>
+                        </template>
+
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                            <textarea x-model="bookingData.requestDescription"
+                                class="w-full bg-slate-50 border rounded-2xl p-4 text-[11px] outline-none h-20 font-bold"
+                                placeholder="Permintaan khusus..."></textarea>
+                        </div>
+                    </div>
+
+                    <div
+                        class="fixed bottom-0 max-w-md w-full bg-white border-t p-4 flex justify-between items-center z-[110] shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Total
+                                Harga</span>
+                            <span class="text-xl font-black text-blue-600"
+                                x-text="'Rp ' + totalBayarDisplay.toLocaleString('id-ID')">
+                            </span>
+                            <span class="text-[8px] text-slate-400 italic">*Sudah termasuk biaya layanan</span>
+                        </div>
+                        <button @click="showConfirmModal = true; setTimeout(() => lucide.createIcons(), 50);"
+                            class="bg-[#ff5e1f] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform italic">
+                            Booking Sekarang
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <div x-show="modals.destination" class="fixed inset-0 z-[150] bg-white flex flex-col" x-transition x-cloak>
+                <div class="p-4 border-b flex items-center gap-4">
+                    <i x-on:click="modals.destination = false" data-lucide="arrow-left" class="cursor-pointer"></i>
+                    <div class="relative flex-1">
+                        <i data-lucide="search"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" placeholder="Mau menginap di mana?"
+                            class="w-full bg-slate-100 rounded-full pl-10 pr-4 py-2 outline-none uppercase font-black text-xs tracking-tighter">
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <template x-for="dest in popularDests" :key="dest.cityID">
+                        <div x-on:click="selectDestination(dest)"
+                            class="flex justify-between items-center py-4 border-b border-slate-50 cursor-pointer hover:bg-slate-50 rounded-xl px-2">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-blue-50 p-2.5 rounded-xl">
+                                    <i :data-lucide="dest.type === 'CITY' ? 'building-2' : 'map'"
+                                        class="w-5 h-5 text-blue-500"></i>
+                                </div>
+                                <div>
+                                    <p class="font-black text-slate-800 uppercase tracking-tighter" x-text="dest.name">
+                                    </p>
+                                    <p class="text-[9px] text-slate-400 uppercase font-black" x-text="dest.sub"></p>
+                                </div>
+                            </div>
+                            <span
+                                class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-0.5 rounded border border-blue-100 uppercase italic"
+                                x-text="dest.type"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div x-show="modals.date" class="fixed inset-0 z-[150] bg-white flex flex-col" x-transition x-cloak>
+                <div
+                    class="bg-[#0194f3] p-4 flex justify-between items-center text-white font-bold uppercase italic tracking-widest">
+                    <span>Pilih Tanggal</span>
+                    <span x-on:click="modals.date = false" class="text-sm cursor-pointer underline">Batal</span>
+                </div>
+                <div class="p-4 text-center font-black border-b uppercase italic" x-text="getCurrentMonthName()"></div>
+                <div class="p-4 grid grid-cols-7 text-center gap-y-4">
+                    <template x-for="day in 31" :key="day">
+                        <div x-on:click="!isDateDisabled(day) && selectDate(day)"
+                            class="h-10 flex items-center justify-center text-sm rounded-full transition-all" :class="{
+                                'bg-blue-600 text-white font-black shadow-lg scale-110': isSelectedDate(day),
+                                'text-slate-200 cursor-not-allowed': isDateDisabled(day),
+                                'text-slate-700 cursor-pointer hover:bg-blue-50': !isDateDisabled(day) && !isSelectedDate(day)
+                            }" x-text="day"></div>
+                    </template>
+                </div>
+            </div>
+
+            <div x-show="modals.duration" class="fixed inset-0 z-[160] bg-black/40 flex flex-col justify-end" x-cloak
+                x-transition>
+                <div class="bg-white rounded-t-3xl p-6" x-on:click.away="modals.duration = false">
+                    <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+                    <h3 class="text-center font-black text-slate-800 mb-6 uppercase text-xs border-b pb-4 italic">Durasi
+                        Inap</h3>
+                    <div class="space-y-1 max-h-[40vh] overflow-y-auto no-scrollbar">
+                        <template x-for="n in 30" :key="n">
+                            <div x-on:click="search.duration = n; modals.duration = false"
+                                class="flex justify-between py-4 border-b px-4 hover:bg-blue-50 cursor-pointer">
+                                <span class="font-bold text-blue-500 text-lg" x-text="n + ' Malam'"></span>
+                                <span class="text-[10px] text-blue-400 font-black uppercase tracking-widest italic"
+                                    x-text="'OUT: ' + getCheckOutDate(n)"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="modals.guest" class="fixed inset-0 z-[150] bg-white flex flex-col" x-transition x-cloak>
+                <div
+                    class="bg-[#0194f3] p-4 flex justify-between items-center text-white font-bold uppercase italic tracking-widest">
+                    <span>Tamu & Kamar</span>
+                    <i x-on:click="modals.guest = false" data-lucide="x" class="cursor-pointer"></i>
+                </div>
+                <div class="p-6 space-y-10 flex-1 overflow-y-auto">
+                    <div class="flex justify-between items-center italic">
+                        <div class="flex items-center gap-3"><i data-lucide="door-closed"
+                                class="w-5 h-5 text-slate-400"></i><span
+                                class="text-xs font-black text-slate-600 uppercase">Kamar</span></div>
+                        <div class="flex items-center gap-6"><button
+                                @click="search.roomCount = Math.max(1, search.roomCount-1)"
+                                class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
+                                class="font-black text-xl text-blue-600" x-text="search.roomCount"></span><button
+                                @click="search.roomCount++"
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-blue-50 text-blue-600 font-black">+</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center border-t pt-8 italic">
+                        <div class="flex items-center gap-3"><i data-lucide="user"
+                                class="w-5 h-5 text-slate-400"></i><span
+                                class="text-xs font-black text-slate-600 uppercase">Dewasa</span></div>
+                        <div class="flex items-center gap-6"><button
+                                @click="search.adultCount = Math.max(1, search.adultCount-1)"
+                                class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
+                                class="font-black text-xl text-blue-600" x-text="search.adultCount"></span><button
+                                @click="search.adultCount++"
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-blue-50 text-blue-600 font-black">+</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center border-t pt-8 italic">
+                        <div class="flex items-center gap-3"><i data-lucide="baby"
+                                class="w-5 h-5 text-slate-400"></i><span
+                                class="text-xs font-black text-slate-600 uppercase">Anak</span></div>
+                        <div class="flex items-center gap-6"><button @click="removeChild()"
+                                class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
+                                class="font-black text-xl text-blue-600" x-text="search.childCount"></span><button
+                                @click="addChild()"
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-blue-50 text-blue-600 font-black">+</button>
+                        </div>
+                    </div>
+                    <template x-if="search.childCount > 0">
+                        <div class="bg-slate-50 p-5 rounded-2xl space-y-4">
+                            <p
+                                class="text-[9px] font-black text-slate-400 uppercase italic underline underline-offset-4">
+                                Usia Anak</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <template x-for="(age, idx) in search.childAges" :key="idx">
+                                    <div class="flex flex-col gap-1 italic">
+                                        <label class="text-[8px] text-slate-500 uppercase font-black">Anak <span
+                                                x-text="idx+1"></span></label>
+                                        <select x-model="search.childAges[idx]"
+                                            class="bg-white border rounded-xl p-2.5 text-xs font-black outline-none shadow-sm">
+                                            <template x-for="a in 17" :key="a">
+                                                <option :value="a" x-text="a + ' Thn'"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="p-6 border-t bg-slate-50"><button x-on:click="modals.guest = false"
+                        class="w-full bg-[#ff5e1f] py-4 rounded-2xl text-white font-black shadow-xl uppercase italic tracking-widest">Simpan</button>
+                </div>
+            </div>
+
+            <div x-show="stage === 'success_page'" x-cloak class="p-4 min-h-screen bg-gray-50">
+                <div class="max-w-md mx-auto space-y-4">
+
+                    <div class="text-center py-6">
+                        <div
+                            class="bg-green-100 text-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="check-circle-2" class="w-12 h-12"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">Booking Berhasil!</h2>
+                        <p class="text-gray-500 text-sm">Voucher Anda telah diterbitkan.</p>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
+                        x-if="bookingResult">
+                        <div class="bg-blue-600 p-5 text-white">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs opacity-80 uppercase tracking-widest font-bold">No. Reservasi</p>
+                                    <h3 class="text-xl font-mono font-bold" x-text="bookingResult.reservationNo"></h3>
+                                </div>
+                                <div class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">HOTEL VOUCHER
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-5 space-y-5">
+                            <div>
+                                <h4 class="text-lg font-bold text-gray-800 leading-tight"
+                                    x-text="bookingResult.hotelName"></h4>
+                                <p class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-red-500"></i>
+                                    <span x-text="bookingResult.hotelAddress"></span>
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 py-4 border-y border-dashed border-gray-200">
+                                <div>
+                                    <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Check-In
+                                    </p>
+                                    <p class="font-bold text-gray-700"
+                                        x-text="new Date(bookingResult.checkInDate).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric'})">
+                                    </p>
+                                </div>
+                                <div class="text-right border-l pl-4">
+                                    <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Check-Out
+                                    </p>
+                                    <p class="font-bold text-gray-700"
+                                        x-text="new Date(bookingResult.checkOutDate).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric'})">
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Tipe Kamar</span>
+                                    <span class="font-bold text-gray-800" x-text="bookingResult.roomName"></span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Layanan Makan</span>
+                                    <span class="font-bold text-green-600" x-text="bookingResult.breakfast"></span>
+                                </div>
+                                <div class="bg-blue-50 p-3 rounded-xl">
+                                    <p class="text-[10px] text-blue-500 font-bold uppercase mb-1">Tamu Utama</p>
+                                    <template x-for="room in bookingResult.roomRequest">
+                                        <div class="text-sm font-bold text-blue-900"
+                                            x-text="room.paxes[0].title + ' ' + room.paxes[0].firstName + ' ' + room.paxes[0].lastName">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                                <p class="text-[10px] text-slate-400 font-black uppercase">Total Pembayaran</p>
+                                <p class="text-2xl font-black text-orange-500"
+                                    x-text="bookingResult.totalPrice ? 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(bookingResult.totalPrice)) : '...'">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button @click="window.location.reload()"
+                        class="w-full bg-gray-800 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-black transition flex items-center justify-center gap-2">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        Selesai & Kembali
+                    </button>
+                </div>
+            </div>
+
+            <div x-show="showConfirmModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4" x-cloak>
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showConfirmModal = false"></div>
+
+                <div x-show="showConfirmModal" x-transition:enter="transition ease-out duration-300 transform"
+                    x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                    class="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center overflow-hidden">
+
+                    <template x-if="isSaldoCukup">
+                        <div>
+                            <div class="mb-6">
+                                <div
+                                    class="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i data-lucide="alert-circle" class="w-10 h-10"></i>
+                                </div>
+                                <h3 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Konfirmasi
+                                    Pembayaran</h3>
+                                <p class="text-slate-500 mt-2 text-sm">Anda akan memesan hotel ini. Saldo akan langsung
+                                    terpotong secara otomatis.</p>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <button @click="executeFinalBooking()"
+                                    class="w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 rounded-2xl shadow-lg transition-all uppercase tracking-widest text-xs">
+                                    Ya, Bayar Sekarang
+                                </button>
+                                <button @click="showConfirmModal = false"
+                                    class="w-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
+                                    Batal
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="!isSaldoCukup">
+                        <div>
+                            <div class="mb-6">
+                                <div
+                                    class="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i data-lucide="wallet" class="w-10 h-10"></i>
+                                </div>
+                                <h3 class="text-2xl font-black text-slate-800 tracking-tighter uppercase">Koin Tidak
+                                    Cukup</h3>
+                                <p class="text-slate-500 mt-2 text-sm">
+                                    Koin Anda kurang <span class="text-red-500 font-bold"
+                                        x-text="new Intl.NumberFormat('id-ID').format(saldoDibutuhkan)"></span>.
+                                    Silakan top up atau gunakan metode lain.
+                                </p>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <button @click="window.location.href='/isi-saldo'"
+                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-lg transition-all uppercase tracking-widest text-xs">
+                                    Isi Coin Sekarang
+                                </button>
+                                <button @click="showConfirmModal = false"
+                                    class="w-full bg-slate-800 hover:bg-black text-white font-bold py-4 rounded-2xl transition-all uppercase tracking-widest text-xs">
+                                    Gunakan Metode Lain
+                                </button>
+                                <button @click="showConfirmModal = false"
+                                    class="w-full bg-slate-100 text-slate-400 font-bold py-3 rounded-2xl transition-all uppercase tracking-widest text-[10px]">
+                                    Nanti Saja
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function hotelApp() {
+            return {
+                stage: 'search', loading: false, showFullMessage: false,
+                modals: { destination: false, date: false, duration: false, guest: false },
+                search: { cityID: '10779', cityName: 'Surabaya', checkInDate: '', duration: 1, roomCount: 1, adultCount: 2, childCount: 0, childAges: [] },
+                hotelList: [], selectedHotel: {}, roomList: [], selectedRoom: null,
+                toasts: [],
+                bookingData: { contactEmail: '', contactPhone: '', requestDescription: '', paxes: [] },
+                popularDests: [
+                    { cityID: '10779', name: 'Surabaya', sub: 'Jawa Timur', type: 'CITY' },
+                    { cityID: '10780', name: 'Jakarta', sub: 'DKI Jakarta', type: 'CITY' },
+                    { cityID: '10781', name: 'Bali', sub: 'Bali, Indonesia', type: 'REGION' },
+                    { cityID: '10782', name: 'Bandung', sub: 'Jawa Barat', type: 'CITY' },
+                    { cityID: '10783', name: 'Yogyakarta', sub: 'DI Yogyakarta', type: 'CITY' },
+                    { cityID: '10784', name: 'Medan', sub: 'Sumatera Utara', type: 'CITY' },
+                    { cityID: '10785', name: 'Makassar', sub: 'Sulawesi Selatan', type: 'CITY' },
+                    { cityID: '10786', name: 'Semarang', sub: 'Jawa Tengah', type: 'CITY' },
+                    { cityID: '10787', name: 'Malang', sub: 'Jawa Timur', type: 'CITY' },
+                    { cityID: '10788', name: 'Lombok', sub: 'Nusa Tenggara Barat', type: 'REGION' }
+                ],
+                daysInMonth: 31,
+
+                init() {
+                    const t = new Date(); t.setDate(t.getDate() + 1);
+                    this.search.checkInDate = t.toISOString().split('T')[0];
+                    this.refreshIcons();
+                },
+
+                showToast(msg) {
+                    const id = Date.now();
+                    this.toasts.push({ id, message: msg });
+                    setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 4000);
+                    this.refreshIcons();
+                },
+
+                refreshIcons() { this.$nextTick(() => { try { lucide.createIcons(); } catch (e) { } }); },
+                openModal(k) { this.modals[k] = true; this.refreshIcons(); },
+                isDateDisabled(day) { const t = new Date(); t.setHours(0, 0, 0, 0); const d = new Date(2025, 11, day); return d < t; },
+                isSelectedDate(day) { return this.search.checkInDate === `2025-12-${day.toString().padStart(2, '0')}`; },
+                selectDate(day) { this.search.checkInDate = `2025-12-${day.toString().padStart(2, '0')}`; this.modals.date = false; },
+                formatDisplayDate(d) { if (!d) return ''; return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); },
+                getCheckOutDate(dur) { let d = new Date(this.search.checkInDate); d.setDate(d.getDate() + parseInt(dur)); return this.formatDisplayDate(d); },
+                getGuestSummary() { return `${this.search.roomCount} Kamar, ${this.search.adultCount} Dws, ${this.search.childCount} Anak`; },
+                addChild() { if (this.search.childCount < 4) { this.search.childCount++; this.search.childAges.push(5); } },
+                removeChild() { if (this.search.childCount > 0) { this.search.childCount--; this.search.childAges.pop(); } },
+                selectDestination(d) { this.search.cityID = d.cityID; this.search.cityName = d.name; this.modals.destination = false; },
+
+                async performSearch() {
+                    this.loading = true; this.refreshIcons();
+                    let out = new Date(this.search.checkInDate); out.setDate(out.getDate() + parseInt(this.search.duration));
+                    const payload = {
+                        paxPassport: "ID", countryID: "ID", cityID: String(this.search.cityID),
+                        checkInDate: this.search.checkInDate + "T14:00:00Z", checkOutDate: out.toISOString().split('T')[0] + "T12:00:00Z",
+                        roomRequest: Array.from({ length: parseInt(this.search.roomCount) }, () => ({
+                            roomType: 0, childNum: parseInt(this.search.childCount), childAges: this.search.childAges.map(Number)
+                        }))
+                    };
+                    try {
+                        const res = await fetch('https://darma.siappgo.id/api/hotels/search', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                        });
+                        const r = await res.json();
+                        this.hotelList = r.hotels || []; this.stage = 'results';
+                    } catch (e) { this.showToast("Koneksi bermasalah."); } finally { this.loading = false; this.refreshIcons(); }
+                },
+
+                async getAvailableRooms(hotel) {
+                    this.loading = true; this.showFullMessage = false; this.selectedHotel = hotel;
+                    let out = new Date(this.search.checkInDate); out.setDate(out.getDate() + parseInt(this.search.duration));
+                    const payload = {
+                        hotelID: hotel.ID, paxPassport: "ID", countryID: "ID", cityID: String(this.search.cityID),
+                        checkInDate: this.search.checkInDate + "T14:00:00Z", checkOutDate: out.toISOString().split('T')[0] + "T12:00:00Z",
+                        roomRequest: Array.from({ length: parseInt(this.search.roomCount) }, () => ({
+                            roomType: 0, childNum: parseInt(this.search.childCount), childAges: this.search.childAges.map(Number)
+                        }))
+                    };
+                    try {
+                        const res = await fetch('https://darma.siappgo.id/api/hotels/available-rooms', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        if (data.status === "SUCCESS") {
+                            this.selectedHotel = data.hotelInfo; this.roomList = data.hotelInfo.rooms || []; this.stage = 'detail';
+                        }
+                    } catch (e) { this.showToast("Detail gagal dimuat."); } finally { this.loading = false; this.refreshIcons(); }
+                },
+
+                openBookingPage(room) {
+                    this.selectedRoom = room;
+                    this.bookingData.paxes = Array.from({ length: this.search.adultCount }, () => ({
+                        title: 'Mr.', firstName: '', lastName: ''
+                    }));
+                    this.stage = 'booking';
+                    this.refreshIcons();
+                },
+
+
+                bookingResult: null,
+                apiJagel: "wxo6DiWJ2kaZ4sjk6Dv0Ld0Iea2l649YhutdoTSnBOe3YD5Lwz",
+                usernameJagel: "amir",
+                biayaAdminJagel: 5000,
+                showConfirmModal: false,
+                isSaldoCukup: true,
+                saldoDibutuhkan: 0,
+                totalBayarJagel: 0,
+                loading: false,
+                loadingText: "",
+
+
+                // TAMBAHKAN INI
+                get totalBayarDisplay() {
+                    if (!this.selectedRoom) return 0;
+                    // Menjumlahkan harga kamar asli + biaya admin 5000
+                    return Math.round(this.selectedRoom.price) + this.biayaAdminJagel;
+                },
+
+                /**
+   * TAHAP 1: VALIDASI FORM & BUKA MODAL
+   * Dipanggil saat klik "Booking Sekarang" di form rincian.
+   */
+                async submitBooking() {
+                    // 1. Validasi Input Form
+                    if (!this.bookingData.contactEmail || !this.bookingData.contactPhone) {
+                        this.showToast("Isi Email & No WA!");
+                        return;
+                    }
+                    const invalid = this.bookingData.paxes.some(p => !p.firstName || !p.lastName);
+                    if (invalid) {
+                        this.showToast("Lengkapi Nama Tamu!");
+                        return;
+                    }
+
+                    // Hitung estimasi harga untuk ditampilkan di modal (opsional)
+                    const hargaHotel = Math.round(this.selectedRoom.totalPrice);
+                    this.totalBayarJagel = hargaHotel + this.biayaAdminJagel;
+
+                    // LANGSUNG BUKA MODAL KONFIRMASI
+                    this.showConfirmModal = true;
+                    this.isSaldoCukup = true; // Default true agar modal bayar muncul
+                    setTimeout(() => typeof lucide !== 'undefined' && lucide.createIcons(), 100);
+                },
+
+                /**
+                 * TAHAP 2: EKSEKUSI FINAL (CEK SALDO + BOOKING + POTONG SALDO)
+                 * Dipanggil saat klik "Ya, Bayar Sekarang" di dalam modal
+                 */
+                async executeFinalBooking() {
+                    this.loading = true;
+                    this.loadingText = "Menyiapkan data harga terbaru...";
+
+                    try {
+                        // TAHAP 0: DATA DASAR
+                        const checkInISO = this.search.checkInDate + "T14:00:00Z";
+                        let outDateObj = new Date(this.search.checkInDate);
+                        outDateObj.setDate(outDateObj.getDate() + parseInt(this.search.duration));
+                        const checkOutISO = outDateObj.toISOString().split('T')[0] + "T12:00:00Z";
+
+                        const roomReqPayload = this.bookingData.paxes.map(() => ({
+                            roomType: 0, isRequestChildBed: false, childNum: 0, childAges: [0]
+                        }));
+
+                        // --- TAHAP 1: HIT PRICE & POLICY INFO (MANDATORY) ---
+                        const resPrice = await fetch('https://darma.siappgo.id/api/hotels/price-info', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                cityID: String(this.search.cityID),
+                                checkInDate: checkInISO,
+                                checkOutDate: checkOutISO,
+                                roomRequest: roomReqPayload,
+                                internalCode: this.selectedHotel.internalCode,
+                                hotelID: this.selectedHotel.ID,
+                                breakfast: this.selectedRoom.breakfast,
+                                roomID: this.selectedRoom.ID
+                            })
+                        });
+                        const priceData = await resPrice.json();
+
+                        if (priceData.status !== "SUCCESS" || !priceData.isEnableBooking) {
+                            this.showConfirmModal = false;
+                            throw new Error("Kamar sudah tidak tersedia atau harga berubah. Silakan cari ulang.");
+                        }
+
+                        // AMBIL HARGA RESMI DARI DARMAWISATA
+                        const hargaHotelResmi = Math.round(priceData.totalPrice);
+                        const totalWajibBayarUser = hargaHotelResmi + this.biayaAdminJagel;
+
+                        // --- TAHAP 2: CEK SALDO DARMAWISATA (AGEN) ---
+                        this.loadingText = "Memverifikasi sistem agen...";
+                        try {
+                            const resBalDarma = await fetch('https://darma.siappgo.id/api/agent/get-balance', { method: 'POST' });
+                            const dataBalDarma = await resBalDarma.json();
+
+                            // Pastikan saldo agen cukup untuk membayar harga modal hotel
+                            if (dataBalDarma.status !== "SUCCESS" || parseFloat(dataBalDarma.balance) < hargaHotelResmi) {
+                                this.showConfirmModal = false;
+                                throw new Error("Sistem sedang sibuk (Limit Agen). Mohon hubungi CS atau coba lagi nanti.");
+                            }
+
+                            // --- TAHAP 3: CEK SALDO JAGEL (USER) ---
+                            this.loadingText = "Memverifikasi koin Anda...";
+                            const urlCekJagel = `https://api.jagel.id/v1/balance/check?type=username&value=${this.usernameJagel}&apikey=${this.apiJagel}`;
+                            const resBalJagel = await fetch(urlCekJagel);
+                            const dataBalJagel = await resBalJagel.json();
+
+                            // Penyesuaian Response Jagel: {"success":true, "data":{...}}
+                            if (dataBalJagel.success !== true || !dataBalJagel.data) {
+                                this.showConfirmModal = false;
+                                throw new Error("Akun pengirim tidak ditemukan. Pastikan username benar.");
+                            }
+
+                            // Konversi saldoActive dari string "0" menjadi angka (Float)
+                            const saldoActive = parseFloat(dataBalJagel.data.balance_active || 0);
+
+                            // Bandingkan dengan total yang harus dibayar user (Harga Hotel + Admin)
+                            if (saldoActive < totalWajibBayarUser) {
+                                // Update state untuk memicu tampilan "Isi Koin" di modal
+                                this.isSaldoCukup = false;
+                                this.saldoDibutuhkan = totalWajibBayarUser - saldoActive;
+                                this.loading = false;
+
+                                // Refresh ikon lucide di dalam modal jika perlu
+                                this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                                return; // Berhenti di sini agar user bisa klik tombol Top Up
+                            }
+
+                            // JIKA SALDO CUKUP, LANJUT KE PROSES BOOKING DI BAWAH...
+                            this.showConfirmModal = false; // Tutup modal konfirmasi untuk lanjut proses
+                            this.loadingText = "Koin mencukupi. Sedang memproses pesanan...";
+
+                        } catch (error) {
+                            this.loading = false;
+                            this.showToast(error.message);
+                            throw error; // Lempar error ke blok catch utama submit
+                        }
+
+                        // --- TAHAP 4: EKSEKUSI BOOKING ---
+                        this.showConfirmModal = false;
+                        this.loadingText = "Memproses voucher hotel...";
+
+                        const payloadBooking = {
+                            paxPassport: "ID", countryID: "ID", cityID: String(this.search.cityID),
+                            checkInDate: checkInISO, checkOutDate: checkOutISO,
+                            roomRequest: this.bookingData.paxes.map(pax => ({
+                                paxes: [pax], isSmokingRoom: false, phone: this.bookingData.contactPhone,
+                                email: this.bookingData.contactEmail, roomType: 0, isRequestChildBed: false,
+                                childNum: 0, childAges: [0]
+                            })),
+                            internalCode: this.selectedHotel.internalCode,
+                            hotelID: this.selectedHotel.ID,
+                            breakfast: this.selectedRoom.breakfast,
+                            roomID: this.selectedRoom.ID,
+                            bedType: { ID: null, bed: null },
+                            agentOsRef: "LC-" + Date.now()
+                        };
+
+                        const resBooking = await fetch('https://darma.siappgo.id/api/hotels/booking', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payloadBooking)
+                        });
+                        const r = await resBooking.json();
+
+                        if (r.status === "SUCCESS" || r.bookingStatus === "Accept") {
+                            // --- TAHAP 5: POTONG SALDO JAGEL ---
+                            await fetch('https://api.jagel.id/v1/balance/adjust', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    type: 'username', value: this.usernameJagel, apikey: this.apiJagel,
+                                    amount: -totalWajibBayarUser,
+                                    note: `Hotel: ${r.hotelName} (${r.reservationNo})`
+                                })
+                            });
+
+                            // Set harga untuk invoice (Harga Kamar + Admin)
+                            r.totalPrice = totalWajibBayarUser;
+                            this.bookingResult = r;
+                            this.stage = 'success_page';
+                            window.scrollTo(0, 0);
+                        } else {
+                            throw new Error(r.respMessage || "Booking gagal dari pihak hotel.");
+                        }
+
+                    } catch (e) {
+                        this.showToast(e.message);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                getCurrentMonthName() { return "Desember 2025"; }
+            }
+        }
+    </script>
+</body>
+
+</html>
