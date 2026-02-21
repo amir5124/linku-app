@@ -145,11 +145,13 @@
                                 <div x-on:click="openModal('date')" class="border-b pb-3 cursor-pointer">
                                     <label
                                         class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Check-In</label>
-                                    <div class="flex items-center gap-2 mt-1"><i data-lucide="calendar"
-                                            class="w-4 h-4 text-slate-400"></i><span
-                                            class="font-bold text-slate-700 text-sm"
-                                            x-text="formatDisplayDate(search.checkInDate)"></span></div>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                                        <span class="font-bold text-slate-700 text-sm"
+                                            x-text="formatDisplayDate(search.checkInDate)"></span>
+                                    </div>
                                 </div>
+
                                 <div x-on:click="openModal('duration')" class="border-b pb-3 cursor-pointer">
                                     <label
                                         class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Durasi</label>
@@ -159,6 +161,8 @@
                                     </div>
                                 </div>
                             </div>
+
+
                             <div x-on:click="openModal('guest')" class="border-b pb-3 cursor-pointer">
                                 <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Kamar &
                                     Tamu</label>
@@ -325,8 +329,9 @@
 
                     <div class="p-4 space-y-4">
                         <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
-                            <h3 class="font-black text-xs text-[#24b3ae] uppercase mb-2 "
-                                x-text="selectedHotel.name"></h3>
+                            <h3 class="font-black text-xs text-[#24b3ae] uppercase mb-2 " x-text="selectedHotel.name">
+                            </h3>
+                            </h3>
                             <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200">
                                 <p class="text-[11px] font-black text-slate-700 uppercase" x-text="selectedRoom.name">
                                 </p>
@@ -427,19 +432,37 @@
 
             <div x-show="modals.date" class="fixed inset-0 z-[150] bg-white flex flex-col" x-transition x-cloak>
                 <div
-                    class="bg-[#24b3ae] p-4 flex justify-between items-center text-white font-bold uppercase  tracking-widest">
+                    class="bg-[#24b3ae] p-4 flex justify-between items-center text-white font-bold uppercase tracking-widest">
                     <span>Pilih Tanggal</span>
                     <span x-on:click="modals.date = false" class="text-sm cursor-pointer underline">Batal</span>
                 </div>
-                <div class="p-4 text-center font-black border-b uppercase " x-text="getCurrentMonthName()"></div>
-                <div class="p-4 grid grid-cols-7 text-center gap-y-4">
-                    <template x-for="day in 31" :key="day">
-                        <div x-on:click="!isDateDisabled(day) && selectDate(day)"
-                            class="h-10 flex items-center justify-center text-sm rounded-full transition-all" :class="{
-                                'bg-[#24b3ae] text-white font-black shadow-lg scale-110': isSelectedDate(day),
-                                'text-slate-200 cursor-not-allowed': isDateDisabled(day),
-                                'text-slate-700 cursor-pointer hover:bg-[#24b3ae]': !isDateDisabled(day) && !isSelectedDate(day)
+
+                <div class="flex-1 overflow-y-auto">
+                    <template x-for="item in calendarMonths" :key="item.name">
+                        <div class="mb-8">
+                            <div class="p-4 text-center font-black border-b uppercase bg-slate-50" x-text="item.name">
+                            </div>
+
+                            <div class="p-4 grid grid-cols-7 text-center gap-y-4">
+                                <template x-for="dayName in ['Min','Sen','Sel','Rab','Kam','Jum','Sab']">
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase" x-text="dayName"></div>
+                                </template>
+
+                                <template x-for="empty in item.startDay">
+                                    <div class="h-10"></div>
+                                </template>
+
+                                <template x-for="day in item.days" :key="day">
+                                    <div x-on:click="!isDateDisabled(day, item.month, item.year) && selectDate(day, item.month, item.year)"
+                                        class="h-10 flex items-center justify-center text-sm rounded-full transition-all"
+                                        :class="{
+                                'bg-[#24b3ae] text-white font-black shadow-lg scale-110': isSelectedDate(day, item.month, item.year),
+                                'text-slate-200 cursor-not-allowed': isDateDisabled(day, item.month, item.year),
+                                'text-slate-700 cursor-pointer hover:bg-slate-100': !isDateDisabled(day, item.month, item.year) && !isSelectedDate(day, item.month, item.year)
                             }" x-text="day"></div>
+                                </template>
+                            </div>
+                        </div>
                     </template>
                 </div>
             </div>
@@ -507,8 +530,7 @@
                     </div>
                     <template x-if="search.childCount > 0">
                         <div class="bg-slate-50 p-5 rounded-2xl space-y-4">
-                            <p
-                                class="text-[9px] font-black text-slate-400 uppercase  underline underline-offset-4">
+                            <p class="text-[9px] font-black text-slate-400 uppercase  underline underline-offset-4">
                                 Usia Anak</p>
                             <div class="grid grid-cols-2 gap-4">
                                 <template x-for="(age, idx) in search.childAges" :key="idx">
@@ -689,14 +711,42 @@
             </div>
 
         </div>
+        <div x-show="toast.show" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-4"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform translate-y-4"
+            class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-md" style="display: none;">
+
+            <div
+                class="bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700">
+                <div class="bg-amber-500 rounded-full p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                </div>
+                <span class="text-sm font-medium" x-text="toast.message"></span>
+            </div>
+        </div>
     </div>
+
+
 
     <script>
         function hotelApp() {
             return {
-                stage: 'search', loading: false, showFullMessage: false,
+                stage: 'search',
+                loading: false,
+                showFullMessage: false,
                 modals: { destination: false, date: false, duration: false, guest: false },
-                search: { cityID: '10779', cityName: 'Surabaya', checkInDate: '', duration: 1, roomCount: 1, adultCount: 2, childCount: 0, childAges: [] },
+                search: {
+                    cityID: '10779', cityName: 'Surabaya', checkInDate: '',
+                    duration: 1, roomCount: 1, adultCount: 2, childCount: 0, childAges: []
+                },
                 hotelList: [], selectedHotel: {}, roomList: [], selectedRoom: null,
                 toasts: [],
                 bookingData: { contactEmail: '', contactPhone: '', requestDescription: '', paxes: [] },
@@ -712,26 +762,102 @@
                     { cityID: '10787', name: 'Malang', sub: 'Jawa Timur', type: 'CITY' },
                     { cityID: '10788', name: 'Lombok', sub: 'Nusa Tenggara Barat', type: 'REGION' }
                 ],
-                daysInMonth: 31,
+                calendarMonths: [],
+                bookingResult: null,
+                apiJagel: "wxo6DiWJ2kaZ4sjk6Dv0Ld0Iea2l649YhutdoTSnBOe3YD5Lwz",
+                usernameJagel: "amir",
+                biayaAdminJagel: 0,
+                showConfirmModal: false,
+                isSaldoCukup: true,
+                saldoDibutuhkan: 0,
+                totalBayarJagel: 0,
+                loadingText: "",
+                toast: {
+                    show: false,
+                    message: ''
+                },
+
 
                 init() {
-                    const t = new Date(); t.setDate(t.getDate() + 1);
+                    // Set default check-in ke besok
+                    const t = new Date();
+                    t.setDate(t.getDate() + 1);
                     this.search.checkInDate = t.toISOString().split('T')[0];
-                    this.refreshIcons();
+
+                    // Generate 6 bulan ke depan secara dinamis
+                    this.generateCalendar(6);
+
+                    if (this.refreshIcons) this.refreshIcons();
                 },
 
                 showToast(msg) {
-                    const id = Date.now();
-                    this.toasts.push({ id, message: msg });
-                    setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 4000);
+                    this.toast.message = msg;
+                    this.toast.show = true;
+
+                    // Toast otomatis hilang setelah 3 detik
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 3000);
+                },
+
+
+                generateCalendar(count) {
+                    const months = [];
+                    const now = new Date();
+                    for (let i = 0; i < count; i++) {
+                        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+                        months.push({
+                            name: d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+                            month: d.getMonth(),
+                            year: d.getFullYear(),
+                            days: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(),
+                            startDay: d.getDay() // Menentukan hari apa tanggal 1 dimulai
+                        });
+                    }
+                    this.calendarMonths = months;
+                },
+
+                isDateDisabled(day, month, year) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const checkDate = new Date(year, month, day);
+                    return checkDate < today;
+                },
+
+                isSelectedDate(day, month, year) {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    return this.search.checkInDate === dateStr;
+                },
+
+                selectDate(day, month, year) {
+                    if (this.isDateDisabled(day, month, year)) return;
+                    const monthStr = String(month + 1).padStart(2, '0');
+                    const dayStr = String(day).padStart(2, '0');
+                    this.search.checkInDate = `${year}-${monthStr}-${dayStr}`;
+                    this.modals.date = false;
+                },
+
+                formatDisplayDate(d) {
+                    if (!d) return '';
+                    return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                },
+
+                getCheckOutDate(dur) {
+                    if (!this.search.checkInDate) return '';
+                    let d = new Date(this.search.checkInDate);
+                    d.setDate(d.getDate() + parseInt(dur));
+                    return this.formatDisplayDate(d);
+                },
+
+                refreshIcons() {
+                    this.$nextTick(() => { try { lucide.createIcons(); } catch (e) { } });
+                },
+
+                openModal(k) {
+                    this.modals[k] = true;
                     this.refreshIcons();
                 },
 
-                refreshIcons() { this.$nextTick(() => { try { lucide.createIcons(); } catch (e) { } }); },
-                openModal(k) { this.modals[k] = true; this.refreshIcons(); },
-                isDateDisabled(day) { const t = new Date(); t.setHours(0, 0, 0, 0); const d = new Date(2025, 11, day); return d < t; },
-                isSelectedDate(day) { return this.search.checkInDate === `2025-12-${day.toString().padStart(2, '0')}`; },
-                selectDate(day) { this.search.checkInDate = `2025-12-${day.toString().padStart(2, '0')}`; this.modals.date = false; },
                 formatDisplayDate(d) { if (!d) return ''; return new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); },
                 getCheckOutDate(dur) { let d = new Date(this.search.checkInDate); d.setDate(d.getDate() + parseInt(dur)); return this.formatDisplayDate(d); },
                 getGuestSummary() { return `${this.search.roomCount} Kamar, ${this.search.adultCount} Dws, ${this.search.childCount} Anak`; },
@@ -789,16 +915,7 @@
                 },
 
 
-                bookingResult: null,
-                apiJagel: "wxo6DiWJ2kaZ4sjk6Dv0Ld0Iea2l649YhutdoTSnBOe3YD5Lwz",
-                usernameJagel: "amir",
-                biayaAdminJagel: 5000,
-                showConfirmModal: false,
-                isSaldoCukup: true,
-                saldoDibutuhkan: 0,
-                totalBayarJagel: 0,
-                loading: false,
-                loadingText: "",
+
 
 
                 // TAMBAHKAN INI
@@ -808,10 +925,7 @@
                     return Math.round(this.selectedRoom.price) + this.biayaAdminJagel;
                 },
 
-                /**
-   * TAHAP 1: VALIDASI FORM & BUKA MODAL
-   * Dipanggil saat klik "Booking Sekarang" di form rincian.
-   */
+
                 async submitBooking() {
                     // 1. Validasi Input Form
                     if (!this.bookingData.contactEmail || !this.bookingData.contactPhone) {
@@ -849,11 +963,14 @@
                         outDateObj.setDate(outDateObj.getDate() + parseInt(this.search.duration));
                         const checkOutISO = outDateObj.toISOString().split('T')[0] + "T12:00:00Z";
 
-                        const roomReqPayload = this.bookingData.paxes.map(() => ({
-                            roomType: 0, isRequestChildBed: false, childNum: 0, childAges: [0]
+                        const roomReqPayload = Array.from({ length: parseInt(this.search.roomCount) }, (_, i) => ({
+                            roomType: 0,
+                            isRequestChildBed: false,
+                            childNum: i === 0 ? parseInt(this.search.childCount) : 0,
+                            childAges: i === 0 ? this.search.childAges.map(Number) : []
                         }));
 
-                        // --- TAHAP 1: HIT PRICE & POLICY INFO (MANDATORY) ---
+                        // --- TAHAP 1: HIT PRICE & POLICY INFO ---
                         const resPrice = await fetch('https://darma.siappgo.id/api/hotels/price-info', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -872,60 +989,51 @@
 
                         if (priceData.status !== "SUCCESS" || !priceData.isEnableBooking) {
                             this.showConfirmModal = false;
-                            throw new Error("Kamar sudah tidak tersedia atau harga berubah. Silakan cari ulang.");
+                            throw new Error(priceData.respMessage || "Kamar sudah tidak tersedia atau harga berubah.");
                         }
 
-                        // AMBIL HARGA RESMI DARI DARMAWISATA
                         const hargaHotelResmi = Math.round(priceData.totalPrice);
                         const totalWajibBayarUser = hargaHotelResmi + this.biayaAdminJagel;
 
                         // --- TAHAP 2: CEK SALDO DARMAWISATA (AGEN) ---
                         this.loadingText = "Memverifikasi sistem agen...";
-                        try {
-                            const resBalDarma = await fetch('https://darma.siappgo.id/api/agent/get-balance', { method: 'POST' });
-                            const dataBalDarma = await resBalDarma.json();
+                        const resBalDarma = await fetch('https://darma.siappgo.id/api/agent/get-balance', { method: 'POST' });
+                        const dataBalDarma = await resBalDarma.json();
 
-                            // Pastikan saldo agen cukup untuk membayar harga modal hotel
-                            if (dataBalDarma.status !== "SUCCESS" || parseFloat(dataBalDarma.balance) < hargaHotelResmi) {
-                                this.showConfirmModal = false;
-                                throw new Error("Sistem sedang sibuk (Limit Agen). Mohon hubungi CS atau coba lagi nanti.");
-                            }
-
-                            // --- TAHAP 3: CEK SALDO JAGEL (USER) ---
-                            this.loadingText = "Memverifikasi koin Anda...";
-                            const urlCekJagel = `https://api.jagel.id/v1/balance/check?type=username&value=${this.usernameJagel}&apikey=${this.apiJagel}`;
-                            const resBalJagel = await fetch(urlCekJagel);
-                            const dataBalJagel = await resBalJagel.json();
-
-                            // Penyesuaian Response Jagel: {"success":true, "data":{...}}
-                            if (dataBalJagel.success !== true || !dataBalJagel.data) {
-                                this.showConfirmModal = false;
-                                throw new Error("Akun pengirim tidak ditemukan. Pastikan username benar.");
-                            }
-
-                            // Konversi saldoActive dari string "0" menjadi angka (Float)
-                            const saldoActive = parseFloat(dataBalJagel.data.balance_active || 0);
-
-                            // Bandingkan dengan total yang harus dibayar user (Harga Hotel + Admin)
-                            if (saldoActive < totalWajibBayarUser) {
-                                // Update state untuk memicu tampilan "Isi Koin" di modal
-                                this.isSaldoCukup = false;
-                                this.saldoDibutuhkan = totalWajibBayarUser - saldoActive;
+                        // VALIDASI SALDO DARMAWISATA
+                        if (dataBalDarma.status === "SUCCESS") {
+                            const saldoDarma = parseFloat(dataBalDarma.balance);
+                            if (saldoDarma < hargaHotelResmi) {
+                                this.showConfirmModal = false; // Tutup modal konfirmasi
                                 this.loading = false;
-
-                                // Refresh ikon lucide di dalam modal jika perlu
-                                this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
-                                return; // Berhenti di sini agar user bisa klik tombol Top Up
+                                // Munculkan Toast Alert dengan info saldo
+                                this.showToast(`Gagal: Saldo sistem (Rp ${saldoDarma.toLocaleString()}) tidak cukup untuk membayar hotel (Rp ${hargaHotelResmi.toLocaleString()}).`);
+                                return; // Stop eksekusi
                             }
+                        } else {
+                            this.showConfirmModal = false;
+                            throw new Error("Gagal mengambil data saldo sistem agen.");
+                        }
 
-                            // JIKA SALDO CUKUP, LANJUT KE PROSES BOOKING DI BAWAH...
-                            this.showConfirmModal = false; // Tutup modal konfirmasi untuk lanjut proses
-                            this.loadingText = "Koin mencukupi. Sedang memproses pesanan...";
+                        // --- TAHAP 3: CEK SALDO JAGEL (USER) ---
+                        this.loadingText = "Memverifikasi koin Anda...";
+                        const urlCekJagel = `https://api.jagel.id/v1/balance/check?type=username&value=${this.usernameJagel}&apikey=${this.apiJagel}`;
+                        const resBalJagel = await fetch(urlCekJagel);
+                        const dataBalJagel = await resBalJagel.json();
 
-                        } catch (error) {
+                        if (dataBalJagel.success !== true || !dataBalJagel.data) {
+                            this.showConfirmModal = false;
+                            throw new Error("Akun pengirim tidak ditemukan.");
+                        }
+
+                        const saldoActive = parseFloat(dataBalJagel.data.balance_active || 0);
+
+                        if (saldoActive < totalWajibBayarUser) {
+                            this.isSaldoCukup = false;
+                            this.saldoDibutuhkan = totalWajibBayarUser - saldoActive;
                             this.loading = false;
-                            this.showToast(error.message);
-                            throw error; // Lempar error ke blok catch utama submit
+                            this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+                            return;
                         }
 
                         // --- TAHAP 4: EKSEKUSI BOOKING ---
@@ -933,12 +1041,20 @@
                         this.loadingText = "Memproses voucher hotel...";
 
                         const payloadBooking = {
-                            paxPassport: "ID", countryID: "ID", cityID: String(this.search.cityID),
-                            checkInDate: checkInISO, checkOutDate: checkOutISO,
-                            roomRequest: this.bookingData.paxes.map(pax => ({
-                                paxes: [pax], isSmokingRoom: false, phone: this.bookingData.contactPhone,
-                                email: this.bookingData.contactEmail, roomType: 0, isRequestChildBed: false,
-                                childNum: 0, childAges: [0]
+                            paxPassport: "ID",
+                            countryID: "ID",
+                            cityID: String(this.search.cityID),
+                            checkInDate: checkInISO,
+                            checkOutDate: checkOutISO,
+                            roomRequest: Array.from({ length: parseInt(this.search.roomCount) }, (_, i) => ({
+                                paxes: i === 0 ? this.bookingData.paxes : [],
+                                isSmokingRoom: false,
+                                phone: this.bookingData.contactPhone,
+                                email: this.bookingData.contactEmail,
+                                roomType: 0,
+                                isRequestChildBed: false,
+                                childNum: i === 0 ? parseInt(this.search.childCount) : 0,
+                                childAges: i === 0 ? this.search.childAges.map(Number) : []
                             })),
                             internalCode: this.selectedHotel.internalCode,
                             hotelID: this.selectedHotel.ID,
@@ -957,17 +1073,17 @@
 
                         if (r.status === "SUCCESS" || r.bookingStatus === "Accept") {
                             // --- TAHAP 5: POTONG SALDO JAGEL ---
+                            this.loadingText = "Berhasil! Mengurangi saldo...";
                             await fetch('https://api.jagel.id/v1/balance/adjust', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                     type: 'username', value: this.usernameJagel, apikey: this.apiJagel,
                                     amount: -totalWajibBayarUser,
-                                    note: `Hotel: ${r.hotelName} (${r.reservationNo})`
+                                    note: `Hotel: ${r.hotelName || this.selectedHotel.name} (${r.reservationNo})`
                                 })
                             });
 
-                            // Set harga untuk invoice (Harga Kamar + Admin)
                             r.totalPrice = totalWajibBayarUser;
                             this.bookingResult = r;
                             this.stage = 'success_page';
@@ -977,12 +1093,13 @@
                         }
 
                     } catch (e) {
+                        console.error("Booking Error:", e);
                         this.showToast(e.message);
                     } finally {
                         this.loading = false;
                     }
                 },
-                getCurrentMonthName() { return "Desember 2025"; }
+
             }
         }
     </script>
