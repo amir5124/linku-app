@@ -41,7 +41,7 @@
         .dot {
             width: 8px;
             height: 8px;
-            background-color: #0194f3;
+            background-color: #24b3ae;
             border-radius: 50%;
             animation: wave 1.2s infinite ease-in-out;
         }
@@ -116,18 +116,18 @@
                 <div class="dot !bg-white"></div>
                 <div class="dot !bg-white"></div>
             </div>
-            <p class="text-white text-sm tracking-widest uppercase italic">Sedang Memproses...</p>
+            <p class="text-white text-sm tracking-widest uppercase ">Mohon tunggu...</p>
         </div>
 
         <div class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-2xl relative overflow-hidden">
 
             <template x-if="stage === 'search'">
                 <div class="pb-10">
-                    <div class="relative h-60 bg-blue-600">
+                    <div class="relative h-60 bg-[#24b3ae]">
                         <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=500&q=80"
                             class="w-full h-full object-cover opacity-70">
                         <div class="absolute bottom-16 left-6 text-white">
-                            <h1 class="text-2xl font-bold uppercase tracking-tighter italic">Booking Hotel</h1>
+                            <h1 class="text-2xl font-bold uppercase tracking-tighter ">Booking Hotel</h1>
                             <p class="text-sm opacity-90">Cari penginapan terbaik di seluruh dunia</p>
                         </div>
                     </div>
@@ -136,7 +136,7 @@
                             <div x-on:click="openModal('destination')" class="border-b pb-3 cursor-pointer">
                                 <label class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pilih
                                     Destinasi</label>
-                                <div class="flex items-center gap-3 mt-1 text-blue-600 font-bold">
+                                <div class="flex items-center gap-3 mt-1 text-[#24b3ae] font-bold">
                                     <i data-lucide="map-pin" class="w-5 h-5"></i>
                                     <span class="text-slate-700" x-text="search.cityName"></span>
                                 </div>
@@ -167,7 +167,7 @@
                                         x-text="getGuestSummary()"></span></div>
                             </div>
                             <button x-on:click="performSearch()"
-                                class="w-full bg-[#0194f3] h-14 rounded-full text-white font-bold shadow-lg transition-all active:scale-95 uppercase">Cari
+                                class="w-full bg-[#24b3ae] h-14 rounded-[15px] text-white font-bold shadow-lg transition-all active:scale-95 uppercase">Cari
                                 Sekarang</button>
                         </div>
                     </div>
@@ -177,8 +177,8 @@
             <template x-if="stage === 'results'">
                 <div class="bg-gray-100 min-h-screen">
                     <div
-                        class="fixed top-0 left-0 right-0 bg-[#0194f3] text-white p-4 z-[100] shadow-md flex items-center gap-3 max-w-md mx-auto">
-                        <button x-on:click="stage = 'search'" class="p-1 hover:bg-blue-700 rounded-full transition">
+                        class="fixed top-0 left-0 right-0 bg-[#24b3ae] text-white p-4 z-[100] shadow-md flex items-center gap-3 max-w-md mx-auto">
+                        <button x-on:click="stage = 'search'" class="p-1 hover:bg-[#24b3ae] rounded-full transition">
                             <i data-lucide="arrow-left" class="w-6 h-6"></i>
                         </button>
                         <div class="flex-1">
@@ -208,14 +208,14 @@
                                     <div class="flex justify-between items-start mb-1">
                                         <h3 class="font-bold text-slate-800 text-lg leading-tight flex-1"
                                             x-text="hotel.name"></h3>
-                                        <div class="text-right ml-2 text-blue-600 font-bold text-base"
+                                        <div class="text-right ml-2 text-[#24b3ae] font-bold text-base"
                                             x-text="hotel.ratingAverage || '9.0'"></div>
                                     </div>
                                     <p class="text-[11px] text-slate-500 mb-2 truncate" x-text="hotel.address"></p>
-                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed italic mb-3"
+                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed  mb-3"
                                         x-text="hotel.message"></p>
                                     <div class="border-t border-dashed pt-3 text-right">
-                                        <p class="text-xl font-black text-[#ff5e1f]"
+                                        <p class="text-xl font-black text-[#24b3ae]"
                                             x-text="'Rp ' + hotel.priceStart.toLocaleString('id-ID')"></p>
                                         <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">Termasuk Pajak</p>
                                     </div>
@@ -246,7 +246,7 @@
                                 <p class="text-[11px] text-slate-600 leading-relaxed transition-all duration-300"
                                     :class="showFullMessage ? '' : 'line-clamp-3'" x-html="selectedHotel.message"></p>
                                 <button x-on:click="showFullMessage = !showFullMessage"
-                                    class="text-[11px] font-bold text-blue-600 mt-1 flex items-center gap-1">
+                                    class="text-[11px] font-bold text-[#e03f7d] mt-1 flex items-center gap-1">
                                     <span x-text="showFullMessage ? 'Sembunyikan' : 'Lihat Selengkapnya'"></span>
                                     <i data-lucide="chevron-down" class="w-3 h-3 transition-transform duration-300"
                                         :class="showFullMessage ? 'rotate-180' : ''"></i>
@@ -269,7 +269,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-blue-50/50 p-4 font-black text-blue-600 text-xs uppercase tracking-widest border-y">
+                    <div class="bg-[#e03f7d] p-4 text-[#fff] text-xs uppercase tracking-widest border-y">
                         Kamar Tersedia</div>
 
                     <div class="p-4 space-y-6">
@@ -297,10 +297,10 @@
                                         </div>
 
                                         <div class="text-right shrink-0">
-                                            <p class="text-xl font-black text-[#ff5e1f]"
+                                            <p class="text-xl font-black text-[#24b3ae]"
                                                 x-text="'Rp ' + room.price.toLocaleString('id-ID')"></p>
                                             <button x-on:click="openBookingPage(room)"
-                                                class="mt-2 bg-[#ff5e1f] text-white px-8 py-2.5 rounded-xl font-black text-xs active:scale-95 uppercase tracking-widest">Pilih</button>
+                                                class="mt-2 bg-[#24b3ae] text-white px-8 py-2.5 rounded-xl font-black text-xs active:scale-95 uppercase tracking-widest">Pilih</button>
                                         </div>
                                     </div>
                                 </div>
@@ -313,11 +313,11 @@
             <template x-if="stage === 'booking'">
                 <div class="bg-gray-50 min-h-screen pb-32 overflow-y-auto no-scrollbar">
                     <div
-                        class="fixed top-0 left-0 right-0 bg-[#0194f3] text-white p-4 z-[110] shadow-md flex items-center gap-3 max-w-md mx-auto">
-                        <button x-on:click="stage = 'detail'" class="p-1 hover:bg-blue-800 rounded-full transition">
+                        class="fixed top-0 left-0 right-0 bg-[#24b3ae] text-white p-4 z-[110] shadow-md flex items-center gap-3 max-w-md mx-auto">
+                        <button x-on:click="stage = 'detail'" class="p-1 hover:bg-[#24b3ae] rounded-full transition">
                             <i data-lucide="arrow-left" class="w-6 h-6"></i>
                         </button>
-                        <h2 class="font-black text-sm uppercase tracking-widest italic flex-1">Konfirmasi Pesanan</h2>
+                        <h2 class="font-black text-sm uppercase tracking-widest  flex-1">Konfirmasi Pesanan</h2>
                     </div>
 
                     <div class="pt-14">
@@ -325,7 +325,7 @@
 
                     <div class="p-4 space-y-4">
                         <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
-                            <h3 class="font-black text-xs text-blue-600 uppercase mb-2 italic"
+                            <h3 class="font-black text-xs text-[#24b3ae] uppercase mb-2 "
                                 x-text="selectedHotel.name"></h3>
                             <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200">
                                 <p class="text-[11px] font-black text-slate-700 uppercase" x-text="selectedRoom.name">
@@ -338,7 +338,7 @@
                         </div>
 
                         <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
-                            <h3 class="font-black text-xs text-slate-800 uppercase italic">Kontak Pemesan</h3>
+                            <h3 class="font-black text-xs text-slate-800 uppercase ">Kontak Pemesan</h3>
                             <div class="space-y-3">
                                 <input type="email" x-model="bookingData.contactEmail" placeholder="Email (Wajib Diisi)"
                                     class="w-full bg-slate-50 border rounded-2xl p-3 text-sm font-bold outline-none focus:border-blue-400">
@@ -350,11 +350,11 @@
 
                         <template x-for="(pax, pIdx) in bookingData.paxes" :key="pIdx">
                             <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
-                                <h3 class="font-black text-xs text-blue-600 uppercase italic"
+                                <h3 class="font-black text-xs text-[#24b3ae] uppercase "
                                     x-text="'Informasi Tamu ' + (pIdx + 1)"></h3>
                                 <div class="grid grid-cols-3 gap-2">
                                     <select x-model="pax.title"
-                                        class="bg-slate-50 border rounded-xl p-2.5 text-xs font-bold outline-none uppercase italic">
+                                        class="bg-slate-50 border rounded-xl p-2.5 text-xs font-bold outline-none uppercase ">
                                         <option value="Mr.">Mr.</option>
                                         <option value="Mrs.">Mrs.</option>
                                         <option value="Ms.">Ms.</option>
@@ -379,13 +379,13 @@
                         <div class="flex flex-col">
                             <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Total
                                 Harga</span>
-                            <span class="text-xl font-black text-blue-600"
+                            <span class="text-xl font-black text-[#e03f7d]"
                                 x-text="'Rp ' + totalBayarDisplay.toLocaleString('id-ID')">
                             </span>
-                            <span class="text-[8px] text-slate-400 italic">*Sudah termasuk biaya layanan</span>
+                            <span class="text-[8px] text-slate-400 ">*Sudah termasuk biaya layanan</span>
                         </div>
                         <button @click="showConfirmModal = true; setTimeout(() => lucide.createIcons(), 50);"
-                            class="bg-[#ff5e1f] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform italic">
+                            class="bg-[#24b3ae] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform ">
                             Booking Sekarang
                         </button>
                     </div>
@@ -407,9 +407,9 @@
                         <div x-on:click="selectDestination(dest)"
                             class="flex justify-between items-center py-4 border-b border-slate-50 cursor-pointer hover:bg-slate-50 rounded-xl px-2">
                             <div class="flex items-center gap-4">
-                                <div class="bg-blue-50 p-2.5 rounded-xl">
+                                <div class="bg-[#24b3ae] p-2.5 rounded-xl">
                                     <i :data-lucide="dest.type === 'CITY' ? 'building-2' : 'map'"
-                                        class="w-5 h-5 text-blue-500"></i>
+                                        class="w-5 h-5 text-[#24b3ae]"></i>
                                 </div>
                                 <div>
                                     <p class="font-black text-slate-800 uppercase tracking-tighter" x-text="dest.name">
@@ -418,7 +418,7 @@
                                 </div>
                             </div>
                             <span
-                                class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-0.5 rounded border border-blue-100 uppercase italic"
+                                class="bg-[#24b3ae] text-[#24b3ae] text-[9px] font-black px-2 py-0.5 rounded border border-blue-100 uppercase "
                                 x-text="dest.type"></span>
                         </div>
                     </template>
@@ -427,18 +427,18 @@
 
             <div x-show="modals.date" class="fixed inset-0 z-[150] bg-white flex flex-col" x-transition x-cloak>
                 <div
-                    class="bg-[#0194f3] p-4 flex justify-between items-center text-white font-bold uppercase italic tracking-widest">
+                    class="bg-[#24b3ae] p-4 flex justify-between items-center text-white font-bold uppercase  tracking-widest">
                     <span>Pilih Tanggal</span>
                     <span x-on:click="modals.date = false" class="text-sm cursor-pointer underline">Batal</span>
                 </div>
-                <div class="p-4 text-center font-black border-b uppercase italic" x-text="getCurrentMonthName()"></div>
+                <div class="p-4 text-center font-black border-b uppercase " x-text="getCurrentMonthName()"></div>
                 <div class="p-4 grid grid-cols-7 text-center gap-y-4">
                     <template x-for="day in 31" :key="day">
                         <div x-on:click="!isDateDisabled(day) && selectDate(day)"
                             class="h-10 flex items-center justify-center text-sm rounded-full transition-all" :class="{
-                                'bg-blue-600 text-white font-black shadow-lg scale-110': isSelectedDate(day),
+                                'bg-[#24b3ae] text-white font-black shadow-lg scale-110': isSelectedDate(day),
                                 'text-slate-200 cursor-not-allowed': isDateDisabled(day),
-                                'text-slate-700 cursor-pointer hover:bg-blue-50': !isDateDisabled(day) && !isSelectedDate(day)
+                                'text-slate-700 cursor-pointer hover:bg-[#24b3ae]': !isDateDisabled(day) && !isSelectedDate(day)
                             }" x-text="day"></div>
                     </template>
                 </div>
@@ -448,14 +448,14 @@
                 x-transition>
                 <div class="bg-white rounded-t-3xl p-6" x-on:click.away="modals.duration = false">
                     <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-                    <h3 class="text-center font-black text-slate-800 mb-6 uppercase text-xs border-b pb-4 italic">Durasi
+                    <h3 class="text-center font-black text-slate-800 mb-6 uppercase text-xs border-b pb-4 ">Durasi
                         Inap</h3>
                     <div class="space-y-1 max-h-[40vh] overflow-y-auto no-scrollbar">
                         <template x-for="n in 30" :key="n">
                             <div x-on:click="search.duration = n; modals.duration = false"
-                                class="flex justify-between py-4 border-b px-4 hover:bg-blue-50 cursor-pointer">
-                                <span class="font-bold text-blue-500 text-lg" x-text="n + ' Malam'"></span>
-                                <span class="text-[10px] text-blue-400 font-black uppercase tracking-widest italic"
+                                class="flex justify-between py-4 border-b px-4 hover:bg-[#24b3ae] cursor-pointer">
+                                <span class="font-bold text-[#24b3ae] text-lg" x-text="n + ' Malam'"></span>
+                                <span class="text-[10px] text-[#24b3ae] font-black uppercase tracking-widest "
                                     x-text="'OUT: ' + getCheckOutDate(n)"></span>
                             </div>
                         </template>
@@ -465,54 +465,54 @@
 
             <div x-show="modals.guest" class="fixed inset-0 z-[150] bg-white flex flex-col" x-transition x-cloak>
                 <div
-                    class="bg-[#0194f3] p-4 flex justify-between items-center text-white font-bold uppercase italic tracking-widest">
+                    class="bg-[#24b3ae] p-4 flex justify-between items-center text-white font-bold uppercase  tracking-widest">
                     <span>Tamu & Kamar</span>
                     <i x-on:click="modals.guest = false" data-lucide="x" class="cursor-pointer"></i>
                 </div>
                 <div class="p-6 space-y-10 flex-1 overflow-y-auto">
-                    <div class="flex justify-between items-center italic">
+                    <div class="flex justify-between items-center ">
                         <div class="flex items-center gap-3"><i data-lucide="door-closed"
                                 class="w-5 h-5 text-slate-400"></i><span
                                 class="text-xs font-black text-slate-600 uppercase">Kamar</span></div>
                         <div class="flex items-center gap-6"><button
                                 @click="search.roomCount = Math.max(1, search.roomCount-1)"
                                 class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
-                                class="font-black text-xl text-blue-600" x-text="search.roomCount"></span><button
+                                class="font-black text-xl text-[#24b3ae]" x-text="search.roomCount"></span><button
                                 @click="search.roomCount++"
-                                class="w-10 h-10 rounded-full border border-blue-200 bg-blue-50 text-blue-600 font-black">+</button>
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#24b3ae] font-black">+</button>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center border-t pt-8 italic">
+                    <div class="flex justify-between items-center border-t pt-8 ">
                         <div class="flex items-center gap-3"><i data-lucide="user"
                                 class="w-5 h-5 text-slate-400"></i><span
                                 class="text-xs font-black text-slate-600 uppercase">Dewasa</span></div>
                         <div class="flex items-center gap-6"><button
                                 @click="search.adultCount = Math.max(1, search.adultCount-1)"
                                 class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
-                                class="font-black text-xl text-blue-600" x-text="search.adultCount"></span><button
+                                class="font-black text-xl text-[#24b3ae]" x-text="search.adultCount"></span><button
                                 @click="search.adultCount++"
-                                class="w-10 h-10 rounded-full border border-blue-200 bg-blue-50 text-blue-600 font-black">+</button>
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#24b3ae] font-black">+</button>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center border-t pt-8 italic">
+                    <div class="flex justify-between items-center border-t pt-8 ">
                         <div class="flex items-center gap-3"><i data-lucide="baby"
                                 class="w-5 h-5 text-slate-400"></i><span
                                 class="text-xs font-black text-slate-600 uppercase">Anak</span></div>
                         <div class="flex items-center gap-6"><button @click="removeChild()"
                                 class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
-                                class="font-black text-xl text-blue-600" x-text="search.childCount"></span><button
+                                class="font-black text-xl text-[#24b3ae]" x-text="search.childCount"></span><button
                                 @click="addChild()"
-                                class="w-10 h-10 rounded-full border border-blue-200 bg-blue-50 text-blue-600 font-black">+</button>
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#24b3ae] font-black">+</button>
                         </div>
                     </div>
                     <template x-if="search.childCount > 0">
                         <div class="bg-slate-50 p-5 rounded-2xl space-y-4">
                             <p
-                                class="text-[9px] font-black text-slate-400 uppercase italic underline underline-offset-4">
+                                class="text-[9px] font-black text-slate-400 uppercase  underline underline-offset-4">
                                 Usia Anak</p>
                             <div class="grid grid-cols-2 gap-4">
                                 <template x-for="(age, idx) in search.childAges" :key="idx">
-                                    <div class="flex flex-col gap-1 italic">
+                                    <div class="flex flex-col gap-1 ">
                                         <label class="text-[8px] text-slate-500 uppercase font-black">Anak <span
                                                 x-text="idx+1"></span></label>
                                         <select x-model="search.childAges[idx]"
@@ -528,7 +528,7 @@
                     </template>
                 </div>
                 <div class="p-6 border-t bg-slate-50"><button x-on:click="modals.guest = false"
-                        class="w-full bg-[#ff5e1f] py-4 rounded-2xl text-white font-black shadow-xl uppercase italic tracking-widest">Simpan</button>
+                        class="w-full bg-[#24b3ae] py-4 rounded-2xl text-white font-black shadow-xl uppercase  tracking-widest">Simpan</button>
                 </div>
             </div>
 
@@ -546,7 +546,7 @@
 
                     <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
                         x-if="bookingResult">
-                        <div class="bg-blue-600 p-5 text-white">
+                        <div class="bg-[#24b3ae] p-5 text-white">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-xs opacity-80 uppercase tracking-widest font-bold">No. Reservasi</p>
@@ -593,10 +593,10 @@
                                     <span class="text-gray-500">Layanan Makan</span>
                                     <span class="font-bold text-green-600" x-text="bookingResult.breakfast"></span>
                                 </div>
-                                <div class="bg-blue-50 p-3 rounded-xl">
-                                    <p class="text-[10px] text-blue-500 font-bold uppercase mb-1">Tamu Utama</p>
+                                <div class="bg-[#24b3ae] p-3 rounded-xl">
+                                    <p class="text-[10px] text-[#24b3ae] font-bold uppercase mb-1">Tamu Utama</p>
                                     <template x-for="room in bookingResult.roomRequest">
-                                        <div class="text-sm font-bold text-blue-900"
+                                        <div class="text-sm font-bold text-[#24b3ae]"
                                             x-text="room.paxes[0].title + ' ' + room.paxes[0].firstName + ' ' + room.paxes[0].lastName">
                                         </div>
                                     </template>
@@ -671,7 +671,7 @@
 
                             <div class="flex flex-col gap-3">
                                 <button @click="window.location.href='/isi-saldo'"
-                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-lg transition-all uppercase tracking-widest text-xs">
+                                    class="w-full bg-[#24b3ae] hover:bg-[#24b3ae] text-white font-black py-4 rounded-2xl shadow-lg transition-all uppercase tracking-widest text-xs">
                                     Isi Coin Sekarang
                                 </button>
                                 <button @click="showConfirmModal = false"
