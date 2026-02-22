@@ -217,8 +217,8 @@
                                 class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 cursor-pointer active:scale-[0.98] transition-all">
                                 <div class="relative h-48">
                                     <img :src="'https://uat-backup.darmawisataindonesiah2h.co.id:7080/h2h/hotel/logo?id=' + (hotel.logo.includes('id=') ? hotel.logo.split('id=')[1] : hotel.logo)"
-     class="w-full h-full object-cover bg-gray-200"
-     @error="$el.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
+                                        class="w-full h-full object-cover bg-gray-200"
+                                        @error="$el.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
                                     <template x-if="hotel.promoCode">
                                         <div
                                             class="absolute top-3 left-3 bg-red-600 text-white text-[10px] px-2 py-1 rounded font-black shadow-lg">
@@ -270,11 +270,17 @@
             <template x-if="stage === 'detail'">
                 <div class="bg-white min-h-screen pb-32 overflow-y-auto no-scrollbar">
                     <div class="relative h-64">
-                        <img :src="selectedHotel.logo" class="w-full h-full object-cover shadow-inner">
+                        <img :src="'https://uat-backup.darmawisataindonesiah2h.co.id:7080/h2h/hotel/logo?id=' + (selectedHotel.logo.includes('id=') ? selectedHotel.logo.split('id=')[1] : selectedHotel.logo)"
+                            class="w-full h-full object-cover shadow-inner bg-gray-200"
+                            @error="$el.src='https://via.placeholder.com >/600x400?text=Image+Not+Found'">
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+
                         <div class="absolute top-4 left-4">
                             <button x-on:click="stage = 'results'"
-                                class="p-2 bg-black/40 rounded-full text-white shadow-lg"><i data-lucide="arrow-left"
-                                    class="w-5 h-5"></i></button>
+                                class="p-2 bg-black/40 backdrop-blur-md rounded-full text-white shadow-lg transition active:scale-90">
+                                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -428,7 +434,7 @@
                         </div>
                         <button @click="showConfirmModal = true; setTimeout(() => lucide.createIcons(), 50);"
                             class="bg-[#24b3ae] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform ">
-                            Booking Sekarang
+                            Booking
                         </button>
                     </div>
                 </div>
