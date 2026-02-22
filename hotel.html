@@ -182,7 +182,7 @@
                 <div class="bg-gray-100 min-h-screen">
                     <div
                         class="fixed top-0 left-0 right-0 bg-[#24b3ae] text-white p-4 z-[100] shadow-md flex items-center gap-3 max-w-md mx-auto">
-                        <button x-on:click="stage = 'search'" class="p-1 hover:bg-[#24b3ae] rounded-full transition">
+                        <button x-on:click="stage = 'search'" class="p-1 hover:bg-[#21a19d] rounded-full transition">
                             <i data-lucide="arrow-left" class="w-6 h-6"></i>
                         </button>
                         <div class="flex-1">
@@ -193,19 +193,37 @@
                         </div>
                     </div>
 
-                    <div class="pt-14">
-                    </div>
+                    <div class="pt-16"></div>
+
                     <div class="px-3 space-y-4 pt-4 pb-10">
-                        <template x-for="(hotel, index) in hotelList" :key="index">
+
+                        <template x-if="loading && displayedHotels.length === 0">
+                            <div class="space-y-4">
+                                <template x-for="i in 5" :key="i">
+                                    <div class="bg-white rounded-xl overflow-hidden shadow-sm animate-pulse">
+                                        <div class="h-48 bg-gray-200"></div>
+                                        <div class="p-4 space-y-3">
+                                            <div class="h-5 bg-gray-200 rounded w-3/4"></div>
+                                            <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+                                            <div class="h-10 bg-gray-200 rounded mt-4"></div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template x-for="(hotel, index) in displayedHotels" :key="index">
                             <div x-on:click="getAvailableRooms(hotel)"
                                 class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 cursor-pointer active:scale-[0.98] transition-all">
                                 <div class="relative h-48">
-                                    <img :src="hotel.logo" class="w-full h-full object-cover bg-gray-200"
-                                        @error="$el.src=''">
+                                    <img :src="'https://uat-backup.darmawisataindonesiah2h.co.id:7080/h2h/hotel/logo?id=' + (hotel.logo.includes('id=') ? hotel.logo.split('id=')[1] : hotel.logo)"
+     class="w-full h-full object-cover bg-gray-200"
+     @error="$el.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
                                     <template x-if="hotel.promoCode">
                                         <div
                                             class="absolute top-3 left-3 bg-red-600 text-white text-[10px] px-2 py-1 rounded font-black shadow-lg">
-                                            PROMO: <span x-text="hotel.promoCode"></span></div>
+                                            PROMO: <span x-text="hotel.promoCode"></span>
+                                        </div>
                                     </template>
                                 </div>
                                 <div class="p-4">
@@ -216,16 +234,35 @@
                                             x-text="hotel.ratingAverage || '9.0'"></div>
                                     </div>
                                     <p class="text-[11px] text-slate-500 mb-2 truncate" x-text="hotel.address"></p>
-                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed  mb-3"
+                                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-3"
                                         x-text="hotel.message"></p>
                                     <div class="border-t border-dashed pt-3 text-right">
                                         <p class="text-xl font-black text-[#24b3ae]"
-                                            x-text="'Rp ' + hotel.priceStart.toLocaleString('id-ID')"></p>
+                                            x-text="'Rp ' + Math.round(hotel.priceStart).toLocaleString('id-ID')"></p>
                                         <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">Termasuk Pajak</p>
                                     </div>
                                 </div>
                             </div>
                         </template>
+
+                        <div id="load-more-trigger" class="py-10 flex flex-col items-center justify-center">
+                            <template x-if="hasMore">
+                                <div class="flex flex-col items-center gap-2">
+                                    <div
+                                        class="w-6 h-6 border-2 border-gray-300 border-t-[#24b3ae] rounded-full animate-spin">
+                                    </div>
+                                    <span class="text-[10px] text-gray-400 italic">Memuat lebih banyak
+                                        properti...</span>
+                                </div>
+                            </template>
+
+                            <template x-if="!hasMore && hotelList.length > 0">
+                                <div class="text-center">
+                                    <div class="w-1 h-1 bg-gray-300 rounded-full mx-auto mb-2"></div>
+                                    <p class="text-[10px] text-gray-400 italic">Semua properti telah ditampilkan</p>
+                                </div>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -776,6 +813,11 @@
                     show: false,
                     message: ''
                 },
+                hotelList: [],
+                displayedHotels: [], // Data yang tampil di layar
+                itemsPerPage: 10,
+                currentPage: 1,
+                hasMore: false,
 
 
                 init() {
@@ -865,24 +907,84 @@
                 removeChild() { if (this.search.childCount > 0) { this.search.childCount--; this.search.childAges.pop(); } },
                 selectDestination(d) { this.search.cityID = d.cityID; this.search.cityName = d.name; this.modals.destination = false; },
 
+                // Di dalam return { ... } Alpine.js
+                initObserver() {
+                    // Kita buat observer untuk memantau elemen dengan id 'load-more-trigger'
+                    const observer = new IntersectionObserver((entries) => {
+                        if (entries[0].isIntersecting && this.hasMore && !this.loading) {
+                            this.loadMoreHotels();
+                        }
+                    }, {
+                        rootMargin: '200px' // Load data saat user masih 200px sebelum mencapai bawah (agar lebih smooth)
+                    });
+
+                    const trigger = document.getElementById('load-more-trigger');
+                    if (trigger) observer.observe(trigger);
+                },
+
+                loadMoreHotels() {
+                    const start = (this.currentPage - 1) * this.itemsPerPage;
+                    const end = start + this.itemsPerPage;
+                    const nextBatch = this.hotelList.slice(start, end);
+
+                    if (nextBatch.length > 0) {
+                        this.displayedHotels = [...this.displayedHotels, ...nextBatch];
+                        this.currentPage++;
+                        this.hasMore = this.displayedHotels.length < this.hotelList.length;
+                    } else {
+                        this.hasMore = false;
+                    }
+                    this.$nextTick(() => this.refreshIcons());
+                },
+
                 async performSearch() {
-                    this.loading = true; this.refreshIcons();
-                    let out = new Date(this.search.checkInDate); out.setDate(out.getDate() + parseInt(this.search.duration));
+                    this.loading = true;
+                    this.currentPage = 1;
+                    this.hotelList = [];
+                    this.displayedHotels = [];
+                    this.refreshIcons();
+
+                    let out = new Date(this.search.checkInDate);
+                    out.setDate(out.getDate() + parseInt(this.search.duration));
+
                     const payload = {
-                        paxPassport: "ID", countryID: "ID", cityID: String(this.search.cityID),
-                        checkInDate: this.search.checkInDate + "T14:00:00Z", checkOutDate: out.toISOString().split('T')[0] + "T12:00:00Z",
+                        paxPassport: "ID",
+                        countryID: "ID",
+                        cityID: String(this.search.cityID),
+                        checkInDate: this.search.checkInDate + "T14:00:00Z",
+                        checkOutDate: out.toISOString().split('T')[0] + "T12:00:00Z",
                         roomRequest: Array.from({ length: parseInt(this.search.roomCount) }, () => ({
-                            roomType: 0, childNum: parseInt(this.search.childCount), childAges: this.search.childAges.map(Number)
+                            roomType: 0,
+                            childNum: parseInt(this.search.childCount),
+                            childAges: this.search.childCount > 0 ? this.search.childAges.map(Number) : []
                         }))
                     };
+
                     try {
                         const res = await fetch('https://darma.siappgo.id/api/hotels/search', {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
                         });
                         const r = await res.json();
-                        this.hotelList = r.hotels || []; this.stage = 'results';
-                    } catch (e) { this.showToast("Koneksi bermasalah."); } finally { this.loading = false; this.refreshIcons(); }
+
+                        // Simpan semua data hotel
+                        this.hotelList = r.hotels || [];
+                        this.stage = 'results';
+
+                        this.loadMoreHotels();
+
+                        // Inisialisasi observer setelah elemen muncul di DOM
+                        setTimeout(() => this.initObserver(), 500);
+
+                    } catch (e) {
+                        this.showToast("Koneksi bermasalah.");
+                    } finally {
+                        this.loading = false;
+                        this.refreshIcons();
+                    }
                 },
+
 
                 async getAvailableRooms(hotel) {
                     this.loading = true; this.showFullMessage = false; this.selectedHotel = hotel;
