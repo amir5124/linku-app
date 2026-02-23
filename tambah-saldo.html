@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jagel Balance Adjuster</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .container { max-width: 400px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:disabled { background-color: #ccc; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Adjust Saldo Jagel</h2>
+    
+    <label>Username Jagel:</label>
+    <input type="text" id="username" value="amir" placeholder="Contoh: amir">
+    
+    <label>Jumlah (Gunakan minus untuk potong):</label>
+    <input type="number" id="amount" placeholder="Contoh: -50000 atau 10000">
+
+    <label>Catatan (Note):</label>
+    <input type="text" id="note" value="Penyesuaian Saldo Manual" placeholder="Catatan transaksi">
+
+    <button id="btnProses" onclick="adjustSaldo()">Proses Adjust Saldo</button>
+</div>
+
+<script>
+    async function adjustSaldo() {
+        const username = document.getElementById('username').value;
+        const apiKey = "c6wA9HlUkN2PYEpEOYmDwiehrw7QMIVAvPETMpR2NRN4jjnYPO";
+        const amount = document.getElementById('amount').value;
+        const note = document.getElementById('note').value;
+        const btn = document.getElementById('btnProses');
+
+        if (!apiKey || !amount) {
+            alert("Harap isi API Key dan Jumlah Saldo!");
+            return;
+        }
+
+        // Loading state
+        btn.disabled = true;
+        btn.innerText = "Memproses...";
+
+        try {
+            const response = await fetch('https://api.jagel.id/v1/balance/adjust', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: 'username',
+                    value: username,
+                    apikey: apiKey,
+                    amount: parseInt(amount), // Mengubah string ke angka
+                    note: note
+                })
+            });
+
+            const data = await response.json();
+
+            // Tampilkan full response di alert
+            alert("Response dari Jagel:\n" + JSON.stringify(data, null, 2));
+
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Terjadi kesalahan koneksi atau sistem: " + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Proses Adjust Saldo";
+        }
+    }
+</script>
+
+</body>
+</html>
