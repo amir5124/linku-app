@@ -1,0 +1,860 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<style>
+    @import url(https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap);
+
+    body {
+        font-family: 'Baloo 2', sans-serif;
+        font-weight: 400;
+        margin: 0;
+        background-color: #fff
+    }
+
+    #loadingOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgb(0 0 0 / .5);
+        z-index: 998
+    }
+
+    #loadingIndicator {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 999
+    }
+
+    .loader {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #633493;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg)
+        }
+
+        100% {
+            transform: rotate(360deg)
+        }
+    }
+
+    input[type=number] {
+        width: 100%;
+        margin: 0 0;
+        outline: none;
+        padding: 8px;
+        height: 40px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        background-color: #fff;
+        border: none;
+        position: relative;
+        box-shadow: 0 0 3px rgb(0 0 0 / .2)
+    }
+
+    input[type=number]::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #000;
+        transform: scaleX(0);
+        transition: transform 0.3s ease
+    }
+
+    input[type=number]:focus::after {
+        transform: scaleX(1)
+    }
+
+    .video-slider-btn:active,
+    .video-slider-btn:focus {
+        outline: none
+    }
+
+    .br-10 {
+        border-radius: 5px
+    }
+
+    button[type="submit"] {
+        background-color: #633493;
+        color: #fff;
+        border: none;
+        width: 100%;
+        border-radius: 4px;
+        padding: 10px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        cursor: pointer
+    }
+
+    button[type="submit"]:hover {
+        background-color: #633493;
+        width: 100%
+    }
+
+    button {
+        border: none !important
+    }
+
+    .text-14 {
+        font-size: 14px
+    }
+
+    .radios label {
+        display: inline-block;
+        background-color: #fff;
+        padding: 5px;
+        border-radius: 5px;
+        color: gray;
+        margin: 5px;
+        cursor: pointer;
+        border: 1px solid #fff;
+        position: relative;
+        box-shadow: 0 0 3px rgb(0 0 0 / .2)
+    }
+
+    .radios input[type="radio"] {
+        display: none
+    }
+
+    .radios input[type="radio"]:checked+label {
+        background-color: #633493;
+        color: #fff;
+        border: 1px solid #633493
+    }
+
+    .radioso {
+        background-color: #fff;
+        box-shadow: 0 0 3px rgb(0 0 0 / .2);
+        width: 100%;
+        height: 70px;
+        border-radius: 5px;
+        padding: 5px
+    }
+
+    .method {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: border 0.3s ease
+    }
+
+    .method:hover {
+        border-color: #633493
+    }
+
+    .method label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        width: 100%;
+        margin: 0
+    }
+
+    .method img {
+        width: 40px;
+        height: auto
+    }
+
+    .admin-fee {
+        font-size: 14px;
+        color: #2ca941;
+        margin-top: -5px;
+        margin-left: 5px;
+        margin-bottom: 20px
+    }
+
+    h6 {
+        font-weight: 700;
+        margin-top: 16px
+    }
+
+    .payment-container {
+        background-color: #fff;
+        top: 0;
+        height: 100%;
+        box-shadow: 0 4px 10px rgb(0 0 0 / .1)
+    }
+
+    .bank-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #dee2e6
+    }
+
+    .bank-logo img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        margin-top: -15px
+    }
+
+    .bank-details {
+        flex-grow: 1;
+        margin-left: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center
+    }
+
+    .bank-details p {
+        font-size: 20px;
+        color: #633493
+    }
+
+    .bank-details span {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+        color: #6c757d
+    }
+
+    .clipboard-icon {
+        font-size: 20px;
+        color: #007bff;
+        cursor: pointer;
+        margin-left: 10px
+    }
+
+    .summary {
+        padding: 15px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center
+    }
+
+    .summary p {
+        margin: 5px 0;
+        font-size: 16px
+    }
+
+    .total-payment {
+        font-size: 20px;
+        font-weight: 700;
+        color: #633493
+    }
+
+    .notice {
+        background-color: #fff3cd;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid #ffeeba;
+        color: #856404;
+        text-align: justify;
+        margin: 0 0
+    }
+
+    ul {
+        font-size: 16px;
+        margin: 0;
+        padding-left: 3px
+    }
+
+    li {
+        font-size: 16px;
+        margin-bottom: 8px
+    }
+
+    b {
+        font-size: 16px;
+        font-weight: 700
+    }
+
+    .close-button {
+        position: absolute;
+        top: 20px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #333;
+        cursor: pointer
+    }
+
+    .countdown-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        font-family: monospace;
+        font-size: 16px;
+        font-weight: 700;
+        color: #333
+    }
+
+    .countdown-box {
+        background-color: #fff;
+        box-shadow: 0 0 4px rgb(0 0 0 / .2);
+        border-radius: 5px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center
+    }
+
+    .countdown-separator {
+        margin: 0 4px
+    }
+
+    #vaContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 20px
+    }
+
+    .va-card {
+        background-color: #fff;
+        box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 2px 2px rgb(0 0 0 / .12), 2px 0 2px rgb(0 0 0 / .1), -2px 0 2px rgb(0 0 0 / .1);
+        border-radius: 10px;
+        margin-bottom: 0;
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap
+    }
+
+    .bank-va {
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .bank-name {
+        font-weight: 400;
+        font-size: 16px
+    }
+
+    .va-number {
+        font-size: 14px;
+        color: #333
+    }
+
+    .amount {
+        font-weight: 700;
+        font-size: 16px;
+        color: #00b320
+    }
+
+    .bg-pembayaran {
+        background-color: #633493;
+        height: 50px;
+        font-size: 14px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 2
+    }
+
+    .bg-va {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 8px;
+        box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 2px 2px rgb(0 0 0 / .12), 2px 0 2px rgb(0 0 0 / .1), -2px 0 2px rgb(0 0 0 / .1)
+    }
+
+    .custom-hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin-top: -10px
+    }
+
+    .bg-copy {
+        background-color: #633493;
+        height: 25px;
+        width: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0
+        }
+
+        100% {
+            background-position: 200% 0
+        }
+    }
+
+    #downloadQR {
+        background-color: #633493;
+        color: #fff;
+        border: none;
+        padding: 5px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease
+    }
+
+    #downloadQR:hover {
+        background-color: #633493
+    }
+</style>
+</head>
+
+<body>
+    <div id="paymentContainer" class="m-3" style="display: block;"><input type="number" id="customNominal"
+            class="video-slider-btn br-10 mt-2" placeholder="Nominal Custom" oninput="updateAmount()">
+        <center class="mt-3">
+            <p class="text-14">Nominal Cepat</p>
+        </center>
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="radios"><input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios"
+                    value="50000" name="radioGroup" /><label for="exampleRadios">50.000</label></div>
+            <div class="radios"><input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1"
+                    value="75000" name="radioGroup" /><label for="exampleRadios1"> 75.000</label></div>
+            <div class="radios"><input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2"
+                    value="100000"><label class="form-check-label" for="exampleRadios2"> 100.000 </label></div>
+        </div>
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="radios"><input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3"
+                    value="250000"><label class="form-check-label" for="exampleRadios3"> 250.000 </label></div>
+            <div class="radios"><input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios4"
+                    value="500000"><label class="form-check-label" for="exampleRadios4"> 500.000 </label></div>
+            <div class="radios"><input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios5"
+                    value="1000000"><label class="form-check-label" for="exampleRadios5"> 1.000.000 </label></div>
+        </div><button type="submit" id="topupButton" class="video-slider-btn mt-4">LANJUTKAN</button>
+        <div id="loadingIndicator" style="display: none;">
+            <div class="loader"></div>
+        </div>
+        <p style="font-size: 16px;font-weight: bold; margin-left: 15px; margin-top: 10px; text-align: center;">Histori
+            Pembayaran </h2>
+        <div class="va-container" id="vaContainer"></div>
+        <div class="va-container" id="qrContainer"></div>
+        <div id="retailContainer"></div>
+    </div>
+    <div id="paymentMethodsContainer" class="m-3" style="display: none;">
+        <p style="font-size:16px; font-weight: bold; text-align: center; margin-top: 12px;">Pilih Metode Pembayaran </p>
+        <h6>Scan QR</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="qris" data-method="qris">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684336/Logo_QRIS.svg_szprhw.png"
+                    alt="QRIS" height="30">
+                QRIS
+            </label>
+        </div>
+        <p class="admin-fee">Biaya Layanan 0,8 %</p>
+        <h6>Virtual Account</h6>
+        <div class="method"><label><input type="radio" name="payment" value="002" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png" alt="BRI"
+                    height="30"> Bank BRI </label></div>
+        <div class="method"><label><input type="radio" name="payment" value="008" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png"
+                    alt="Mandiri" height="30"> Bank Mandiri </label></div>
+        <div class="method"><label><input type="radio" name="payment" value="009" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png"
+                    alt="BNI" height="30"> Bank BNI </label></div>
+        <div class="method"><label><input type="radio" name="payment" value="451" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png" alt="BSI"
+                    height="30"> Bank BSI </label></div>
+        <div class="method"><label><input type="radio" name="payment" value="022" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png"
+                    alt="CIMB" height="30"> Bank CIMB </label></div>
+        <div class="method"><label><input type="radio" name="payment" value="011" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png" alt="DANAMON"
+                    height="30"> Bank Danamon </label></div>
+        <div class="method"><label><input type="radio" name="payment" value="013" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg" alt="Permata"
+                    height="30"> Bank Permata </label></div>
+        <div class="method"><label><input type="radio" name="payment" value="028" data-method="va"><img
+                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png" alt="Danamon"
+                    height="30"> Bank OCBC </label></div>
+        <p class="admin-fee">Biaya Layanan Rp 2.500</p><br><br>
+        <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);">
+            <button id="topupButton" type="submit"
+                style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #633493; color: white; padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                LANJUTKAN </button></div>
+    </div>
+    <div id="vaPage" style="display: none;" class="payment-container">
+        <div class="bg-pembayaran">
+            <div class="d-flex align-items-center">
+                <div style="display: flex; align-items: center;"><i class="fas fa-arrow-left"
+                        style="font-size: 18px; color: white; margin-left: 10px; cursor: pointer;"
+                        onclick="goBackToInputs()"></i>
+                    <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+                </div>
+            </div>
+        </div>
+        <div class="px-3">
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 65px;">Jumlah yang harus dibayar
+            </p>
+            <p class="total-payment" style="margin-top: -10px;"></p>
+            <div class="d-flex align-items-center justify-content-between">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d;">Total Harga</p>
+                <p style="font-size: 14px;"><span
+                        style="display: inline-block; width: 30px; font-size: 14px;">Rp</span><span class="total-harga"
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;"></span></p>
+            </div>
+            <div class="d-flex align-items-center justify-content-between" style="margin-top: -10px;">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; font-size: 14px;">Biaya Admin</p>
+                <p style="font-size: 14px;"><span
+                        style="display: inline-block; width: 30px; font-size: 14px;">Rp</span><span
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;">2.500</span>
+                </p>
+            </div>
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 20px;">Metode Pembayaran</p>
+            <div class="bg-va">
+                <div class="d-flex align-items-center">
+                    <div class="bank-logo"><img src="" alt="bank" style=" margin-left: 10px;"></div>
+                    <p class="bank-name" style="margin-left: 10px; font-size: 14px; color: gray;"></p>
+                </div>
+                <hr class="custom-hr">
+                <p style="font-size: 12px; font-weight: 500; color: gray; margin-left: 15px; margin-top: 10px;">Nomor
+                    Virtual Account</p>
+                <div class="d-flex align-items-center justify-content-between" style="margin-top: -15px;">
+                    <div class="bank-details">
+                        <p id="vaDana"></p>
+                    </div>
+                    <div class="bg-copy" style="margin-top: -15px;" onclick="copyVaCode()"><iconify-icon icon="ion:copy"
+                            id="copy-promo-btn" style="width: 17px; height: 17px; color: #fff;"
+                            title="Salin Nomor Rekening"></iconify-icon></div>
+                </div>
+            </div>
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 15px;">Pembayaran (Mobile Banking)
+            </p>
+            <div id="panduan-pembayaran" style="margin-top: 10px;"></div>
+            <div class="panduan-pembayaran-va" style="display: none;"></div>
+            <center>
+                <div id="expiryTimestampDisplay" class="countdown-wrapper mt-3"></div>
+            </center><button onclick="goBackToInputs()" class="close-button"><iconify-icon icon="mingcute:close-fill"
+                    style="width: 30px; height: 30px;"></iconify-icon></button>
+        </div>
+        <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); ">
+            <button onclick="cekStatusPembayaran()" type="button"
+                style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #633493; color: white;padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                Cek Status Pembayaran </button></div>
+    </div>
+    <div id="qrisPage" style="display: none;" class="payment-container px-3">
+        <div class="bg-pembayaran">
+            <div class="d-flex align-items-center">
+                <div style="display: flex; align-items: center;"><i class="fas fa-arrow-left"
+                        style="font-size: 18px; color: white; margin-left: 10px; cursor: pointer;"
+                        onclick="goBackToInputs()"></i>
+                    <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+                </div>
+            </div>
+        </div>
+        <p class="text-white">Silakan scan QRIS berikut untuk melakukan pembayaran:</p>
+        <div id="qrShimmer"
+            style="width: 250px; height: 250px; margin: 0 auto; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;">
+        </div>
+        <div style="display: flex; justify-content: center; margin: 20px 0;"><img id="qrisImage" src="" alt=""
+                width="250" height="250" style="display: none;"></div>
+        <center><button id="downloadQR" class="btn btn-primary" style="display: none;"><i class="bi bi-download"></i>
+                Unduh QR </button></center>
+        <div class="summary">
+            <p style="font-size:18px;">Total Pembayaran:</p>
+            <p class="total-payment"></p>
+        </div>
+        <div id="panduan-pembayaran-qris"></div>
+        <div class="panduan-pembayaran-qris-mod" style="display: none;"></div>
+        <center>
+            <div id="expiryTimestampDisplayQris" class="countdown-wrapper mt-3"></div>
+        </center><br><br><br><br>
+        <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); ">
+            <button onclick="cekStatusPembayaran()" type="button"
+                style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #633493; color: white;padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                Cek Status Pembayaran </button></div>
+    </div>
+    <div id="retailPage" style="display: none;" class="payment-container">
+        <div class="bg-pembayaran">
+            <div class="d-flex align-items-center">
+                <div style="display: flex; align-items: center;"><i class="fas fa-arrow-left"
+                        style="font-size: 18px; color: white; margin-left: 10px; cursor: pointer;"
+                        onclick="goBackToInputs()"></i>
+                    <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+                </div>
+            </div>
+        </div>
+        <div class="px-3">
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 65px;">Jumlah yang harus dibayar
+            </p>
+            <p class="total-payment" style="margin-top: -10px;"></p>
+            <div class="d-flex align-items-center justify-content-between">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d;">Total Harga</p>
+                <p style="font-size: 14px;"><span
+                        style="display: inline-block; width: 30px; font-size: 14px;">Rp</span><span class="total-harga"
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;"></span></p>
+            </div>
+            <div class="d-flex align-items-center justify-content-between" style="margin-top: -10px;">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; font-size: 14px;">Biaya Admin</p>
+                <p style="font-size: 14px;"><span
+                        style="display: inline-block; width: 30px; font-size: 14px;">Rp</span><span
+                        class="admin-fee-display"
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;"></span></p>
+            </div>
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 20px;">Metode Pembayaran</p>
+            <div class="bg-va">
+                <div class="d-flex align-items-center">
+                    <div class="bank-logo"><img src="" alt="retail" style="margin-left: 10px;"></div>
+                    <p id="retailOutletName" class="bank-name" style="margin-left: 10px; font-size: 14px; color: gray;">
+                    </p>
+                </div>
+                <hr class="custom-hr">
+                <p style="font-size: 12px; font-weight: 500; color: gray; margin-left: 15px; margin-top: 10px;">Kode
+                    Pembayaran</p>
+                <div class="d-flex align-items-center justify-content-between" style="margin-top: -15px;">
+                    <div class="bank-details">
+                        <p id="retailCodeDisplay"></p>
+                    </div>
+                    <div class="bg-copy" style="margin-top: -15px;" onclick="copyRetailCode()"><iconify-icon
+                            icon="ion:copy" id="copy-retail-btn" style="width: 17px; height: 17px; color: #fff;"
+                            title="Salin Kode Pembayaran"></iconify-icon></div>
+                </div>
+            </div>
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 15px;">Panduan Pembayaran</p>
+            <div id="panduan-pembayaran-retail" style="margin-top: 10px;"></div>
+            <center>
+                <div id="expiryTimestampDisplayRetail" class="countdown-wrapper mt-3"></div>
+            </center><button onclick="goBackToInputs()" class="close-button"><iconify-icon icon="mingcute:close-fill"
+                    style="width: 30px; height: 30px;"></iconify-icon></button>
+        </div>
+        <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); ">
+            <button onclick="cekStatusPembayaran()" type="button"
+                style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #633493; color: white; padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                Cek Status Pembayaran </button></div>
+    </div>
+    <div id="loadingIndicator" style="display:none; text-align:center;">Loading...</div>
+    <script></script>
+    <script>
+        var amount = 0; var selectedBankLogo = ""; var selectedBankName = ""; var selectedBankCode = ""; let countdownInterval; const username = "{username}"; const bankLogoMap = { "BANK BRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png", "BANK MANDIRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png", "BANK BNI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png", "BANK BSI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png", "BANK CIMB NIAGA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png", "DANAMON": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png", "BANK PERMATA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg", "BANK OCBC": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png", "ALFAMART": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1760671073/alfa_kd1api.png", "INDOMARET": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1760671077/indo_fn6e0u.png" }; function formatTanggal(datetimeStr) { if (!datetimeStr) return '-'; const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']; const date = new Date(datetimeStr.replace(' ', 'T')); const hari = date.getDate(); const bulanNama = bulan[date.getMonth()]; const tahun = date.getFullYear(); const jam = String(date.getHours()).padStart(2, '0'); const menit = String(date.getMinutes()).padStart(2, '0'); return `${hari} ${bulanNama} ${tahun}, ${jam}:${menit}` }
+        function updateAmount() { var selectedRadio = document.querySelector('input[name="exampleRadios"]:checked'); var customNominalInput = document.getElementById("customNominal"); if (customNominalInput && customNominalInput.value !== "") { amount = parseInt(customNominalInput.value) } else if (selectedRadio) { amount = parseInt(selectedRadio.value) } else { amount = 0 } }
+        function goBackToInputs() { clearInterval(countdownInterval); document.getElementById("expiryTimestampDisplay").textContent = ""; document.getElementById("expiryTimestampDisplayQris").textContent = ""; document.getElementById("expiryTimestampDisplayRetail").textContent = ""; document.getElementById('paymentContainer').style.display = 'block'; document.getElementById('paymentMethodsContainer').style.display = 'none'; document.getElementById('vaPage').style.display = 'none'; document.getElementById('qrisPage').style.display = 'none'; document.getElementById('retailPage').style.display = 'none'; loadVAList(); loadQRList(); loadRetailList() }
+        function copyVaCode() {
+            const promoCode = document.getElementById('vaDana')?.innerText; if (!promoCode || promoCode.trim() === "") { swal("Gagal", "Nomor Rekening tidak ditemukan", "error"); return }
+            const tempInput = document.createElement('input'); document.body.appendChild(tempInput); tempInput.value = promoCode; tempInput.select(); document.execCommand('copy'); document.body.removeChild(tempInput); swal({ title: 'Berhasil Disalin !', text: 'Nomor Rekening telah disalin.', icon: 'success', confirmButtonText: 'OK', })
+        }
+        function copyRetailCode() {
+            const retailCode = document.getElementById('retailCodeDisplay')?.innerText; if (!retailCode || retailCode.trim() === "") { swal("Gagal", "Kode Pembayaran tidak ditemukan", "error"); return }
+            const tempInput = document.createElement('input'); document.body.appendChild(tempInput); tempInput.value = retailCode; tempInput.select(); document.execCommand('copy'); document.body.removeChild(tempInput); swal({ title: 'Berhasil Disalin !', text: 'Kode Pembayaran telah disalin.', icon: 'success', confirmButtonText: 'OK', })
+        }
+        function startCountdown(minutes = 15) {
+            const display = document.getElementById("expiryTimestampDisplay"); clearInterval(countdownInterval); const endTime = Date.now() + minutes * 60 * 1000; countdownInterval = setInterval(() => {
+                const remaining = endTime - Date.now(); if (remaining <= 0) { clearInterval(countdownInterval); display.innerHTML = `<span>⛔ Waktu pembayaran telah habis.</span>`; setTimeout(goBackToInputs, 3000); return }
+                const mins = String(Math.floor((remaining / 1000 / 60) % 60)).padStart(2, '0'); const secs = String(Math.floor((remaining / 1000) % 60)).padStart(2, '0'); display.innerHTML = `
+<span style="font-weight: normal; font-size: 15px;">Sisa waktu pembayaran </span>
+<div style="display: inline-flex; align-items: center; margin-left: 10px;">
+<div class="countdown-box">${mins}</div>
+<div class="countdown-separator">:</div>
+<div class="countdown-box">${secs}</div>
+</div>
+`}, 1000)
+        }
+        function startCountdownQris(minutes = 15) {
+            const display = document.getElementById("expiryTimestampDisplayQris"); clearInterval(countdownInterval); const endTime = Date.now() + minutes * 60 * 1000; countdownInterval = setInterval(() => {
+                const remaining = endTime - Date.now(); if (remaining <= 0) { clearInterval(countdownInterval); display.innerHTML = `<span>⛔ Waktu pembayaran telah habis.</span>`; setTimeout(goBackToInputs, 3000); return }
+                const mins = String(Math.floor((remaining / 1000 / 60) % 60)).padStart(2, '0'); const secs = String(Math.floor((remaining / 1000) % 60)).padStart(2, '0'); display.innerHTML = `
+<span style="font-weight: normal; font-size: 15px;">Sisa waktu pembayaran </span>
+<div style="display: inline-flex; align-items: center; margin-left: 10px;">
+<div class="countdown-box">${mins}</div>
+<div class="countdown-separator">:</div>
+<div class="countdown-box">${secs}</div>
+</div>
+`}, 1000)
+        }
+        function startCountdownRetail(minutes = 15) {
+            const display = document.getElementById("expiryTimestampDisplayRetail"); clearInterval(countdownInterval); const endTime = Date.now() + minutes * 60 * 1000; countdownInterval = setInterval(() => {
+                const remaining = endTime - Date.now(); if (remaining <= 0) { clearInterval(countdownInterval); display.innerHTML = `<span>⛔ Waktu pembayaran telah habis.</span>`; setTimeout(goBackToInputs, 3000); return }
+                const mins = String(Math.floor((remaining / 1000 / 60) % 60)).padStart(2, '0'); const secs = String(Math.floor((remaining / 1000) % 60)).padStart(2, '0'); display.innerHTML = `
+<span style="font-weight: normal; font-size: 15px;">Sisa waktu pembayaran </span>
+<div style="display: inline-flex; align-items: center; margin-left: 10px;">
+<div class="countdown-box">${mins}</div>
+<div class="countdown-separator">:</div>
+<div class="countdown-box">${secs}</div>
+</div>
+`}, 1000)
+        }
+        function tampilkanPanduan(bankName) {
+            const mobileBankingSteps = { "BANK BRI": ["Login ke aplikasi BRImo.", "Pilih menu BRIVA.", "Masukkan nomor Virtual Account.", "Masukkan nominal jika diperlukan.", "Konfirmasi dan selesaikan pembayaran."], "BANK MANDIRI": ["Login ke aplikasi Livin' by Mandiri.", "Pilih menu Bayar.", "Pilih Multi Payment.", "Pilih penyedia jasa dan masukkan nomor Virtual Account.", "Konfirmasi dan bayar."], "DANAMON": ["Login ke aplikasi D-Bank PRO.", "Pilih Transfer > Virtual Account.", "Masukkan nomor VA dan jumlah pembayaran.", "Konfirmasi detail dan selesaikan pembayaran."], "BANK PERMATA": ["Login ke PermataMobile X.", "Pilih menu Bayar > Virtual Account.", "Masukkan nomor Virtual Account.", "Cek detail pembayaran lalu konfirmasi dan bayar."], "BANK MUAMALAT": ["Login ke aplikasi Mobile Banking Muamalat.", "Pilih menu Bayar > Virtual Account.", "Masukkan nomor Virtual Account.", "Lanjutkan hingga pembayaran berhasil."], "BANK OCBC": ["Login ke aplikasi ONe Mobile OCBC.", "Pilih Bayar Tagihan.", "Pilih Virtual Account dan masukkan nomor VA.", "Periksa informasi dan konfirmasi pembayaran."], "BNI": ["Login ke aplikasi BNI Mobile Banking.", "Pilih menu Transfer.", "Pilih Virtual Account Billing.", "Masukkan nomor VA dan pilih Lanjut.", "Periksa informasi dan konfirmasi pembayaran."], "BANK BSI": ["Login ke aplikasi BSI Mobile.", "Pilih menu Bayar.", "Pilih Virtual Account.", "Masukkan nomor VA dan pilih Sumber Dana.", "Periksa detail pembayaran dan konfirmasi."], "BANK CIMB NIAGA": ["Login ke aplikasi OCTO Mobile CIMB Niaga.", "Pilih menu Bayar & Beli.", "Pilih Virtual Account.", "Masukkan nomor VA dan pilih Lanjut.", "Periksa informasi dan selesaikan pembayaran."] }; const steps = mobileBankingSteps[bankName.toUpperCase()]; const container = document.getElementById('panduan-pembayaran'); if (!steps) { container.innerHTML = "<p>Panduan pembayaran tidak tersedia untuk bank ini.</p>"; return }
+            let html = "<ol>"; steps.forEach(step => { html += `<li>${step}</li>` }); html += "</ol>"; container.innerHTML = html
+        }
+        function tampilkanPanduanRetail(outletName, code) { const retailSteps = { "ALFAMART": ["Datangi kasir Alfamart/Alfamidi/DanDan terdekat.", "Sampaikan ke kasir untuk Pembayaran LinkQu atau Pembayaran Mitra.", `Berikan Kode Pembayaran Anda: <strong>${code}</strong>.`, "Konfirmasi total pembayaran (termasuk biaya admin) kepada kasir.", "Lakukan pembayaran tunai dan simpan struk sebagai bukti pembayaran."], "INDOMARET": ["Datangi kasir Indomaret/i.Saku terdekat.", "Sampaikan ke kasir untuk Pembayaran LinkQu atau Pembayaran Mitra.", `Berikan Kode Pembayaran Anda: <strong>${code}</strong>.`, "Konfirmasi total pembayaran (termasuk biaya admin) kepada kasir.", "Lakukan pembayaran tunai dan simpan struk sebagai bukti pembayaran."] }; const steps = retailSteps[outletName] || ["Panduan pembayaran tidak tersedia untuk gerai ini."]; const container = document.getElementById('panduan-pembayaran-retail'); let html = `<h6>Cara Bayar di ${outletName}</h6><ol>`; steps.forEach(step => { html += `<li>${step}</li>` }); html += "</ol> <br><br>"; container.innerHTML = html }
+        async function createVirtualAccount() { const selectedRadio = document.querySelector('input[name="payment"]:checked'); const method = selectedRadio.dataset.method; const bankCode = selectedRadio.value; console.log("Metode:", method); console.log("Kode Bank:", bankCode); updateAmount(); let totalAmount = amount + 2500; console.log("Total Nominal VA:", totalAmount); const payload = { amount: totalAmount, bank_code: selectedBankCode, customer_id: "{userid}", customer_name: "{username}", customer_email: "{email}", customer_phone: "{hp}", }; try { document.getElementById("loadingIndicator").style.display = "block"; const response = await fetch('https://topup.tangerangfast.online/create-va', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const result = await response.json(); const adminFee = 2500; const totalWithAdmin = result.amount; const totalWithoutAdmin = totalWithAdmin - adminFee; console.log("✅ Response dari server VA:", result); if (result.virtual_account) { document.querySelectorAll(".bank-details p").forEach(p => { p.textContent = result.virtual_account }); document.getElementById("vaDana").textContent = result.virtual_account; document.querySelectorAll(".bank-name").forEach(p => { const words = result.bank_name.trim().split(' '); if (words.length > 1) { const firstWord = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase(); const rest = words.slice(1).join(' ').toUpperCase(); p.textContent = `${firstWord} ${rest}` } else { p.textContent = result.bank_name.toUpperCase() } }); tampilkanPanduan(result.bank_name); document.querySelectorAll(".total-harga").forEach(el => { const formatted = new Intl.NumberFormat('id-ID', { style: 'decimal', minimumFractionDigits: 0 }).format(totalWithoutAdmin); el.textContent = formatted }); document.querySelectorAll(".total-payment").forEach(p => { const formatted = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalWithAdmin); p.textContent = formatted }); startCountdown(15) } else { document.querySelectorAll(".bank-details p").forEach(p => { p.textContent = "Nomor VA tidak ditemukan." }) } } catch (error) { console.error("❌ Gagal membuat VA:", error); alert("Gagal membuat Virtual Account. Silakan coba lagi."); document.querySelectorAll(".bank-details p").forEach(p => { p.textContent = "Gagal mengambil VA." }) } finally { document.getElementById("loadingIndicator").style.display = "none" } }
+        async function createQRIS() {
+            const selectedRadio = document.querySelector('input[name="payment"]:checked'); const method = selectedRadio ? selectedRadio.dataset.method : null; if (method !== 'qris') { return }
+            updateAmount(); const adminFee = Math.ceil(amount * 0.008); let totalAmount = amount + adminFee; const payload = { amount: totalAmount, customer_id: "{userid}", customer_name: "{username}", customer_email: "{email}", customer_phone: "{hp}" }; try {
+                const loadingIndicator = document.getElementById("loadingIndicator"); if (loadingIndicator) loadingIndicator.style.display = "block"; const response = await fetch('https://topup.tangerangfast.online/create-qris', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const result = await response.json(); console.log("✅ Response dari server QRIS:", result); if (result.qris_text) {
+                    const qrImg = document.getElementById('qrisImage'); const shimmer = document.getElementById('qrShimmer'); const downloadButton = document.getElementById('downloadQR'); if (downloadButton) downloadButton.style.display = 'block'; if (qrImg && shimmer) {
+                        const gambarQR = result.imageqris; const qrUrl = gambarQR; if (downloadButton) {
+                            downloadButton.addEventListener('click', function (e) {
+                                e.preventDefault(); const fileUrl = `https://topup.tangerangfast.online/download-qr/${result.partner_reff}`; const existingIframe = document.getElementById('qrDownloadFrame'); if (existingIframe) { existingIframe.remove() }
+                                const iframe = document.createElement('iframe'); iframe.style.display = 'none'; iframe.id = 'qrDownloadFrame'; iframe.src = fileUrl; document.body.appendChild(iframe); setTimeout(() => { swal({ title: 'Berhasil!', text: 'QR berhasil diunduh.', icon: 'success', confirmButtonText: 'OK' }); iframe.remove() }, 2000)
+                            }, { once: !0 })
+                        }
+                        qrImg.src = qrUrl; shimmer.style.display = 'block'; qrImg.style.display = 'none'; qrImg.onload = () => { shimmer.style.display = 'none'; qrImg.style.display = 'block' }; qrImg.onerror = () => { shimmer.style.display = 'none'; qrImg.alt = 'Gagal memuat QR'; qrImg.style.display = 'block' }
+                    }
+                    const formatted = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalAmount); document.querySelectorAll(".total-payment").forEach(p => p.textContent = formatted); const container = document.getElementById('panduan-pembayaran-qris'); if (container) {
+                        container.innerHTML = `
+<p><strong>Cara Pembayaran dengan QRIS:</strong></p>
+<ol>
+<li>Buka aplikasi mobile banking / e-wallet Anda (DANA, OVO, Gopay, BCA, dll).</li>
+<li>Pilih fitur <strong>Scan QR</strong>.</li>
+<li>Arahkan kamera ke QR code di bawah.</li>
+<li>Periksa nominal dan nama merchant.</li>
+<li>Konfirmasi dan selesaikan pembayaran.</li>
+</ol>
+`}
+                    startCountdownQris(15)
+                } else { const panduan = document.getElementById('panduan-pembayaran'); if (panduan) { panduan.innerHTML = "<p>Gagal mendapatkan QRIS. Silakan coba lagi.</p>" } }
+            } catch (error) { console.error("❌ Gagal membuat QRIS:", error); swal("Error", "Gagal membuat QRIS. Silakan coba lagi.", "error") } finally { const loading = document.getElementById("loadingIndicator"); if (loading) loading.style.display = "none" }
+        }
+
+        function loadVAList() {
+            fetch(`https://topup.tangerangfast.online/va-list?username=${encodeURIComponent(username)}`).then(response => response.json()).then(data => {
+                const container = document.getElementById('vaContainer'); container.innerHTML = ''; if (!data || data.length === 0) { container.innerHTML = '<center><p></p></center>'; return }
+                data.forEach(item => {
+                    const card = document.createElement('div'); card.className = 'va-card'; const bankCode = item.bank_code ? item.bank_code.toUpperCase() : '-'; const amount = item.amount ? parseInt(item.amount).toLocaleString('id-ID') : '0'; const status = item.status || 'UNKNOWN'; const statusColor = status === 'SUKSES' ? 'green' : status === 'PENDING' ? 'orange' : 'black'; card.innerHTML = `
+<div class="bank-va">
+<div class="bank-name">${bankCode}</div>
+<div class="va-number">${formatTanggal(item.created_at)}</div>
+</div>
+<div>
+<div class="amount">Rp ${amount}</div>
+<div style="color: ${statusColor};">${status}</div>
+</div>
+`; card.addEventListener('click', function () { if (item.status === 'SUKSES') { swal({ title: 'Transaksi berhasil', text: 'Transaksi sudah berhasil.', icon: 'success', confirmButtonText: 'OK', }) } else { showVAPage(item) } }); container.appendChild(card)
+                })
+            }).catch(err => { console.error('Gagal mengambil data VA:', err) })
+        }
+        function showVAPage(item) {
+            document.getElementById('vaPage').style.display = 'block'; document.getElementById('qrisPage').style.display = 'none'; document.getElementById('retailPage').style.display = 'none'; document.getElementById('paymentContainer').style.display = 'none'; const amount = parseInt(item.amount); const adminFee = 2500; const baseAmount = amount - adminFee; document.querySelector('#vaPage .total-payment').textContent = `Rp ${amount.toLocaleString('id-ID')}`; document.querySelector('#vaPage .total-harga').textContent = `${baseAmount.toLocaleString('id-ID')}`; document.getElementById('vaDana').textContent = item.va_number || '-'; document.querySelector('#vaPage .bank-name').textContent = item.bank_code.toUpperCase(); const logoImg = document.querySelector('#vaPage .bank-logo img'); if (item.bank_code && bankLogoMap[item.bank_code]) { logoImg.src = bankLogoMap[item.bank_code]; logoImg.alt = item.bank_code } else { logoImg.src = ""; logoImg.alt = "bank" }
+            const customerNameEl = document.querySelector('#vaPage .customer-name'); if (customerNameEl) { customerNameEl.textContent = item.customer_name || '-' }
+            document.querySelector('#vaPage .panduan-pembayaran-va').innerHTML = `
+<ol>
+<li>Buka aplikasi mobile banking atau e-wallet Anda (seperti BCA Mobile, Livin' by Mandiri, BRImo, OVO, DANA, Gopay, dll).</li>
+<li>Pilih menu <strong>Transfer</strong> atau <strong>Bayar Virtual Account</strong>.</li>
+<li>Masukkan kode Virtual Account yang telah diberikan.</li>
+<li>Periksa kembali nama penerima dan nominal pembayaran.</li>
+<li>Konfirmasi dan selesaikan pembayaran.</li>
+<li>Simpan bukti pembayaran Anda untuk referensi.</li>
+</ol>
+`; const expiryStr = item.expired; const expiryDate = new Date(expiryStr.substring(0, 4), parseInt(expiryStr.substring(4, 6)) - 1, expiryStr.substring(6, 8), expiryStr.substring(8, 10), expiryStr.substring(10, 12), expiryStr.substring(12, 14)); const expiryDisplay = document.getElementById('expiryTimestampDisplay'); if (window.vaCountdownInterval) { clearInterval(window.vaCountdownInterval) }
+            function updateCountdown() {
+                const now = new Date(); const diffMs = expiryDate - now; if (diffMs <= 0) { expiryDisplay.textContent = 'Kode VA telah kedaluwarsa'; clearInterval(window.vaCountdownInterval); return }
+                const totalSeconds = Math.floor(diffMs / 1000); const hours = Math.floor(totalSeconds / 3600); const minutes = Math.floor((totalSeconds % 3600) / 60); const seconds = totalSeconds % 60; expiryDisplay.textContent = `Berlaku dalam: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+            }
+            updateCountdown(); window.vaCountdownInterval = setInterval(updateCountdown, 1000)
+        }
+        function loadQRList() {
+            fetch(`https://topup.tangerangfast.online/qr-list?username=${encodeURIComponent(username)}`).then(response => response.json()).then(data => {
+                const container = document.getElementById('qrContainer'); container.innerHTML = ''; if (!data || data.length === 0) { container.innerHTML = '<center><p></p></center>'; return }
+                data.forEach(item => {
+                    const card = document.createElement('div'); card.className = 'va-card mt-3'; card.innerHTML = `
+<div class="bank-va">
+<div class="bank-name">QRIS</div>
+<div class="va-number">${formatTanggal(item.created_at)}</div>
+</div>
+<div>
+<div class="amount">Rp ${parseInt(item.amount).toLocaleString('id-ID')}</div>
+<div style="color: ${item.status === 'SUKSES' ? 'green' : item.status === 'PENDING' ? 'orange' : 'black'};">
+${item.status}
+</div>
+</div>
+`; card.addEventListener('click', function () { if (item.status === 'SUKSES') { swal({ title: 'Transaksi berhasil', text: 'Transaksi sudah berhasil.', icon: 'success', confirmButtonText: 'OK', }) } else { showQRISPage(item) } }); container.appendChild(card)
+                })
+            }).catch(err => { console.error('Gagal mengambil data QRIS:', err) })
+        }
+        function showQRISPage(item) {
+            document.getElementById('qrisPage').style.display = 'block'; document.getElementById('vaPage').style.display = 'none'; document.getElementById('retailPage').style.display = 'none'; document.getElementById('paymentContainer').style.display = 'none'; document.getElementById('qrShimmer').style.display = 'block'; document.getElementById('qrisImage').style.display = 'none'; document.getElementById('downloadQR').style.display = 'none'; document.querySelector('#qrisPage .total-payment').textContent = `Rp ${parseInt(item.amount).toLocaleString('id-ID')}`; document.querySelector('#qrisPage .panduan-pembayaran-qris-mod').innerHTML = `
+<ol>
+<li>Buka aplikasi mobile banking / e-wallet Anda (DANA, OVO, Gopay, BCA, dll).</li>
+<li>Pilih menu <strong>Scan QR</strong>.</li>
+<li>Arahkan kamera ke QR di atas.</li>
+<li>Konfirmasi dan lakukan pembayaran.</li>
+<li>Simpan bukti pembayaran Anda.</li>
+</ol>
+`; const qrImg = document.getElementById('qrisImage'); qrImg.src = item.qris_url; qrImg.onload = () => { document.getElementById('qrShimmer').style.display = 'none'; qrImg.style.display = 'block'; document.getElementById('downloadQR').style.display = 'inline-block' }; document.getElementById('downloadQR').onclick = () => { const link = document.createElement('a'); link.href = item.qris_url; link.download = `QR-${item.partner_reff || 'qris'}.png`; document.body.appendChild(link); link.click(); document.body.removeChild(link) }; const expiryStr = item.expired; const expiryDate = new Date(expiryStr.substring(0, 4), parseInt(expiryStr.substring(4, 6)) - 1, expiryStr.substring(6, 8), expiryStr.substring(8, 10), expiryStr.substring(10, 12), expiryStr.substring(12, 14)); const expiryDisplay = document.getElementById('expiryTimestampDisplayQris'); if (window.qrisCountdownInterval) { clearInterval(window.qrisCountdownInterval) }
+            function updateCountdown() {
+                const now = new Date(); const diffMs = expiryDate - now; if (diffMs <= 0) { goBackToInputs(); expiryDisplay.textContent = 'QR telah kedaluwarsa'; clearInterval(window.qrisCountdownInterval); return }
+                const totalSeconds = Math.floor(diffMs / 1000); const hours = Math.floor(totalSeconds / 3600); const minutes = Math.floor((totalSeconds % 3600) / 60); const seconds = totalSeconds % 60; expiryDisplay.textContent = `Berlaku dalam: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+            }
+            updateCountdown(); window.qrisCountdownInterval = setInterval(updateCountdown, 1000)
+        }
+        function loadRetailList() {
+            fetch(`https://topup.tangerangfast.online/retail-list?username=${encodeURIComponent(username)}`).then(response => response.json()).then(data => {
+                const container = document.getElementById('retailContainer'); container.innerHTML = ''; if (!data || data.length === 0) { container.innerHTML = '<center><p></p></center>'; return }
+                data.forEach(item => {
+                    const card = document.createElement('div'); card.className = 'va-card mt-3'; const statusColor = item.status === 'SUKSES' ? 'green' : item.status === 'PENDING' ? 'orange' : 'black'; card.innerHTML = `
+<div class="bank-va">
+<div class="bank-name">${item.retail_code || 'RETAIL'}</div>
+<div class="va-number">${formatTanggal(item.created_at)}</div>
+</div>
+<div>
+<div class="amount">Rp ${parseInt(item.amount).toLocaleString('id-ID')}</div>
+<div style="color: ${statusColor};">${item.status || 'UNKNOWN'}</div>
+</div>
+`; card.addEventListener('click', function () { if (item.status === 'SUKSES') { swal({ title: 'Transaksi berhasil', text: 'Transaksi sudah berhasil.', icon: 'success', confirmButtonText: 'OK', }) } else { showRetailPage(item) } }); container.appendChild(card)
+                })
+            }).catch(err => { console.error('Gagal mengambil data Retail:', err) })
+        }
+        function showRetailPage(item) {
+            document.getElementById('retailPage').style.display = 'block'; document.getElementById('vaPage').style.display = 'none'; document.getElementById('qrisPage').style.display = 'none'; document.getElementById('paymentContainer').style.display = 'none'; const amount = parseInt(item.amount); const retailCode = item.retail_code || 'RETAIL'; const paymentCode = item.payment_code || '-'; const adminFee = 2000; const baseAmount = amount - adminFee; const retailOutletCode = item.bank_code || item.retail_code || 'RETAIL'; const logoUrl = bankLogoMap[retailOutletCode.toUpperCase()] || 'URL_DEFAULT_LOGO'; document.querySelector('#retailPage .bank-logo img').src = logoUrl; document.getElementById("retailCodeDisplay").textContent = paymentCode; document.getElementById("retailOutletName").textContent = retailCode.toUpperCase(); document.querySelector('#retailPage .total-harga').textContent = baseAmount.toLocaleString('id-ID'); document.querySelector('#retailPage .admin-fee-display').textContent = adminFee.toLocaleString('id-ID'); document.querySelector('#retailPage .total-payment').textContent = `Rp ${amount.toLocaleString('id-ID')}`; tampilkanPanduanRetail(retailCode.toUpperCase(), paymentCode); const expiryStr = item.expired; const expiryDate = new Date(expiryStr.substring(0, 4), parseInt(expiryStr.substring(4, 6)) - 1, expiryStr.substring(6, 8), expiryStr.substring(8, 10), expiryStr.substring(10, 12), expiryStr.substring(12, 14)); const expiryDisplay = document.getElementById('expiryTimestampDisplayRetail'); if (window.retailCountdownInterval) { clearInterval(window.retailCountdownInterval) }
+            function updateCountdown() {
+                const now = new Date(); const diffMs = expiryDate - now; if (diffMs <= 0) { goBackToInputs(); expiryDisplay.textContent = 'Kode pembayaran telah kedaluwarsa'; clearInterval(window.retailCountdownInterval); return }
+                const totalSeconds = Math.floor(diffMs / 1000); const hours = Math.floor(totalSeconds / 3600); const minutes = Math.floor((totalSeconds % 3600) / 60); const seconds = totalSeconds % 60; expiryDisplay.textContent = `Berlaku dalam: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+            }
+            updateCountdown(); window.retailCountdownInterval = setInterval(updateCountdown, 1000)
+        }
+        function cekStatusPembayaran() {
+            const user = "{username}"; if (!user) { swal({ title: "Gagal", text: "Username tidak ditemukan!", icon: "error" }); return }
+            fetch(`https://topup.tangerangfast.online/va-list?username=${encodeURIComponent(user)}`).then(response => response.json()).then(data => {
+                if (!data || data.length === 0) { swal({ title: "Menunggu Pembayaran", text: "Silakan selesaikan pembayaran sebelum batas waktu.", icon: "warning" }); return }
+                const latest = data[0]; const status = latest.status || 'UNKNOWN'; const statusText = status === 'SUKSES' ? 'Transaksi Berhasil' : status === 'PENDING' ? 'Menunggu Pembayaran' : 'Status Tidak Diketahui'; const statusIcon = status === 'SUKSES' ? 'success' : status === 'PENDING' ? 'warning' : 'info'; const statusMessage = status === 'SUKSES' ? 'Pembayaran kamu telah diterima.' : status === 'PENDING' ? 'Silakan selesaikan pembayaran sebelum batas waktu.' : 'Silakan coba beberapa saat lagi atau hubungi admin.'; swal({ title: statusText, text: statusMessage, icon: statusIcon })
+            }).catch(err => { console.error('Gagal mengambil data VA:', err); swal({ title: "Error", text: "Gagal memeriksa status pembayaran.", icon: "error" }) })
+        }
+        document.addEventListener("DOMContentLoaded", function () { loadVAList(); loadQRList(); loadRetailList() }); document.querySelector('#paymentContainer button#topupButton').addEventListener('click', function () {
+            updateAmount(); if (isNaN(amount) || amount <= 0) { alert("Silakan pilih atau isi nominal terlebih dahulu."); return }
+            document.getElementById('paymentContainer').style.display = 'none'; document.getElementById('paymentMethodsContainer').style.display = 'block'
+        }); document.querySelector('#paymentMethodsContainer button#topupButton').addEventListener('click', function () {
+            const selectedPayment = document.querySelector('input[name="payment"]:checked'); if (!selectedPayment) { alert("Silakan pilih metode pembayaran terlebih dahulu."); return }
+            const method = selectedPayment.dataset.method; updateAmount(); let totalAmount = amount; if (method === 'va') { totalAmount += 2500 } else if (method === 'qris') { totalAmount += Math.ceil(amount * 0.008) } else if (method === 'retail') { totalAmount += 2000 }
+            console.log("Total Nominal Akhir:", totalAmount); selectedBankCode = selectedPayment.value; selectedBankLogo = selectedPayment.nextElementSibling.src; selectedBankName = selectedPayment.parentElement.innerText.trim(); document.querySelectorAll("#totalAmountVa").forEach(el => { el.textContent = "Rp " + totalAmount.toLocaleString('id-ID') }); document.querySelectorAll(".bank-logo img").forEach(img => { img.src = selectedBankLogo }); document.querySelectorAll(".bank-details p").forEach(p => { p.textContent = selectedBankCode === "qris" ? "Tunjukkan kode ini untuk membayar" : "" }); document.getElementById('paymentMethodsContainer').style.display = 'none'; if (method === 'qris') { document.getElementById('qrisPage').style.display = 'block'; createQRIS() } else if (method === 'retail') { document.getElementById('retailPage').style.display = 'block'; createRetailPayment() } else { document.getElementById('vaPage').style.display = 'block'; createVirtualAccount() }
+        })
+    </script>
+</body>
+
+</html>

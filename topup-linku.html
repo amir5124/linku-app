@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+    <title>top up</title>
+    <style>
+        @import url(https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap);
+
+        body {
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 400;
+            margin: 0;
+            background-color: #fff
+        }
+
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgb(0 0 0 / .5);
+            z-index: 998
+        }
+
+        #loadingIndicator {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #24B3AE;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg)
+            }
+
+            100% {
+                transform: rotate(360deg)
+            }
+        }
+
+        input[type=number] {
+            width: 100%;
+            margin: 0 0;
+            outline: none;
+            padding: 8px;
+            height: 40px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            background-color: #fff;
+            border: none;
+            position: relative;
+            box-shadow: 0 0 3px rgb(0 0 0 / .2)
+        }
+
+        input[type=number]::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #000;
+            transform: scaleX(0);
+            transition: transform 0.3s ease
+        }
+
+        input[type=number]:focus::after {
+            transform: scaleX(1)
+        }
+
+        .video-slider-btn:active,
+        .video-slider-btn:focus {
+            outline: none
+        }
+
+        .br-10 {
+            border-radius: 5px
+        }
+
+        button[type="submit"] {
+            background-color: #24b3ae;
+            color: #fff;
+            border: none;
+            width: 100%;
+            border-radius: 4px;
+            padding: 10px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer
+        }
+
+        button[type="submit"]:hover {
+            background-color: #24b3ae;
+            width: 100%
+        }
+
+        button {
+            border: none !important
+        }
+
+        .text-14 {
+            font-size: 14px
+        }
+
+        .radios label {
+            display: inline-block;
+            background-color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            color: gray;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #fff;
+            position: relative;
+            box-shadow: 0 0 3px rgb(0 0 0 / .2)
+        }
+
+        .radios input[type="radio"] {
+            display: none
+        }
+
+        .radios input[type="radio"]:checked+label {
+            background-color: #24b3ae;
+            color: #fff;
+            border: 1px solid #24b3ae
+        }
+
+        .radioso {
+            background-color: #fff;
+            box-shadow: 0 0 3px rgb(0 0 0 / .2);
+            width: 100%;
+            height: 70px;
+            border-radius: 5px;
+            padding: 5px
+        }
+
+        .method {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: border 0.3s ease
+        }
+
+        .method:hover {
+            border-color: #24b3ae
+        }
+
+        .method label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin: 0
+        }
+
+        .method img {
+            width: 40px;
+            height: auto
+        }
+
+        .admin-fee {
+            font-size: 14px;
+            color: #e91e63;
+            margin-top: -5px;
+            margin-left: 5px;
+            margin-bottom: 20px
+        }
+
+        h6 {
+            font-weight: 700;
+            margin-top: 16px
+        }
+
+        .payment-container {
+            background-color: #fff;
+            top: 0;
+            height: 100%;
+            box-shadow: 0 4px 10px rgb(0 0 0 / .1)
+        }
+
+        .bank-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6
+        }
+
+        .bank-logo img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-top: -15px
+        }
+
+        .bank-details {
+            flex-grow: 1;
+            margin-left: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center
+        }
+
+        .bank-details p {
+            font-size: 20px;
+            color: #24B3AE
+        }
+
+        .bank-details span {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1;
+            color: #6c757d
+        }
+
+        .clipboard-icon {
+            font-size: 20px;
+            color: #007bff;
+            cursor: pointer;
+            margin-left: 10px
+        }
+
+        .summary {
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .summary p {
+            margin: 5px 0;
+            font-size: 16px
+        }
+
+        .total-payment {
+            font-size: 20px;
+            font-weight: 700;
+            color: #24b3ae
+        }
+
+        .notice {
+            background-color: #fff3cd;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            text-align: justify;
+            margin: 0 0
+        }
+
+        ul {
+            font-size: 16px;
+            margin: 0;
+            padding-left: 3px
+        }
+
+        li {
+            font-size: 16px;
+            margin-bottom: 8px
+        }
+
+        b {
+            font-size: 16px;
+            font-weight: 700
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer
+        }
+
+        .countdown-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: #333
+        }
+
+        .countdown-box {
+            background-color: #fff;
+            box-shadow: 0 0 4px rgb(0 0 0 / .2);
+            border-radius: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center
+        }
+
+        .countdown-separator {
+            margin: 0 4px
+        }
+
+        #vaContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px
+        }
+
+        .va-card {
+            background-color: #fff;
+            box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 2px 2px rgb(0 0 0 / .12), 2px 0 2px rgb(0 0 0 / .1), -2px 0 2px rgb(0 0 0 / .1);
+            border-radius: 10px;
+            margin-bottom: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap
+        }
+
+        .bank-va {
+            display: flex;
+            flex-direction: column;
+            gap: 4px
+        }
+
+        .bank-name {
+            font-weight: 400;
+            font-size: 16px
+        }
+
+        .va-number {
+            font-size: 14px;
+            color: #333
+        }
+
+        .amount {
+            font-weight: 700;
+            font-size: 16px;
+            color: #00b320
+        }
+
+        .bg-pembayaran {
+            background-color: #24b3ae;
+            height: 50px;
+            font-size: 14px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2
+        }
+
+        .bg-va {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 8px;
+            box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 2px 2px rgb(0 0 0 / .12), 2px 0 2px rgb(0 0 0 / .1), -2px 0 2px rgb(0 0 0 / .1)
+        }
+
+        .custom-hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin-top: -10px
+        }
+
+        .bg-copy {
+            background-color: #24B3AE;
+            height: 25px;
+            width: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0
+            }
+
+            100% {
+                background-position: 200% 0
+            }
+        }
+
+        #downloadQR {
+            background-color: #24B3AE;
+            color: #fff;
+            border: none;
+            padding: 5px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease
+        }
+
+        #downloadQR:hover {
+            background-color: #24B3AE
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="paymentContainer" class="m-3" style="display: block;">
+        <input type="number" id="customNominal" class="video-slider-btn br-10 mt-2" placeholder="Nominal Custom"
+            oninput="updateAmount()">
+
+        <center class="mt-3">
+            <p class="text-14">Nominal Cepat</p>
+        </center>
+
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="radios">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios" value="50000"
+                    name="radioGroup" />
+                <label for="exampleRadios">50.000</label>
+            </div>
+
+            <div class="radios">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="75000"
+                    name="radioGroup" />
+                <label for="exampleRadios1"> 75.000</label>
+            </div>
+
+            <div class="radios">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="100000">
+                <label class="form-check-label" for="exampleRadios2">
+                    100.000
+                </label>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="radios">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="250000">
+                <label class="form-check-label" for="exampleRadios3">
+                    250.000
+                </label>
+            </div>
+
+            <div class="radios">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios4" value="500000">
+                <label class="form-check-label" for="exampleRadios4">
+                    500.000
+                </label>
+            </div>
+
+            <div class="radios">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios5" value="1000000">
+                <label class="form-check-label" for="exampleRadios5">
+                    1.000.000
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" id="topupButton" class="video-slider-btn mt-4">LANJUTKAN</button>
+
+        <div id="loadingIndicator" style="display: none;">
+            <div class="loader"></div>
+        </div>
+
+        <p style="font-size: 16px;font-weight: bold; margin-left: 15px; margin-top: 10px; text-align: center;">Histori
+            Pembayaran </h2>
+        <div class="va-container" id="vaContainer"></div>
+        <div class="va-container" id="qrContainer"></div>
+        <div id="retailContainer">
+        </div>
+    </div>
+
+    <div id="paymentMethodsContainer" class="m-3" style="display: none;">
+        <p style="font-size:16px; font-weight: bold; text-align: center; margin-top: 12px;">Pilih Metode Pembayaran
+        </p>
+        <h6>Scan QR</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="qris" data-method="qris">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684336/Logo_QRIS.svg_szprhw.png"
+                    alt="QRIS" height="30">
+                QRIS
+            </label>
+        </div>
+
+        <p class="admin-fee">Biaya Layanan 0,8 %</p>
+        <h6>Virtual Account</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="002" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png" alt="BRI"
+                    height="30">
+                Bank BRI
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="008" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png"
+                    alt="Mandiri" height="30">
+                Bank Mandiri
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="009" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png"
+                    alt="BNI" height="30">
+                Bank BNI
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="451" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png" alt="BSI"
+                    height="30">
+                Bank BSI
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="022" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png"
+                    alt="CIMB" height="30">
+                Bank CIMB
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="011" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png"
+                    alt="DANAMON" height="30">
+                Bank Danamon
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="013" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg"
+                    alt="Permata" height="30">
+                Bank Permata
+            </label>
+        </div>
+
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="028" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png" alt="Danamon"
+                    height="30">
+                Bank OCBC
+            </label>
+        </div>
+
+
+        <p class="admin-fee">Biaya Layanan Rp 2.500</p>
+
+        <h6>Retail/Gerai</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="ALFAMART" data-method="retail">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1760671073/alfa_kd1api.png" alt="Danamon"
+                    height="30">
+                Alfamart
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="INDOMARET" data-method="retail">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1760671077/indo_fn6e0u.png" alt="Danamon"
+                    height="30">
+                Indomaret
+            </label>
+        </div>
+
+        <p class="admin-fee">Biaya Layanan Rp 2.000</p>
+
+
+        <br>
+        <br>
+
+        <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);">
+            <button id="topupButton" type="submit" style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #24b3ae; color: white;
+            padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                LANJUTKAN
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="vaPage" style="display: none;" class="payment-container">
+        <div class="bg-pembayaran">
+            <div class="d-flex align-items-center">
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-arrow-left"
+                        style="font-size: 18px; color: white; margin-left: 10px; cursor: pointer;"
+                        onclick="goBackToInputs()"></i>
+
+
+                    <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+                </div>
+
+            </div>
+        </div>
+        <div class="px-3">
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 65px;">Jumlah yang harus
+                dibayar</p>
+            <p class="total-payment" style="margin-top: -10px;"></p>
+
+            <div class="d-flex align-items-center justify-content-between">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d;">Total Harga</p>
+                <p style="font-size: 14px;">
+                    <span style="display: inline-block; width: 30px; font-size: 14px;">Rp</span>
+                    <span class="total-harga"
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;"></span>
+                </p>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between" style="margin-top: -10px;">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; font-size: 14px;">Biaya Admin</p>
+                <p style="font-size: 14px;">
+                    <span style="display: inline-block; width: 30px; font-size: 14px;">Rp</span>
+                    <span
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;">2.500</span>
+                </p>
+            </div>
+
+
+
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 20px;">Metode Pembayaran</p>
+
+            <div class="bg-va">
+                <div class="d-flex align-items-center">
+                    <div class="bank-logo">
+                        <img src="" alt="bank" style=" margin-left: 10px;">
+                    </div>
+                    <p class="bank-name" style="margin-left: 10px; font-size: 14px; color: gray;"></p>
+                </div>
+
+                <hr class="custom-hr">
+                <p style="font-size: 12px; font-weight: 500; color: gray; margin-left: 15px; margin-top: 10px;">Nomor
+                    Virtual Account</p>
+                <div class="d-flex align-items-center justify-content-between" style="margin-top: -15px;">
+                    <div class="bank-details">
+                        <p id="vaDana">
+                        </p>
+                    </div>
+                    <div class="bg-copy" style="margin-top: -15px;" onclick="copyVaCode()">
+                        <iconify-icon icon="ion:copy" id="copy-promo-btn"
+                            style="width: 17px; height: 17px; color: #fff;" title="Salin Nomor Rekening">
+                        </iconify-icon>
+                    </div>
+
+                </div>
+            </div>
+
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 15px;">Pembayaran (Mobile
+                Banking)</p>
+
+            <div id="panduan-pembayaran" style="margin-top: 10px;"></div>
+            <div class="panduan-pembayaran-va" style="display: none;"></div>
+
+            <center>
+                <div id="expiryTimestampDisplay" class="countdown-wrapper mt-3"></div>
+            </center>
+
+
+            <button onclick="goBackToInputs()" class="close-button">
+                <iconify-icon icon="mingcute:close-fill" style="width: 30px; height: 30px;"></iconify-icon>
+            </button>
+        </div>
+        <!-- Tombol Cek Status Pembayaran -->
+        <!-- <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); ">
+            <button onclick="cekStatusPembayaran()" type="button" style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #24b3ae; color: white;
+padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                Cek Status Pembayaran
+            </button>
+        </div> -->
+    </div>
+
+    <div id="qrisPage" style="display: none;" class="payment-container px-3">
+        <div class="bg-pembayaran">
+            <div class="d-flex align-items-center">
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-arrow-left"
+                        style="font-size: 18px; color: white; margin-left: 10px; cursor: pointer;"
+                        onclick="goBackToInputs()"></i>
+
+
+                    <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+                </div>
+
+            </div>
+        </div>
+        <p class="text-white">Silakan scan QRIS berikut untuk melakukan pembayaran:</p>
+        <div id="qrShimmer" style="width: 250px; height: 250px; margin: 0 auto; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+     background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;">
+        </div>
+        <div style="display: flex; justify-content: center; margin: 20px 0;">
+            <img id="qrisImage" src="" alt="" width="250" height="250" style="display: none;">
+        </div>
+
+        <center>
+            <button id="downloadQR" class="btn btn-primary" style="display: none;">
+                <i class="bi bi-download"></i> Unduh QR
+            </button>
+        </center>
+
+
+        <div class="summary">
+            <p style="font-size:18px;">Total Pembayaran:</p>
+            <p class="total-payment"></p>
+
+        </div>
+        <div id="panduan-pembayaran-qris"></div>
+        <div class="panduan-pembayaran-qris-mod" style="display: none;"></div>
+
+        <center>
+            <div id="expiryTimestampDisplayQris" class="countdown-wrapper mt-3"></div>
+        </center>
+        <br>
+        <br>
+        <br>
+        <br>
+        <!-- <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); ">
+            <button onclick="cekStatusPembayaran()" type="button" style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #24b3ae; color: white;
+padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                Cek Status Pembayaran
+            </button>
+        </div> -->
+    </div>
+
+    <div id="retailPage" style="display: none;" class="payment-container">
+        <div class="bg-pembayaran">
+            <div class="d-flex align-items-center">
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-arrow-left"
+                        style="font-size: 18px; color: white; margin-left: 10px; cursor: pointer;"
+                        onclick="goBackToInputs()"></i>
+                    <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+                </div>
+            </div>
+        </div>
+        <div class="px-3">
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 65px;">Jumlah yang harus dibayar
+            </p>
+            <p class="total-payment" style="margin-top: -10px;"></p>
+
+            <div class="d-flex align-items-center justify-content-between">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d;">Total Harga</p>
+                <p style="font-size: 14px;">
+                    <span style="display: inline-block; width: 30px; font-size: 14px;">Rp</span>
+                    <span class="total-harga"
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;"></span>
+                </p>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between" style="margin-top: -10px;">
+                <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; font-size: 14px;">Biaya Admin</p>
+                <p style="font-size: 14px;">
+                    <span style="display: inline-block; width: 30px; font-size: 14px;">Rp</span>
+                    <span class="admin-fee-display"
+                        style="display: inline-block; min-width: 70px; text-align: right; font-size: 14px;"></span>
+                </p>
+            </div>
+
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 20px;">Metode Pembayaran</p>
+
+            <div class="bg-va">
+                <div class="d-flex align-items-center">
+                    <div class="bank-logo">
+                        <img src="" alt="retail" style="margin-left: 10px;">
+                    </div>
+                    <p id="retailOutletName" class="bank-name" style="margin-left: 10px; font-size: 14px; color: gray;">
+                    </p>
+                </div>
+
+                <hr class="custom-hr">
+                <p style="font-size: 12px; font-weight: 500; color: gray; margin-left: 15px; margin-top: 10px;">Kode
+                    Pembayaran</p>
+
+                <div class="d-flex align-items-center justify-content-between" style="margin-top: -15px;">
+                    <div class="bank-details">
+                        <p id="retailCodeDisplay"></p>
+                    </div>
+                    <div class="bg-copy" style="margin-top: -15px;" onclick="copyRetailCode()">
+                        <iconify-icon icon="ion:copy" id="copy-retail-btn"
+                            style="width: 17px; height: 17px; color: #fff;" title="Salin Kode Pembayaran">
+                        </iconify-icon>
+                    </div>
+                </div>
+            </div>
+
+            <p style="font-size: 14px; font-weight: bold; color: #4d4d4d; margin-top: 15px;">Panduan Pembayaran</p>
+
+            <div id="panduan-pembayaran-retail" style="margin-top: 10px;"></div>
+
+            <center>
+                <div id="expiryTimestampDisplayRetail" class="countdown-wrapper mt-3"></div>
+            </center>
+
+            <button onclick="goBackToInputs()" class="close-button">
+                <iconify-icon icon="mingcute:close-fill" style="width: 30px; height: 30px;"></iconify-icon>
+            </button>
+        </div>
+
+        <!-- <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); ">
+            <button onclick="cekStatusPembayaran()" type="button" style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #24b3ae; color: white;
+    padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                Cek Status Pembayaran
+            </button>
+        </div> -->
+    </div>
+
+
+
+
+    <div id="loadingIndicator" style="display:none; text-align:center;">Loading...</div>
+    <script src="https://rtsindonesia.biz.id/app-topup.js"></script>
+    </body>
+    </html>
