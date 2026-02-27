@@ -1358,17 +1358,7 @@
 
                         const r = await resBooking.json();
 
-                        const isProcessed = r.status === "ERROR"
-                            && r.respMessage
-                            && r.respMessage.includes("PROCESSED");
-
-                        if (r.status === "SUCCESS" || r.bookingStatus === "Accept" || isProcessed) {
-                            if (isProcessed) {
-                                r.status = "SUCCESS";
-                                r.reservationNo = r.reservationNo || "PENDING";
-                                r.respMessage = "Pesanan sedang diproses. Voucher akan dikirim ke email Anda.";
-                            }
-
+                        if (r.status === "SUCCESS" || r.bookingStatus === "Accept") {
                             r.totalPrice = totalWajibBayar;
                             this.bookingResult = r;
                             this.loadingText = "Booking Berhasil!";
@@ -1378,6 +1368,12 @@
                                 this.loading = false;
                                 window.scrollTo(0, 0);
                             }, 1000);
+
+                        } else if (r.status === "ERROR" && r.respMessage && r.respMessage.includes("PROCESSED")) {
+                            // ✅ Status PROCESSED: tampilkan toast saja, jangan redirect
+                            this.loading = false;
+                            this.loadingText = '';
+                            this.showToast(r.respMessage || "Pesanan sedang diproses oleh supplier.");
 
                         } else {
                             throw new Error(r.respMessage || "Booking gagal dari pihak hotel.");
@@ -1390,7 +1386,7 @@
                     }
                 }
 
-            }; 
+            };
         } 
     </script>
 </body>
