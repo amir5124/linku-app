@@ -716,7 +716,7 @@
     <!-- HEADER -->
     <header class="header">
         <div class="header-inner">
-          
+
             <div class="header-title">Riwayat Booking</div>
             <div class="header-logo">Link<span>U</span></div>
         </div>
@@ -962,19 +962,22 @@
         // ─── MODAL DETAIL ─────────────────────────────────────────
         // Buka modal dulu dengan loading, lalu hit endpoint supplier
         async function showDetail(booking) {
-            // 1. Buka modal & tampilkan loading spinner
-            document.getElementById('modalOverlay').classList.add('open');
-            document.getElementById('modalBody').innerHTML = `
-            <div style="text-align:center; padding:48px 24px;">
-                <div class="spinner"></div>
-                <p style="color:var(--text-muted); margin-top:12px; font-size:14px;">
-                    Mengambil detail terkini dari supplier...
-                </p>
-            </div>
-        `;
+            // 1. Tampilkan Overlay & Loading Spinner
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalBody = document.getElementById('modalBody');
+
+            modalOverlay.classList.add('open');
+            modalBody.innerHTML = `
+        <div style="text-align:center; padding:48px 24px;">
+            <div class="spinner"></div>
+            <p style="color:var(--text-muted); margin-top:12px; font-size:14px;">
+                Sinkronisasi data dengan supplier...
+            </p>
+        </div>
+    `;
 
             try {
-                // 2. Hit endpoint /booking-detail ke supplier
+                // 2. Hit endpoint backend
                 const res = await fetch(`${API_BASE.replace('/hotels', '')}/hotels/booking-detail`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -985,33 +988,43 @@
                     })
                 });
 
-                const detail = await res.json();
+                const result = await res.json();
 
-                // 3. Merge: data supplier + data lokal (paxes dari DB)
-                // Supplier mungkin punya status & info lebih lengkap
+                // Ambil data detail dari supplier jika ada
+                const s = result.bookingDetail || {};
+                const supplierStatus = (s.bookingStatus || "").trim();
+
+                // 3. Logic Update: Jika backend baru saja mengubah status ke Accept
+                if (result.updatedToAccept === true) {
+                    console.log("Status diperbarui ke Accept. Me-refresh list history...");
+                    if (typeof fetchHistory === 'function') fetchHistory();
+                }
+
+                // 4. Merge Data (Prioritaskan data Supplier, Fallback ke Lokal)
                 const merged = {
-                    ...booking,                                          // data lokal (paxes, email, phone, dll)
-                    booking_status: detail.bookingStatus || booking.booking_status,
-                    hotel_name: detail.hotelName || booking.hotel_name,
-                    hotel_address: detail.hotelAddress || booking.hotel_address,
-                    room_name: detail.roomName || booking.room_name,
-                    check_in_date: detail.checkInDate || booking.check_in_date,
-                    check_out_date: detail.checkOutDate || booking.check_out_date,
-                    total_price: detail.totalPrice || booking.total_price,
-                    voucher_no: detail.voucherNo || booking.voucher_no,
-                    _source: 'supplier' // tandai bahwa data dari supplier
+                    ...booking,
+                    // Jika status berubah dari Processed ke Accept, gunakan nomor reservasi asli dari supplier
+                    reservation_no: s.reservationNo || booking.reservation_no,
+                    booking_status: supplierStatus || booking.booking_status,
+                    hotel_name: s.hotelName || booking.hotel_name,
+                    hotel_address: s.hotelAddress || booking.hotel_address,
+                    room_name: s.roomName || booking.room_name,
+                    check_in_date: s.checkInDate || booking.check_in_date,
+                    check_out_date: s.checkOutDate || booking.check_out_date,
+                    total_price: s.totalPrice || booking.total_price,
+                    voucher_no: s.voucherNo || booking.voucher_no,
+                    _source: 'supplier'
                 };
 
+                // 5. Tampilkan ke UI modal
                 renderModalDetail(merged);
 
             } catch (e) {
-                // 4. Fallback: gunakan data lokal dari DB jika supplier gagal/timeout
-                console.warn('Supplier detail gagal, menggunakan data lokal:', e.message);
+                console.warn('Gagal mengambil data supplier, menampilkan data lokal:', e.message);
                 booking._source = 'local';
                 renderModalDetail(booking);
             }
         }
-
         // Render isi modal dari data yang sudah di-merge (atau fallback lokal)
         function renderModalDetail(b) {
             const nights = Math.round(
@@ -1095,35 +1108,51 @@
             }
         }
 
-        async function handleSyncStatus(resNo, osNo, agentNo) {
-            // Tampilkan Toast Loading
-            showToast("Sedang mengecek status ke supplier...", "info");
+       async function handleSyncStatus(resNo, osNo, agentNo) {
+    if (typeof showToast !== 'function') {
+        window.showToast = (msg) => alert(msg);
+    }
 
-            try {
-                const response = await fetch('https://darma.siappgo.id/api/hotels/booking-detail', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        reservationNo: resNo,
-                        osRefNo: osNo,
-                        agentOsRef: agentNo
-                    })
-                });
+    showToast("Memproses permintaan Anda...", "info");
 
-                const result = await response.json();
+    try {
+        const response = await fetch(`${API_BASE.replace('/hotels', '')}/hotels/booking-detail`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reservationNo: resNo,
+                osRefNo: osNo,
+                agentOsRef: agentNo,
+                // --- TAMBAHKAN BARIS INI ---
+                forceResend: true 
+                // ---------------------------
+            })
+        });
 
-                if (result.status === "SUCCESS" || result.bookingStatus === "Accept") {
-                    showToast("Berhasil! E-Tiket telah dikirim ke email tamu.", "success");
-                    // Refresh data di background jika perlu
-                    if (typeof fetchHistory === 'function') fetchHistory();
-                } else {
-                    showToast("Status masih diproses oleh supplier.", "warning");
-                }
-            } catch (error) {
-                showToast("Gagal menghubungi server.", "error");
-                console.error(error);
-            }
+        const result = await response.json();
+        const s = result.bookingDetail || {};
+        const supplierStatus = (s.bookingStatus || "").trim();
+
+        if (result.status === "SUCCESS" && supplierStatus === "Accept") {
+            // Jika ini kirim ulang, pesannya lebih spesifik
+            showToast("E-Tiket telah dikirim ulang ke email Anda.", "success");
+            if (typeof fetchHistory === 'function') fetchHistory();
+            
+            // Opsional: Tutup modal setelah sukses kirim ulang
+            // closeModal(); 
+        } 
+        else if (supplierStatus === "Processed" || (result.respMessage && result.respMessage.includes("PROCESSED"))) {
+            showToast("Pesanan masih dalam proses supplier.", "warning");
+        } 
+        else {
+            showToast(result.respMessage || "Terjadi kendala saat sinkronisasi.", "info");
         }
+
+    } catch (error) {
+        showToast("Gagal terhubung ke server.", "error");
+        console.error("Sync Error:", error);
+    }
+}
 
         // Fungsi Toast Sederhana
         function showToast(message, type = "info") {

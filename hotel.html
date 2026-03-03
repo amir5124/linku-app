@@ -663,7 +663,7 @@
                                 class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
                                 class="font-black text-xl text-[#24b3ae]" x-text="search.roomCount"></span><button
                                 @click="search.roomCount++"
-                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#24b3ae] font-black">+</button>
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#fff] font-black">+</button>
                         </div>
                     </div>
                     <div class="flex justify-between items-center border-t pt-8 ">
@@ -675,7 +675,7 @@
                                 class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
                                 class="font-black text-xl text-[#24b3ae]" x-text="search.adultCount"></span><button
                                 @click="search.adultCount++"
-                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#24b3ae] font-black">+</button>
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#fff] font-black">+</button>
                         </div>
                     </div>
                     <div class="flex justify-between items-center border-t pt-8 ">
@@ -686,7 +686,7 @@
                                 class="w-10 h-10 rounded-full border border-slate-200 font-black">-</button><span
                                 class="font-black text-xl text-[#24b3ae]" x-text="search.childCount"></span><button
                                 @click="addChild()"
-                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#24b3ae] font-black">+</button>
+                                class="w-10 h-10 rounded-full border border-blue-200 bg-[#24b3ae] text-[#fff] font-black">+</button>
                         </div>
                     </div>
                     <template x-if="search.childCount > 0">
@@ -776,14 +776,14 @@
                                     <span class="text-gray-500">Layanan Makan</span>
                                     <span class="font-bold text-green-600" x-text="bookingResult.breakfast"></span>
                                 </div>
-                                <div class="bg-[#24b3ae] p-3 rounded-xl">
+                                <!-- <div class="bg-[#24b3ae] p-3 rounded-xl">
                                     <p class="text-[10px] text-[#24b3ae] font-bold uppercase mb-1">Tamu Utama</p>
                                     <template x-for="room in bookingResult.roomRequest">
-                                        <div class="text-sm font-bold text-[#24b3ae]"
+                                        <div class="text-sm font-bold text-[#fff]"
                                             x-text="room.paxes[0].title + ' ' + room.paxes[0].firstName + ' ' + room.paxes[0].lastName">
                                         </div>
                                     </template>
-                                </div>
+                                </div> -->
                             </div>
 
                             <div class="flex justify-between items-center pt-4 border-t border-slate-100">
@@ -1020,16 +1020,34 @@
                 },
 
                 buildRoomRequest(withPaxes = false) {
-                    return Array.from({ length: parseInt(this.search.roomCount) }, (_, i) => ({
-                        paxes: withPaxes ? (i === 0 ? this.bookingData.paxes : []) : undefined,
-                        isSmokingRoom: false,
-                        phone: withPaxes ? this.bookingData.contactPhone : undefined,
-                        email: withPaxes ? this.bookingData.contactEmail : undefined,
-                        roomType: 0,
-                        isRequestChildBed: false,
-                        childNum: i === 0 ? parseInt(this.search.childCount) : 0,
-                        childAges: i === 0 ? this.search.childAges.map(Number) : []
-                    }));
+                    const roomCount = parseInt(this.search.roomCount) || 1;
+
+                    return Array.from({ length: roomCount }, (_, i) => {
+                        let paxesData = [];
+
+                        if (withPaxes) {
+                            // Pastikan paxesData selalu ARRAY
+                            if (this.bookingData.paxes && Array.isArray(this.bookingData.paxes[i])) {
+                                paxesData = this.bookingData.paxes[i];
+                            } else if (i === 0 && Array.isArray(this.bookingData.paxes)) {
+                                // Jika paxes dikirim sebagai array tunggal (bukan nested)
+                                paxesData = this.bookingData.paxes;
+                            }
+                        }
+
+                        return {
+                            paxes: paxesData, // Selalu Array
+                            isSmokingRoom: Boolean(this.bookingData.isSmokingRoom),
+                            phone: withPaxes ? String(this.bookingData.contactPhone || "08123456789") : "08123456789",
+                            email: withPaxes ? String(this.bookingData.contactEmail || "guest@mail.com") : "guest@mail.com",
+                            specialRequestArray: [],
+                            requestDescription: this.bookingData.requestDescription || "",
+                            roomType: 0,
+                            isRequestChildBed: false,
+                            childNum: i === 0 ? (parseInt(this.search.childCount) || 0) : 0,
+                            childAges: i === 0 ? (this.search.childAges ? this.search.childAges.map(Number) : [0]) : [0]
+                        };
+                    });
                 },
 
                 get totalBayarDisplay() {
@@ -1313,7 +1331,7 @@
                     try {
                         const { checkIn, checkOut } = this.buildDateRange();
 
-                        // TAHAP 1: Cek harga & ketersediaan terkini
+                        // TAHAP 1: Re-Check Price
                         const resPrice = await fetch('https://darma.siappgo.id/api/hotels/price-info', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -1321,7 +1339,7 @@
                                 cityID: String(this.search.cityID),
                                 checkInDate: checkIn,
                                 checkOutDate: checkOut,
-                                roomRequest: this.buildRoomRequest(),
+                                roomRequest: this.buildRoomRequest(false),
                                 internalCode: this.selectedHotel.internalCode,
                                 hotelID: this.selectedHotel.ID,
                                 breakfast: this.selectedRoom.breakfast,
@@ -1331,14 +1349,12 @@
                         const priceData = await resPrice.json();
 
                         if (priceData.status !== "SUCCESS" || !priceData.isEnableBooking) {
-                            this.showConfirmModal = false;
-                            throw new Error(priceData.respMessage || "Kamar sudah tidak tersedia atau harga berubah.");
+                            throw new Error(priceData.respMessage || "Kamar sudah tidak tersedia.");
                         }
 
                         const totalWajibBayar = Math.round(priceData.totalPrice) + this.biayaAdminJagel;
 
-                        // TAHAP 2: Eksekusi booking
-                        this.showConfirmModal = false;
+                        // TAHAP 2: Eksekusi Booking Real
                         this.loadingText = "Memproses voucher hotel...";
 
                         const resBooking = await fetch('https://darma.siappgo.id/api/hotels/booking', {
@@ -1355,16 +1371,20 @@
                                 hotelID: this.selectedHotel.ID,
                                 breakfast: this.selectedRoom.breakfast,
                                 roomID: this.selectedRoom.ID,
-                                bedType: { ID: null, bed: null },
+                                bedType: { ID: "", bed: "" },
                                 agentOsRef: "LC-" + Date.now(),
-                                username: "amir" // Ambil dari session/state
+                                username: this.currentUsername || "guest"
                             })
                         });
 
                         const r = await resBooking.json();
 
-                        if (r.status === "SUCCESS" || r.bookingStatus === "Accept") {
-                            // ✅ BOOKING BERHASIL — tampilkan halaman sukses
+                        // --- PENANGANAN RESPONSE ---
+
+                        if (r.status === "SUCCESS" && r.internalStatus === "Accept") {
+                            // TUTUP MODAL DI SINI
+                            this.showConfirmModal = false;
+
                             r.totalPrice = totalWajibBayar;
                             this.bookingResult = r;
                             this.loadingText = "Booking Berhasil!";
@@ -1374,35 +1394,45 @@
                                 this.loading = false;
                                 window.scrollTo(0, 0);
                             }, 1000);
+                        }
+                        else if (r.internalStatus === "Processed") {
+                            // TUTUP MODAL DI SINI JUGA
+                            this.showConfirmModal = false;
 
-                        } else if (r.status === "ERROR" && r.respMessage && r.respMessage.includes("PROCESSED")) {
-                            // ✅ PERBAIKAN: Status PROCESSED — tampilkan toast informatif + redirect ke riwayat
                             this.loading = false;
-                            this.loadingText = '';
+                            this.showToast("Pesanan sedang diproses. Silakan cek menu Riwayat secara berkala.", "warning");
 
-                            // Tampilkan toast dengan pesan yang lebih informatif
-                            this.showToastProcessed(
-                                r.respMessage ||
-                                "Pesanan Anda sedang diproses oleh pihak hotel. Cek riwayat booking untuk status terbaru."
-                            );
-
-                            // Redirect ke halaman riwayat booking setelah 2.5 detik
                             setTimeout(() => {
-                                const username = this.currentUsername || "guest";
-                                window.location.href = `/riwayat-booking.html?username=${encodeURIComponent(username)}`;
+                                window.location.href = `/riwayat-booking.html?username=${encodeURIComponent(this.currentUsername || 'guest')}`;
                             }, 2500);
-
-                        } else {
-                            throw new Error(r.respMessage || "Booking gagal dari pihak hotel.");
+                        }
+                        else {
+                            throw new Error(r.respMessage || "Booking gagal dikonfirmasi.");
                         }
 
                     } catch (e) {
                         console.error("Booking Error:", e);
-                        this.showToast(e.message);
+                        this.showToast(e.message, "error");
                         this.loading = false;
+                        // Opsional: Tutup modal juga jika terjadi error agar user bisa mencoba lagi dari awal
+                        // this.showConfirmModal = false; 
                     }
                 },
 
+                // Helper untuk membangun payload roomRequest (Letakkan di dalam Alpine object)
+                // buildRoomRequest(includePaxes) {
+                //     return [{
+                //         paxes: includePaxes ? this.paxes : [], // Pastikan data paxes sudah terisi
+                //         isSmokingRoom: false,
+                //         phone: this.contactPhone,
+                //         email: this.contactEmail,
+                //         specialRequestArray: [],
+                //         // AMBIL NILAI DARI TEXTAREA
+                //         requestDescription: this.bookingData.requestDescription || "",
+                //         childNum: 0,
+                //         childAges: [0]
+                //     }];
+                // },
                 // ============================================================
                 // TAMBAHAN METHOD: showToastProcessed()
                 // Toast khusus untuk status PROCESSED (warna berbeda & durasi lebih lama)
