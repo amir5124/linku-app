@@ -10,12 +10,12 @@
         rel="stylesheet">
     <style>
         :root {
-            --primary: #0f4c81;
-            --primary-light: #1a6bb5;
-            --accent: #f59e0b;
-            --accent-dark: #d97706;
+            --primary: #24b3ae;
+            --primary-light: #24b3ae;
+            --accent: #e03f7d;
+            --accent-dark: #e03f7d;
             --success: #10b981;
-            --danger: #ef4444;
+            --danger: #e03f7d;
             --bg: #f0f4f8;
             --card: #ffffff;
             --text: #1e293b;
@@ -781,7 +781,7 @@
         // Ambil username dari URL param atau session
         function getUsername() {
             const params = new URLSearchParams(window.location.search);
-            return params.get('username') || localStorage.getItem('username') || 'amir';
+            return params.get('username') || localStorage.getItem('username') || 'ammar10';
         }
 
         // ─── STATE ────────────────────────────────────────────────
@@ -913,10 +913,13 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div>
-                        <div class="price-label">Total Bayar</div>
-                        <div class="price-value">${formatPrice(b.total_price, b.currency)}</div>
-                    </div>
+                   <div>
+        <div class="price-label">Total Bayar</div>
+        <div class="price-value">
+            ${formatPrice(parseFloat(b.total_price || 0) + parseFloat(b.commission || 0), b.currency)}
+        </div>
+      
+    </div>
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                         ${b.paxes && b.paxes.length > 0 ? `
                             <div class="pax-list">
