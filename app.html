@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkU Hotel</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body>
+
+  <div class="w-full h-screen">
+    <iframe id="myIframe"
+            src=""
+            class="w-full h-full border-none"
+            title="External Content">
+    </iframe>
+  </div>
+
+ <script>
+    // Data dari sistem Jagel
+    window.dataJagel = { 
+        username: "amir", 
+        lokasi: "{lokasi_pengguna}",
+        urlHistory: "https://jgjk.mobi/m/69a7e46c788f9" // Parameter baru ditambahkan di sini
+    };
+
+    const iframe = document.getElementById("myIframe");
+    const baseUrl = "https://rtsindonesia.biz.id/app.html";
+
+    // Gunakan URLSearchParams untuk menggabungkan parameter
+    const params = new URLSearchParams();
+    params.append("username", window.dataJagel.username);
+    params.append("location", window.dataJagel.lokasi);
+    
+    // Menambahkan urlHistory ke dalam query string
+    params.append("urlHistory", window.dataJagel.urlHistory);
+
+    const finalUrl = baseUrl + "?" + params.toString();
+
+    // Set src iframe
+    if (iframe) {
+        iframe.src = finalUrl;
+    }
+
+    console.log("Final Iframe URL:", finalUrl);
+</script>
+
+</body>
+</html>

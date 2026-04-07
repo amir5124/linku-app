@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Penarikan</title>
+    <style>
+        #content {
+            display: none;
+            /* Menyembunyikan konten utama */
+        }
+
+        #accessDenied {
+            display: none;
+            /* Menyembunyikan pesan akses ditolak */
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        // Fungsi untuk memeriksa waktu akses
+        function checkAccessTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const currentTime = hours * 60 + minutes; // Menghitung waktu dalam menit
+
+            // Mengatur waktu mulai dan waktu akhir dalam menit
+            const openingTime = 0 * 60; // 06:00
+            const closingTime = 24 * 60; // 24:00
+
+            // Memeriksa apakah waktu saat ini berada dalam jam operasional
+            if (currentTime < openingTime || currentTime >= closingTime) {
+                document.getElementById('accessDenied').style.display = 'block'; // Menampilkan pesan akses ditolak
+            } else {
+                document.getElementById('content').style.display = 'block'; // Menampilkan konten utama
+            }
+        }
+
+        // Memanggil fungsi saat halaman dimuat
+        window.onload = checkAccessTime;
+    </script>
+</head>
+
+<body>
+    <div id="accessDenied">
+        <h2>Diluar Jam Operasional</h2>
+        <p>Silahkan Kembali 06:00 WIB.</p>
+    </div>
+
+    <div id="content">
+        <!doctype html>
+
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+            <title>Response Example</title>
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap');
+
+                body {
+                    font-family: "Baloo 2", serif;
+                    background-color: #fff;
+                }
+
+                .main2 {
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background-color: hsla(0, 25%, 92%, 0.014);
+                    top: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 999;
+                    display: none;
+                }
+
+                .swift-bar {
+                    background-color: #fff;
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    overflow-y: scroll;
+                    padding: 20px;
+                    bottom: 0;
+                    /* border-top-left-radius: 20px;
+                      border-top-right-radius: 20px; */
+                    box-shadow: 0px 3px 15px #0000001a;
+                }
+
+                .rounded-50Img {
+                    width: 60px;
+                    height: 50px;
+                    background: #ffffff;
+                    padding: 5px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    position: relative;
+                    text-align: center;
+                }
+
+                a,
+                p {
+                    margin-bottom: 0;
+                    text-decoration: none;
+                    columns: inherit;
+                }
+
+                .font-11 {
+                    font-size: 11px;
+                }
+
+                .text-hitam {
+                    color: #000;
+                }
+
+                input[type=number] {
+                    width: 100%;
+                    margin: 8px 0;
+                    outline: none;
+                    padding: 8px;
+                    height: 45px;
+                    box-sizing: border-box;
+                    border-radius: 5px;
+                    background-color: #fff;
+                    border: none;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+                }
+
+                input {
+                    text-indent: 10px;
+                    font-size: 14px;
+                }
+
+                input[type=text] {
+                    width: 100%;
+                    margin: 8px 0;
+                    outline: none;
+                    padding: 8px;
+                    height: 45px;
+                    box-sizing: border-box;
+                    border-radius: 5px;
+                    background-color: #fff;
+                    border: none;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+                }
+
+                input {
+                    text-indent: 10px;
+                    font-size: 14px;
+                }
+
+                .custom-select {
+                    position: relative;
+                    display: inline-block;
+                    width: 100%;
+                    height: 40px;
+                    text-indent: 5px;
+                }
+
+                .custom-select select {
+                    width: 100%;
+                    height: 40px;
+                    border: 1px solid #ccc;
+                    outline: none;
+                    appearance: none;
+                    background-color: transparent;
+                    padding: 0.5rem;
+                    font-size: 16px;
+                }
+
+                .custom-select select:focus {
+                    border-color: #ccc;
+
+                }
+
+                #loadingOverlay {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    /* Warna latar belakang gelap */
+                    z-index: 998;
+                    /* Z-index harus lebih rendah dari loader agar bisa tertutupi */
+                }
+
+                #loadingIndicator {
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 999;
+                }
+
+                #loadingSpinner {
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 999;
+                }
+
+                .loader {
+                    border: 6px solid #f3f3f3;
+                    /* Light grey */
+                    border-top: 6px solid #0000FF;
+                    /* Blue */
+                    border-radius: 50%;
+                    width: 40px;
+                    height: 40px;
+                    animation: spin 2s linear infinite;
+                }
+
+                @keyframes spin {
+                    0% {
+                        transform: rotate(0deg);
+                    }
+
+                    100% {
+                        transform: rotate(360deg);
+                    }
+                }
+
+                .bg-cek {
+                    background-color: #0000FF;
+                    border: none;
+                    outline: none;
+                    padding: 8px;
+                    border-radius: 5px;
+                    color: #fff;
+                    width: 100%
+                }
+
+                .bg-cek:active,
+                .bg-cek:focus {
+                    outline: none;
+                }
+
+                .bg-bayar {
+                    background-color: #0000FF;
+                    border: none;
+                    outline: none;
+                    padding: 8px;
+                    border-radius: 5px;
+                    width: 100%;
+                    color: #fff;
+                }
+
+                .bg-bayar:active,
+                .bg-bayar:focus {
+                    outline: none;
+                }
+
+                .radioso {
+                    background-color: #fff;
+                    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+                    width: 100%;
+                    height: auto;
+                    border-radius: 5px;
+                    padding: 10px;
+
+                }
+
+                .container {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 15px;
+                    background-color: white;
+                    overflow: hidden;
+                }
+
+                .struk-container {
+                    width: 330px;
+                    padding: 10px;
+                    border-radius: 5px;
+                    background-color: #fff;
+                    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+
+
+                }
+
+                .truncate-text {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    color: #000;
+                    font-weight: 500;
+                }
+
+                .struk-Gpay-popup {
+                    display: none;
+                    /* Menyembunyikan popup secara default */
+                    position: fixed;
+                    /* Memastikan popup tetap berada di layar */
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    /* Lebar penuh */
+                    height: 100vh;
+                    /* Tinggi penuh */
+                    background-color: rgba(0, 0, 0, 0.5);
+                    /* Latar belakang gelap dengan transparansi */
+                    justify-content: center;
+                    /* Memusatkan konten */
+                    align-items: center;
+                    /* Memusatkan konten secara vertikal */
+                    z-index: 1000;
+                    /* Memastikan popup di atas elemen lain */
+                }
+
+                .struk-Gpay-content {
+                    background-color: white;
+                    /* Warna latar belakang popup */
+                    padding: 20px;
+                    border-radius: 10px;
+                    /* Sudut melengkung */
+                    max-width: 100%;
+                    /* Lebar maksimum popup */
+                    height: auto;
+                    /* Tinggi otomatis untuk menyesuaikan konten */
+                    max-height: 90vh;
+                    /* Tinggi maksimum popup */
+                    width: 100%;
+                    /* Lebar responsif */
+                    overflow-y: auto;
+                    /* Menambahkan scrollbar jika konten terlalu panjang */
+                }
+
+                /* Header */
+                .struk-Gpay-header {
+                    background-color: #0000FF;
+                    /* Warna merah URBAN MODA */
+                    padding: 15px;
+                    /* Mengecilkan padding */
+                    border-top-left-radius: 10px;
+                    border-top-right-radius: 10px;
+                    text-align: center;
+                    color: white;
+                    /* Warna putih untuk teks di header */
+                    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+                    /* Menambahkan shadow */
+
+                }
+
+                .struk-Gpay-header p {
+                    margin: 0;
+                }
+
+                /* Body */
+                .struk-Gpay-body {
+                    background-color: #f9f9f9;
+                    padding: 15px;
+                    /* Mengecilkan padding */
+                    color: black;
+                    /* Mengatur warna teks menjadi hitam */
+                }
+
+                .struk-Gpay-body img {
+                    max-width: 60px;
+                    /* Ukuran logo kecil */
+                    margin-bottom: 10px;
+                    background-color: #0000FF;
+                }
+
+                .struk-Gpay-row {
+                    display: flex;
+                    /* Menggunakan Flexbox */
+                    justify-content: space-between;
+                    /* Menyebar konten ke kanan dan kiri */
+                    padding: 5px 0;
+                    /* Mengecilkan padding */
+                }
+
+                .struk-Gpay-row p {
+                    margin-bottom: 8px;
+                    flex-basis: 45%;
+                    /* Mengatur lebar kolom menjadi 45% */
+                    text-align: left;
+                    /* Teks rata kiri */
+                    font-size: 12px;
+                    /* Menentukan ukuran font (sesuaikan sesuai kebutuhan) */
+                }
+
+                /* Footer */
+                .struk-Gpay-footer {
+                    background-color: #0000FF;
+                    /* Warna merah URBAN MODA */
+                    padding: 5px;
+                    /* Mengecilkan padding */
+                    border-bottom-left-radius: 10px;
+                    border-bottom-right-radius: 10px;
+                    text-align: center;
+                    color: white;
+                    /* Warna putih untuk teks di footer */
+                    font-size: 11px;
+                    height: 35px;
+                    /* Atur lebar maksimum sesuai kebutuhan */
+                    margin: 0 auto;
+                    /* Memusatkan footer */
+                    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+                    /* Menambahkan shadow */
+                }
+
+                .struk-Gpay-note {
+                    color: #0000FF;
+                    /* Warna merah URBAN MODA */
+                    font-size: 12px;
+                    /* Ukuran font */
+                    text-align: center;
+                    /* Memusatkan teks */
+                    margin: 10px 0;
+                    /* Margin atas dan bawah */
+                }
+
+
+
+
+                /* Button Style */
+                .struk-Gpay-back-button {
+                    background-color: white;
+                    color: #0000FF;
+                    padding: 3px 8px;
+                    /* Mengecilkan ukuran tombol */
+                    border-radius: 25px;
+                    border: 2px solid #0000FF;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 10px;
+                    /* Mengecilkan ukuran font tombol */
+                    margin-top: 10px;
+                    display: inline-block;
+                    text-decoration: none;
+                    /* Menghapus garis bawah */
+                    float: right;
+                    /* Mengubah posisi tombol ke sebelah kanan */
+                }
+
+                .struk-Gpay-back-button:hover {
+                    background-color: #0000FF;
+                    color: white;
+                    text-decoration: none;
+                    /* Menghapus garis bawah saat hover */
+                }
+
+                .rotating-logo {
+                    animation: spin 2s linear infinite;
+                    /* Putar terus menerus */
+                }
+
+                @keyframes spin {
+                    0% {
+                        transform: rotate(0deg);
+                    }
+
+                    100% {
+                        transform: rotate(360deg);
+                    }
+                }
+            </style>
+        </head>
+
+        <body>
+            <p class="mt-2 px-3">Pilih Bank</p>
+            <form id="fetchFormBank" class="px-3 mt-2"> <select id="kodeBank" class="custom-select">
+                    <option>Pilih Bank</option>
+                    <option>BNI</option>
+                    <option>MANDIRI</option>
+                    <option>BCA</option>
+                    <option>BRI</option>
+                    <option>BSI</option>
+                    <option>BTN</option>
+                    <option>BTPN</option>
+                    <option>DANAMON</option>
+                    <option>PERMATA</option>
+                    <option>OCBC</option>
+                    <option>PANIN</option>
+
+                </select> <input type="number" id="tujuanInputBank" placeholder="Masukkan Nomer Rekening" required>
+                <input type="text" id="nominalInput" placeholder="Masukkan Nominal" required>
+                <div class="d-flex align-items-center justify-content-between mt-2"> <button type="submit"
+                        data-jenis="5" class="bg-cek mt-2">Cek Rekening</button> <button type="button"
+                        class="bg-bayar ml-2 mt-2 d-none" id="bayarButtonBank">Tarik Coin</button> </div>
+            </form>
+            <div id="loadingBank" class="d-none justify-content-center align-items-center"
+                style="min-height: 100px; display: flex;">
+                <div class="loader" role="status"> <span class="sr-only">Loading...</span> </div>
+            </div>
+            <div id="loadingIndicator" class="d-none justify-content-center align-items-center"
+                style="min-height: 100px; display: flex;">
+                <div class="loader" role="status"> <span class="sr-only">Loading...</span> </div>
+            </div>
+            <div id="loadingSpinner" class="d-none justify-content-center align-items-center"
+                style="min-height: 100px; display: flex;">
+                <!-- <img src="https://lh3.googleusercontent.com/u/0/d/135iQXT8WzkafAkNfqayl3WDJwbBjxavn" alt="Loading Logo" 
+         class="rotating-logo" style="width: 100px; height: 100px;"> -->
+                <div class="loader" role="status"> <span class="sr-only">Loading...</span> </div>
+            </div>
+
+            <div id="responseBank" class="mt-3"></div>
+            <div id="resultText" class="mt-3 px-3"></div>
+
+            <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+            <script>
+                // Firebase configuration
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBl2EobD9vj101W-rnblbEgQejxuOpWPMI",
+                    authDomain: "URBAN MODA-database.firebaseapp.com",
+                    databaseURL: "https://URBAN MODA-database-default-rtdb.asia-southeast1.firebasedatabase.app",
+                    projectId: "URBAN MODA-database",
+                    storageBucket: "URBAN MODA-database.appspot.com",
+                    messagingSenderId: "157043705734",
+                    appId: "1:157043705734:web:ee56df7db9aeabe9e0ce07",
+                    measurementId: "G-Q6G9NDCXBM"
+                };
+
+                // Initialize Firebase (Firebase v8)
+                firebase.initializeApp(firebaseConfig);
+
+                // Get a reference to the database service
+                const database = firebase.database();
+            </script>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const fetchFormBank = document.getElementById("fetchFormBank");
+                    const tujuanInputBank = document.getElementById("tujuanInputBank");
+                    const nominalInput = document.getElementById("nominalInput");
+                    const kodeBank = document.getElementById("kodeBank");
+                    const cekTagihanButtonBank = document.querySelector("[data-jenis='5']");
+                    const bayarButtonBank = document.getElementById("bayarButtonBank");
+                    const responseDivBank = document.getElementById("responseBank");
+                    const loadingDivBank = document.getElementById("loadingBank");
+
+                    // Variabel global untuk menyimpan nilai-nilai
+                    let globalJenisBank;
+                    let globalKodeBanks;
+                    let globalJumlah;
+                    let globalTujuanBank;
+                    let responseTextBank;
+
+                    nominalInput.addEventListener('input', function () {
+                        // Menghapus semua karakter selain angka
+                        const cleanedValue = this.value.replace(/[^0-9]/g, '');
+
+                        // Menetapkan nilai yang telah diformat ke input
+                        this.value = Number(cleanedValue).toLocaleString('id-ID');
+                    });
+
+                    let isFetching = false;
+
+                    fetchFormBank.addEventListener("submit", async (event) => {
+                        event.preventDefault();
+
+                        // Cek jika masih dalam proses fetching
+                        if (isFetching) {
+                            return;  // Hentikan eksekusi jika masih dalam proses
+                        }
+
+                        // Mengaktifkan flag fetching
+                        isFetching = true;
+
+                        // Mendapatkan nilai nominal dan membersihkan dari karakter non-angka
+                        const cleanedValue = nominalInput.value.replace(/[^0-9]/g, '');
+
+                        // Mengecek apakah nominal kurang dari 10.000
+
+
+                        globalKodeBanks = kodeBank.value;
+                        const currentDate = new Date();
+
+                        // Format tanggal dan waktu saat ini
+                        const year = currentDate.getFullYear();
+                        const month = currentDate.getMonth() + 1; // Bulan dimulai dari 0, jadi tambah 1
+                        const day = currentDate.getDate();
+                        const hours = currentDate.getHours();
+                        const minutes = currentDate.getMinutes();
+                        const seconds = currentDate.getSeconds();
+
+                        const formattedDateTime = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+                        const tujuans = tujuanInputBank.value;
+                        const admin = 20000;
+                        const jmlhi = cleanedValue;
+                        globalTujuanBank = `${jmlhi}@${tujuans}`;
+                        globalJumlah = `${jmlhi}`
+                        console.log(globalJumlah, "banks")
+                        globalJenisBank = cekTagihanButtonBank.getAttribute("data-jenis");
+
+                        // Tampilkan loading indikator
+                        loadingDivBank.classList.remove("d-none");
+
+                        try {
+                            // Melakukan permintaan ke API
+                            const responseBank = await fetch(`https://wd.urbanmoda.biz.id/inquirybank?jenis=${globalJenisBank}&kodeproduk=${globalKodeBanks}&tujuan=${globalTujuanBank}`);
+                            const dataBank = await responseBank.json();
+
+                            const responseTextBank = dataBank.msg;
+                            console.log(responseTextBank)
+
+                            // Ambil data dengan regex
+                            const idTransaksi = responseTextBank.match(/ID Transaksi:\s*(\d+)/)?.[1] || 'Tidak ditemukan';
+                            const bankTujuan = responseTextBank.match(/Bank Tujuan:\s*([^#]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const namaPenerima = responseTextBank.match(/Nama Penerima:\s*(.*?)\s*Jumlah Penarikan:/)?.[1].trim() || 'Tidak ditemukan';
+
+                            const jumlahPenarikan = responseTextBank.match(/Jumlah Penarikan:\s*Rp\s*([\d.,]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const biayaAdmin = responseTextBank.match(/Biaya Admin:\s*Rp\s*([\d.,]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const totalPembayaran = responseTextBank.match(/Total Pembayaran:\s*Rp\s*([\d.,]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const saldoAwal = responseTextBank.match(/Saldo Coin Awal:\s*([\d.,]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const potonganCoin = responseTextBank.match(/Potongan Coin:\s*([\d.,]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const saldoAkhir = responseTextBank.match(/Saldo Coin Akhir:\s*([\d.,]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const waktu = responseTextBank.match(/#Waktu:\s*([^\n]+)/)?.[1].trim() || 'Tidak ditemukan';
+                            const admin = 20000;
+                            const formattedNominal = Number(jumlahPenarikan).toLocaleString('id-ID');
+                            const formattedAdmin = Number(admin).toLocaleString('id-ID');
+                            const total = parseInt(jumlahPenarikan) + parseInt(admin);
+                            const totalJumlah = Number(total).toLocaleString('id-ID');
+                            const jumlahServer = total;
+                            const jumlahTerformat = jumlahPenarikan.toLocaleString('id-ID');
+
+
+
+                            const uniqueCode = Math.floor(1000 + Math.random() * 9000);
+
+                            // Buat HTML-nya
+                            const bankInfo = `
+    <div class="px-3">
+        <div class="radioso">
+           
+            <p><strong>Bank Tujuan:</strong> ${globalKodeBanks}</p>
+            <p><strong>Nama Penerima:</strong> ${namaPenerima}</p>
+             <p><strong>Biaya Admin:</strong> ${formattedAdmin} Coin</p>
+            <p><strong>Jumlah Penarikan:</strong> ${jumlahTerformat} Coin</p>
+            
+            <p><strong>Jumlah Total:</strong> ${totalJumlah} Coin</p>
+            <div class="mt-3">
+                <p id="pinStatus">PIN ${uniqueCode}</p>
+                <input type="number" id="konfirmBank" placeholder="Masukkan Nomer PIN" required>
+            </div>
+        </div>
+    </div>
+`;
+
+
+
+                            // Menampilkan informasi bank di dalam elemen yang dituju
+                            responseDivBank.innerHTML = bankInfo;
+
+                            // Sembunyikan tombol Cek Rekening dan tampilkan tombol Bayar
+                            cekTagihanButtonBank.classList.add("d-none");  // Sembunyikan tombol "Cek Rekening"
+                            bayarButtonBank.classList.remove("d-none");    // Tampilkan tombol "Bayar"
+
+                        } catch (error) {
+                            // Menangani error jika terjadi kesalahan saat fetching data
+                            responseDivBank.innerHTML = `Error during fetch: ${error.message}`;
+                            console.error("Error during fetch:", error.message);
+                        } finally {
+                            // Sembunyikan loading indikator dan reset flag fetching
+                            loadingDivBank.classList.add("d-none");
+                            isFetching = false;  // Reset flag setelah selesai
+                        }
+                    });
+
+                    // Event listener for bayarButtonBank click
+                    let isProcessing = false;
+
+                    bayarButtonBank.addEventListener("click", async () => {
+                        const loadingSpinner = document.getElementById("loadingSpinner");
+                        const pinValue = document.getElementById("konfirmBank").value;
+                        const MINIMAL_PENARIKAN = 3000000;
+
+                        // Variabel yang akan digunakan
+                        const usernameS = '{username}'; // Ganti dengan variabel username
+                        const nama = '{nama}'; // Ganti dengan variabel nama
+                        const hp = '{hp}'; // Ganti dengan variabel hp
+                        const email = '{email}'; // Ganti dengan variabel email
+                        const API_ASAL = 'xoCE3WLpjdy95R738jKFX9w2Unw342V1WTAznDJ4KHNNrXgS7i'; // Ganti dengan API Key Anda
+
+                        if (isProcessing) return;
+
+                        if (pinValue === "") {
+                            swal("Peringatan", "Anda belum memasukkan PIN", "warning");
+                        } else {
+                            try {
+                                isProcessing = true;
+                                loadingSpinner.style.display = "block";
+                                bayarButtonBank.disabled = true;
+                                swal({
+                                    title: "",
+                                    text: "Mohon Menunggu...",
+                                    buttons: false,
+                                    closeOnClickOutside: false,
+                                });
+
+                                // --- BAGIAN: Pengecekan Saldo Real-time dari API Jagel (Diperbaiki) ---
+                                const balanceCheckUrl = `https://api.jagel.id/v1/balance/check?type=username&value=${usernameS}&apikey=${API_ASAL}`;
+
+                                // LOGGING: Tampilkan username yang sedang diproses
+                                console.log(`[CHECK SALDO] Memproses username: ${usernameS}`);
+                                console.log(`[CHECK SALDO] URL API: ${balanceCheckUrl}`);
+
+                                const balanceResponse = await fetch(balanceCheckUrl);
+
+                                if (!balanceResponse.ok) {
+                                    throw new Error(`Gagal cek saldo`);
+                                }
+
+                                const saldoCekResponse = await balanceResponse.json();
+
+                                // --- VALIDASI RESPONS API JAGEL (Perbaikan Utama) ---
+                                // Cek apakah respons menunjukkan sukses (success: true)
+                                if (saldoCekResponse.success !== true) {
+                                    const apiErrorMessage = saldoCekResponse.message || "Gagal cek saldo. Periksa API Key atau Username Anda.";
+                                    // LOGGING: Tampilkan respons gagal dari API
+                                    console.error("[CHECK SALDO] Respons  GAGAL:", saldoCekResponse);
+                                    throw new Error(`Gagal Cek Saldo: ${apiErrorMessage}`);
+                                }
+
+                                // Validasi struktur data setelah dipastikan sukses
+                                if (!saldoCekResponse.data || typeof saldoCekResponse.data.balance_active === 'undefined') {
+                                    // Error ini hanya terjadi jika API merespons success:true tapi datanya salah
+                                    throw new Error("Struktur data saldo tidak valid.");
+                                }
+
+                                // Saldo saat ini yang didapat dari API
+                                const saldoSaatIni = parseFloat(saldoCekResponse.data.balance_active) || 0;
+
+                                // LOGGING: Tampilkan saldo yang berhasil didapatkan
+                                console.log(`[CHECK SALDO] Saldo aktif saat ini untuk ${usernameS}: ${saldoSaatIni.toLocaleString('id-ID')} Coin`);
+                                // --- AKHIR BAGIAN Pengecekan Saldo ---
+
+
+                                // Mengambil dan membersihkan nominal yang diinput pengguna
+                                const nominalDitarikUser = parseInt(nominalInput.value.replace(/\./g, '')) || 0;
+                                console.log(`[PENARIKAN] Nominal yang ditarik pengguna: ${nominalDitarikUser.toLocaleString('id-ID')}`);
+
+                                
+                                const jumlahMaksimalDitarik = saldoSaatIni;
+                                console.log(`[PENARIKAN] Maksimal ditarik (30%): ${jumlahMaksimalDitarik.toLocaleString('id-ID')}`);
+
+                                // --- Logika Validasi Saldo & Penarikan ---
+
+                                if (saldoSaatIni <= 0) {
+                                    swal({
+                                        icon: 'error',
+                                        title: 'Penarikan Gagal',
+                                        text: 'Coin Anda tidak cukup. Silakan lakukan isi Coin terlebih dahulu.',
+                                    });
+                                    return; // Menghentikan eksekusi kode
+                                }
+
+                                if (saldoSaatIni < nominalDitarikUser) {
+                                    swal({
+                                        icon: 'error',
+                                        title: 'Penarikan Gagal',
+                                        text: 'Coin Anda tidak mencukupi untuk penarikan ini.',
+                                    });
+                                    return; // Menghentikan eksekusi kode
+                                }
+
+                                // Logika validasi penarikan tanpa biaya admin
+                                if (nominalDitarikUser > jumlahMaksimalDitarik) {
+                                    // Menolak penarikan jika nominal yang diminta > 30% saldo
+                                    swal({
+                                        icon: 'error',
+                                        title: 'Penarikan Gagal',
+                                        text: `Anda hanya bisa menarik maksimal ${jumlahMaksimalDitarik.toLocaleString('id-ID')} Coin`,
+                                    });
+                                    return; // Menghentikan eksekusi kode
+                                }
+
+                                if (nominalDitarikUser <= 0) {
+                                    // Menolak penarikan jika nominal tidak valid (nol atau negatif)
+                                    swal({
+                                        icon: 'error',
+                                        title: 'Penarikan Gagal',
+                                        text: `Nominal penarikan tidak valid.`,
+                                    });
+                                    return;
+                                }
+
+                                if (nominalDitarikUser < MINIMAL_PENARIKAN) {
+                                    swal({
+                                        icon: 'error',
+                                        title: 'Penarikan Gagal',
+                                        text: `Nominal minimal penarikan adalah ${MINIMAL_PENARIKAN.toLocaleString('id-ID')} Coin`,
+                                    });
+                                    return; // Menghentikan eksekusi kode
+                                }
+
+                                // Jika validasi lolos, lanjutkan proses
+                                const tujuanBank = `${nominalDitarikUser}@${tujuanInputBank.value}`;
+                                const trx = '6';
+
+                                // ... (Kode untuk inquirybank dan parsing data lainnya tetap sama) ...
+
+                                const responseBayar = await fetch(`https://wd.urbanmoda.biz.id/inquirybank?jenis=${trx}&kodeproduk=${globalKodeBanks}&tujuan=${tujuanBank}`);
+                                const dataBayar = await responseBayar.json();
+                                const responhasil = dataBayar.msg;
+                                console.log(`[INQUIRY] Respon hasil inquiry: ${responhasil}`); // Logging Respon Inquiry
+
+                                // --- Parsing data dari respons API (Mengganti 'Rp' menjadi 'Coin') ---
+                                const idTrx = responhasil.match(/ID Transaksi:\s*(\d+)/)?.[1] || 'Tidak ditemukan';
+                                const jenis = responhasil.match(/Jenis:\s*(.*)/)?.[1].trim() || 'Tidak ditemukan';
+
+                                // Mengambil Bank Tujuan dengan lebih spesifik
+                                const bankTujuanMatch = responhasil.match(/Bank Tujuan:\s*(.*?)(\s*Waktu:|$)/);
+                                const bankTujuan = bankTujuanMatch ? bankTujuanMatch[1].trim() : 'Tidak ditemukan';
+
+                                const waktu = responhasil.match(/Waktu:\s*(.*)/)?.[1].trim() || 'Tidak ditemukan';
+                                const noRek = responhasil.match(/Rek:\s*(\d+)/)?.[1].trim() || 'Tidak ditemukan'; // Ambil No. Rekening
+                                const namas = responhasil.match(/Nama:\s*(.*?)(Jumlah ditarik:|Rek:|\s*Admin Fee:|$)/)?.[1].trim() || 'Tidak ditemukan';
+                                const referensi = responhasil.match(/Referensi:\s*(.*)/)?.[1].trim() || 'Tidak ditemukan';
+                                const jumlahDitarik = responhasil.match(/Jumlah ditarik:\s*([0-9.,]+)/)?.[1].trim() || '0';
+                                // Ubah Admin Fee untuk menangani 'Coin' atau 'Rp' (jika masih ada di respons API)
+                                const adminFee = responhasil.match(/Admin Fee:\s*(?:Rp|Coin)?\s*([0-9.,]+)/)?.[1].trim() || '0';
+                                const potonganCoin = responhasil.match(/Potongan Coin:\s*([0-9.,]+)/)?.[1].trim() || '0'; // Ambil Potongan Coin
+                                const sisaCoin = responhasil.match(/Sisa Coin:\s*.*=\s*([0-9.,]+)/)?.[1].trim() || '0';
+
+                                // --- Menghitung total dan format ---
+                                const jumlahAngka = parseFloat(jumlahDitarik.replace(/\./g, '').replace(/,/g, '.')) || 0;
+                                const adminFeeAngka = parseFloat(adminFee.replace(/\./g, '').replace(/,/g, '.')) || 0;
+                                const totalTransfer = jumlahAngka; // Asumsi total transfer sama dengan jumlah ditarik
+
+                                // Format Total Transfer
+                                const formattedTotal = totalTransfer.toLocaleString('id-ID');
+
+                                // Format Potongan Coin
+                                const potonganCoinAngka = parseFloat(potonganCoin.replace(/\./g, '').replace(/,/g, '.')) || 0;
+                                const formattedPotonganCoin = potonganCoinAngka.toLocaleString('id-ID');
+
+                                // NOTE: Penambahan 20000 di sini bersifat hardcode. Pastikan ini yang Anda inginkan.
+                                const totalJumlah = potonganCoinAngka + parseInt(20000);
+                                const formatAkhir = totalJumlah.toLocaleString('id-ID')
+                                const negativeAmount = totalJumlah * -1;
+
+
+                                // --- Tampilkan struk (body tetap, hanya memastikan output 'Coin') ---
+                                const bankInfoBayar = `
+<div class="container mt-3">
+    <div class="struk-Gpay-content">
+        <div class="struk-Gpay-header">
+            <p>Bukti Transaksi URBAN MODA</p>
+        </div>
+        <div class="struk-Gpay-body">
+            <p>Detail Transaksi</p>
+            <div class="struk-Gpay-row">
+                <div class="col-6">
+                    <p>Id Transaksi </p>
+                    <p class="truncate-text">No. referensi </p>
+                    <p>No. Rekening </p>
+                    <p>Bank Tujuan </p>
+                    <p>Nama Penerima </p>
+                    <p>Total </p>
+                  
+                    <p>Status </p>
+                </div>
+                <div class="col-6">
+                    <p>: ${idTrx}</p>
+                    <p class="truncate-text">: ${referensi}</p>
+                    <p>: ${noRek}</p>
+                    <p>: ${bankTujuan}</p>
+                    <p class="truncate-text">: ${namas}</p>
+                    <p>: ${formatAkhir} Coin</p>
+                 
+                    <p>: BERHASIL</p>
+                </div>
+            </div>
+            <p class="struk-Gpay-note">Terima kasih telah menggunakan URBAN MODA.</p>
+            <a href="" class="struk-Gpay-back-button">Kembali ke Halaman Utama</a>
+        </div>
+        <div class="struk-Gpay-footer">
+            <p>Powered by URBAN MODA</p>
+        </div>
+    </div>
+</div>
+`;
+
+
+                                // Sembunyikan spinner dan tutup swal
+                                swal.close();
+                                isProcessing = false;
+                                loadingSpinner.style.display = "none";
+                                responseDivBank.innerHTML = bankInfoBayar;
+
+                                // Kirim data transaksi ke server
+                                const formdata = new FormData();
+                                formdata.append("amount", negativeAmount);
+                                formdata.append("username", usernameS);
+                                const requestOptions = { method: 'POST', body: formdata, redirect: 'follow' };
+                                const serverResponse = await fetch("https://urbanmoda.biz.id/trxurbanmoda.php", requestOptions);
+                                const result = await serverResponse.json();
+                                if (result.success === false) {
+                                    document.getElementById("resultText").textContent = result.message;
+                                }
+
+                            } catch (error) {
+                                console.error('Error Penarikan:', error);
+                                swal({
+                                    icon: 'error',
+                                    title: 'Terjadi Kesalahan',
+                                    text: `Terjadi kesalahan saat memproses penarikan: ${error.message}. Silakan coba lagi.`,
+                                });
+                            } finally {
+                                // Proses selesai, aktifkan tombol dan reset flag
+                                loadingSpinner.style.display = "none";
+                                bayarButtonBank.disabled = false;
+                                isProcessing = false;
+                            }
+                        }
+                    });
+
+                });
+            </script>
+        </body>
+
+</html>
+</div>
+</body>
+
+</html>

@@ -1,38 +1,28 @@
 <?php
-// Set headers agar bisa diakses dari frontend (CORS)
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
-// Tangani Preflight request dari browser
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') { exit; }
 
-// Aktifkan error reporting untuk debug (bisa dimatikan jika sudah produksi)
 error_reporting(E_ALL);
-ini_set('display_errors', 0); // Set ke 0 agar tidak merusak format JSON jika ada warning
+ini_set('display_errors', 0); 
 
 // --- CONFIG ---
 $apiKeyJagel = "c6wA9HlUkN2PYEpEOYmDwiehrw7QMIVAvPETMpR2NRN4jjnYPO";
 
-// Ambil input JSON dari body request
 $inputData = file_get_contents('php://input');
 $data = json_decode($inputData, true);
 
-// Validasi input awal
 if (!$data || !isset($data['action'])) {
-    echo json_encode([
-        "success" => false, 
-        "message" => "Metode aksi (action) tidak ditentukan",
-        "received" => $inputData // Debugging: melihat apa yang diterima server
-    ]);
+    echo json_encode(["success" => false, "message" => "Metode aksi tidak ditentukan"]);
     exit;
 }
 
 $action = $data['action'];
-$value = $data['value'] ?? ''; // Biasanya username atau nomor HP
+$value = $data['value'] ?? '';
 
-// --- LOGIKA ROUTING ---
 switch ($action) {
     case 'check_balance':
         $apiUrl = "https://api.jagel.id/v1/balance/check?type=username&value=" . urlencode($value) . "&apikey=" . $apiKeyJagel;
@@ -41,11 +31,16 @@ switch ($action) {
 
     case 'adjust_balance':
         $apiUrl = "https://api.jagel.id/v1/balance/adjust";
+        
+        // MENGGUNAKAN ROUND UNTUK MENGHINDARI SELISIH DESIMAL
+        // Kita gunakan floatval lalu dibulatkan ke integer terdekat
+        $cleanAmount = round(floatval($data['amount'] ?? 0));
+        
         $payload = [
             "type"   => "username",
             "value"  => $value,
-            "amount" => (int)($data['amount'] ?? 0),
-            "note"   => $data['note'] ?? 'Adjustment via VPS',
+            "amount" => $cleanAmount, 
+            "note"   => $data['note'] ?? 'Hotel Booking',
             "apikey" => $apiKeyJagel
         ];
         $response = callJagelApi($apiUrl, $payload, 'POST');
@@ -63,41 +58,35 @@ switch ($action) {
         break;
 
     default:
-        echo json_encode(["success" => false, "message" => "Aksi '$action' tidak dikenal"]);
+        echo json_encode(["success" => false, "message" => "Aksi tidak dikenal"]);
         exit;
 }
 
-// Tambahkan proteksi jika $response kosong (misal CURL gagal total)
 if (!$response) {
-    echo json_encode(["success" => false, "message" => "Gagal mendapatkan respon dari API Jagel (CURL Error)"]);
+    echo json_encode(["success" => false, "message" => "CURL Error: No Response"]);
     exit;
 }
 
-// Decode response dari Jagel untuk pengecekan tambahan
 $resArray = json_decode($response, true);
-
-// Tambahkan Debug IP jika IP ditolak oleh Jagel
 if (isset($resArray['message']) && strpos($resArray['message'], "IP Ditolak") !== false) {
-    $resArray['debug_vps_ip'] = $_SERVER['SERVER_ADDR'] ?? 'IP tidak terdeteksi';
+    $resArray['debug_vps_ip'] = $_SERVER['SERVER_ADDR'] ?? 'Unknown';
     echo json_encode($resArray);
 } else {
-    // Kembalikan response asli dari Jagel
     echo $response;
 }
 
-/**
- * Fungsi pembantu untuk memanggil API Jagel via cURL
- */
 function callJagelApi($url, $data = null, $method = 'POST') {
-    // Cek apakah ekstensi CURL tersedia di VPS
     if (!function_exists('curl_init')) {
-        return json_encode(["success" => false, "message" => "PHP CURL tidak aktif di server ini"]);
+        return json_encode(["success" => false, "message" => "PHP CURL tidak aktif"]);
     }
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Beri batas waktu 30 detik
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    
+    // Solusi untuk error getaddrinfo() thread failed
+    curl_setopt($ch, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
     
     if ($method === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);
@@ -106,14 +95,11 @@ function callJagelApi($url, $data = null, $method = 'POST') {
     }
     
     $result = curl_exec($ch);
-
-    // Tangkap error jika CURL gagal mengeksekusi request
     if (curl_errno($ch)) {
-        $error_msg = curl_error($ch);
+        $msg = curl_error($ch);
         curl_close($ch);
-        return json_encode(["success" => false, "message" => "CURL Error: $error_msg"]);
+        return json_encode(["success" => false, "message" => "CURL Error: $msg"]);
     }
-
     curl_close($ch);
     return $result;
 }

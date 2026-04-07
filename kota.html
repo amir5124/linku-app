@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Get City</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        #log { 
+            background: #272822; 
+            color: #f8f8f2; 
+            padding: 15px; 
+            border-radius: 5px; 
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button { padding: 10px 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Ambil Data Kota</h2>
+    <button onclick="getCities()">Ambil Data (POST)</button>
+
+    <h3>Log Output:</h3>
+    <pre id="log">Klik tombol untuk memanggil API...</pre>
+
+    <script>
+        async function getCities() {
+            const logElement = document.getElementById('log');
+            logElement.textContent = "Sedang mengambil data...";
+
+            const url = 'https://darma.siappgo.id/api/hotels/city';
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Mengirim body kosong agar backend menggunakan default value
+                    body: JSON.stringify({
+                        countryID: "ID",
+                        cityNameFilter: "yogyakarta"
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Menampilkan hasil di log
+                console.log("Response:", data);
+                logElement.textContent = JSON.stringify(data, null, 2);
+
+            } catch (error) {
+                console.error("Error:", error);
+                logElement.textContent = "Error: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
