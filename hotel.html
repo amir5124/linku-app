@@ -2547,7 +2547,7 @@
             async selectPayment(method, bankCode = null) {
                 console.log(`%c [PAYMENT PROCESS] Method: ${method} | Bank: ${bankCode}`, 'background: #222; color: #bada55');
 
-                // 1. Inisialisasi Biaya Admin & Kalkulasi
+                // 1. Inisialisasi Biaya Admin
                 const adminFeeMapping = {
                     '014': 4500, '009': 2500, '002': 2000, '451': 2500,
                     '008': 2000, '013': 1500, 'INDOMARET': 5000, 'ALFAMART': 5000
@@ -2565,45 +2565,47 @@
                 this.loadingText = "Menyiapkan pesanan...";
 
                 try {
-                    // --- DATA SOURCE MAPPING ---
-                    // Sesuai JSON Anda, data utama ada di roomRequest indeks ke-0
-                    const mainRoomReq = this.bookingData.roomRequest && this.bookingData.roomRequest[0];
+                    // --- DATA SOURCE PROTECTION ---
+                    const mainRoomReq = (this.bookingData.roomRequest && this.bookingData.roomRequest[0]) || {};
+                    let allPaxes = mainRoomReq.paxes || this.bookingData.paxes || [];
 
-                    if (!mainRoomReq) {
-                        throw new Error("Data pemesanan (room request) tidak ditemukan.");
-                    }
-
-                    // --- FIX PAXES: Ambil langsung dari sumber data JSON ---
-                    let allPaxes = mainRoomReq.paxes || [];
                     if (allPaxes.length === 0) {
-                        throw new Error("Daftar nama tamu kosong. Harap isi data tamu.");
+                        throw new Error("Data tamu belum lengkap. Harap isi nama tamu di form.");
                     }
 
-                    // --- FIX TANGGAL: Konversi format ISO ke YYYY-MM-DD ---
-                    // Menghindari error "Incorrect datetime value"
-                    const formatDate = (dateStr) => {
-                        if (!dateStr) return null;
-                        return new Date(dateStr).toISOString().split('T')[0];
+                    // --- FIX TANGGAL ROBUST (UI & DATABASE SYNC) ---
+                    const formatDateForDB = (dateInput) => {
+                        const d = new Date(dateInput);
+                        if (isNaN(d.getTime())) return new Date().toISOString().split('T')[0];
+                        return d.getFullYear() + '-' +
+                            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(d.getDate()).padStart(2, '0');
                     };
 
-                    const checkIn = formatDate(this.search.checkInDate);
-                    const checkOut = formatDate(this.search.checkOutDate);
+                    // 1. Ambil Check-In
+                    const checkInFormatted = formatDateForDB(this.search.checkInDate);
+
+                    // 2. Kalkulasi Check-Out agar SAMA dengan UI calculateCheckOut()
+                    // Kita hitung berdasarkan durasi agar tidak bergantung pada variabel checkOutDate yang mungkin usang
+                    const checkInObj = new Date(this.search.checkInDate);
+                    const durationNights = parseInt(this.search.duration) || 1;
+                    const checkOutObj = new Date(checkInObj);
+                    checkOutObj.setDate(checkOutObj.getDate() + durationNights);
+
+                    const checkOutFormatted = formatDateForDB(checkOutObj);
 
                     // --- STEP 1: BUAT DRAFT BOOKING ---
                     const draftPayload = {
                         hotel_id: this.selectedHotel?.ID || this.search.hotelID || null,
                         hotel_name: this.selectedHotel?.name || this.bookingData.hotelName || "Hotel",
                         total_price: finalAmount || 0,
-                        check_in_date: checkIn,
-                        check_out_date: checkOut,
+                        check_in_date: checkInFormatted,
+                        check_out_date: checkOutFormatted, // Ini yang sudah di-fix
                         room_id: this.selectedRoom?.ID || this.search.roomID || null,
                         room_name: this.selectedRoom?.name || this.bookingData.roomName || "Room",
                         contact_email: mainRoomReq.email || this.bookingData.customer?.email || "guest@mail.com",
                         handling_fee: Number(this.inputHandlingFee) || 0,
-
-                        // Ambil "no smoking" atau permintaan lainnya dari roomRequest[0]
                         special_requests: mainRoomReq.requestDescription || this.bookingData.requestDescription || "",
-
                         paxes: allPaxes
                     };
 
@@ -2625,9 +2627,9 @@
                     const paymentPayload = {
                         booking_id: this.currentBookingId,
                         amount: finalAmount,
-                        customer_name: (allPaxes[0].firstName + ' ' + (allPaxes[0].lastName || '')).trim(),
-                        customer_phone: mainRoomReq.phone || "08123456789",
-                        customer_email: mainRoomReq.email || "guest@mail.com",
+                        customer_name: (allPaxes[0].firstName + ' ' + (allPaxes[0].lastName || '')).trim() || "Guest",
+                        customer_phone: mainRoomReq.phone || this.bookingData.customer?.phone || "08123456789",
+                        customer_email: mainRoomReq.email || this.bookingData.customer?.email || "guest@mail.com",
                         method: method,
                         bank_code: codeClean,
                         admin_fee_applied: additionalFee
@@ -2662,7 +2664,6 @@
                     this.isLoading = false;
                 }
             },
-
             async executeFinalBooking() {
                 // 1. Hindari double execution
                 if (this.loading) return;
