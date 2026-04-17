@@ -2554,7 +2554,6 @@
                 };
 
                 const codeClean = bankCode ? String(bankCode).trim() : '';
-                // Gunakan totalBayar (harga kamar + handling fee) sebagai dasar admin fee
                 let additionalFee = (method === 'QRIS')
                     ? Math.ceil(this.totalBayar * 0.007)
                     : (adminFeeMapping[codeClean] || 2000);
@@ -2564,53 +2563,61 @@
 
                 this.isLoading = true;
                 this.loadingText = "Menyiapkan pesanan...";
-                this.currentBookingId = null;
 
                 try {
-                    // 2. Validasi & Build Room Request
-                    const roomReq = this.buildRoomRequest(); // Memanggil fungsi yang sudah kamu buat sebelumnya
-                    if (!roomReq || roomReq.length === 0) {
-                        throw new Error("Data tamu tidak valid atau belum lengkap.");
+                    // --- DATA SOURCE MAPPING ---
+                    // Sesuai JSON Anda, data utama ada di roomRequest indeks ke-0
+                    const mainRoomReq = this.bookingData.roomRequest && this.bookingData.roomRequest[0];
+
+                    if (!mainRoomReq) {
+                        throw new Error("Data pemesanan (room request) tidak ditemukan.");
                     }
 
-                    // 3. Cari Nama Bank untuk UI
-                    const list = Array.isArray(this.bankList) ? this.bankList : [];
-                    const foundBank = list.find(b => String(b.code) === codeClean);
-                    this.vaBankName = foundBank ? foundBank.name : (method === 'QRIS' ? 'QRIS' : `VA ${codeClean}`);
+                    // --- FIX PAXES: Ambil langsung dari sumber data JSON ---
+                    let allPaxes = mainRoomReq.paxes || [];
+                    if (allPaxes.length === 0) {
+                        throw new Error("Daftar nama tamu kosong. Harap isi data tamu.");
+                    }
 
-                    // 4. Handle Tanggal (Mencegah error endsWith/ISO String)
-                    const today = new Date().toISOString().split('T')[0];
-                    const formattedCheckIn = this.search.checkInDate ? this.search.checkInDate.split('T')[0] : today;
-                    const formattedCheckOut = this.search.checkOutDate ? this.search.checkOutDate.split('T')[0] : today;
+                    // --- FIX TANGGAL: Konversi format ISO ke YYYY-MM-DD ---
+                    // Menghindari error "Incorrect datetime value"
+                    const formatDate = (dateStr) => {
+                        if (!dateStr) return null;
+                        return new Date(dateStr).toISOString().split('T')[0];
+                    };
+
+                    const checkIn = formatDate(this.search.checkInDate);
+                    const checkOut = formatDate(this.search.checkOutDate);
 
                     // --- STEP 1: BUAT DRAFT BOOKING ---
                     const draftPayload = {
-                        hotel_id: this.selectedHotel?.ID || null,
-                        hotel_name: this.selectedHotel?.name || null,
+                        hotel_id: this.selectedHotel?.ID || this.search.hotelID || null,
+                        hotel_name: this.selectedHotel?.name || this.bookingData.hotelName || "Hotel",
                         total_price: finalAmount || 0,
-                        check_in_date: formattedCheckIn || null,  // Nama harus sama dengan backend!
-                        check_out_date: formattedCheckOut || null, // Nama harus sama dengan backend!
-                        room_id: this.selectedRoom?.ID || null,
-                        room_name: this.selectedRoom?.name || null,
-                        contact_email: this.bookingData?.customer?.email || "guest@mail.com",
-                        handling_fee: Number(this.inputHandlingFee) || 0
+                        check_in_date: checkIn,
+                        check_out_date: checkOut,
+                        room_id: this.selectedRoom?.ID || this.search.roomID || null,
+                        room_name: this.selectedRoom?.name || this.bookingData.roomName || "Room",
+                        contact_email: mainRoomReq.email || this.bookingData.customer?.email || "guest@mail.com",
+                        handling_fee: Number(this.inputHandlingFee) || 0,
+
+                        // Ambil "no smoking" atau permintaan lainnya dari roomRequest[0]
+                        special_requests: mainRoomReq.requestDescription || this.bookingData.requestDescription || "",
+
+                        paxes: allPaxes
                     };
 
-                    // --- STEP 1: BUAT DRAFT BOOKING ---
+                    console.log("📤 Sending Draft Payload:", draftPayload);
+
                     const draftRes = await fetch('https://darma.siappgo.id/api/hotels/hotel-bookings/draft', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(draftPayload)
                     }).then(r => r.json());
 
-                    // PERBAIKAN DI SINI:
-                    // Gunakan toUpperCase() agar tidak peduli backend kirim "Success", "SUCCESS", atau "success"
-                    if (draftRes.status.toUpperCase() !== "SUCCESS") {
-                        throw new Error(draftRes.respMessage || draftRes.message || "Gagal membuat draft booking");
+                    if (!draftRes.status || draftRes.status.toUpperCase() !== "SUCCESS") {
+                        throw new Error(draftRes.message || "Gagal menyimpan draft booking.");
                     }
-
-                    this.currentBookingId = draftRes.booking_id;
-                    console.log("✅ Draft Created ID:", this.currentBookingId);
 
                     this.currentBookingId = draftRes.booking_id;
 
@@ -2618,9 +2625,9 @@
                     const paymentPayload = {
                         booking_id: this.currentBookingId,
                         amount: finalAmount,
-                        customer_name: this.bookingData.customer.name || "Customer",
-                        customer_phone: this.bookingData.customer.phone || "08123456789",
-                        customer_email: this.bookingData.customer.email || "guest@mail.com",
+                        customer_name: (allPaxes[0].firstName + ' ' + (allPaxes[0].lastName || '')).trim(),
+                        customer_phone: mainRoomReq.phone || "08123456789",
+                        customer_email: mainRoomReq.email || "guest@mail.com",
                         method: method,
                         bank_code: codeClean,
                         admin_fee_applied: additionalFee
@@ -2632,7 +2639,7 @@
                         body: JSON.stringify(paymentPayload)
                     }).then(r => r.json());
 
-                    if (payRes.status === "Success") {
+                    if (payRes.status && payRes.status.toUpperCase() === "SUCCESS") {
                         this.currentPartnerReff = payRes.partner_reff;
                         const info = payRes.data || payRes.payment_info || {};
 
@@ -2643,12 +2650,9 @@
                             this.vaNumber = info.virtual_account || info.va_number || info.payment_code;
                             this.paymentStep = 'show_va';
                         }
-
-                        // Jalankan polling status
                         this.startPollingStatus(payRes.partner_reff);
-
                     } else {
-                        throw new Error(payRes.error || payRes.message || "Gagal membuat tagihan");
+                        throw new Error(payRes.message || "Gagal membuat tagihan pembayaran.");
                     }
 
                 } catch (e) {
@@ -2657,34 +2661,6 @@
                 } finally {
                     this.isLoading = false;
                 }
-            },
-            startPollingStatus(reff) {
-                console.log(`⏳ Monitoring transaksi [${reff}] setiap 5 detik...`);
-                if (this.paymentInterval) clearInterval(this.paymentInterval);
-
-                this.paymentInterval = setInterval(async () => {
-                    try {
-                        const response = await fetch(`https://darma.siappgo.id/api/hotel-payments/check-status/${reff}`);
-
-                        if (!response.ok) return; // Skip jika server down sementara
-
-                        const result = await response.json();
-                        console.log(`🔄 Check Status [${reff}]:`, result.status);
-
-                        // Jika pembayaran diterima di sisi Payment Gateway
-                        if (result.status === "SUCCESS" || result.status === "SETTLED") {
-                            clearInterval(this.paymentInterval);
-                            console.log("%c 💰 PEMBAYARAN SUKSES! Memulai reservasi hotel...", "color: #00ff00; font-weight: bold;");
-
-                            this.showToast("Pembayaran Diterima! Memproses reservasi...", "success");
-
-                            // EKSEKUSI RESERVASI KE VENDOR HOTEL
-                            await this.executeFinalBooking();
-                        }
-                    } catch (e) {
-                        console.error("Polling Error:", e.message);
-                    }
-                }, 5000);
             },
 
             async executeFinalBooking() {
@@ -2800,6 +2776,37 @@
                     }
                 }
             },
+
+            startPollingStatus(reff) {
+                console.log(`⏳ Monitoring transaksi [${reff}] setiap 5 detik...`);
+                if (this.paymentInterval) clearInterval(this.paymentInterval);
+
+                this.paymentInterval = setInterval(async () => {
+                    try {
+                        const response = await fetch(`https://darma.siappgo.id/api/hotel-payments/check-status/${reff}`);
+
+                        if (!response.ok) return; // Skip jika server down sementara
+
+                        const result = await response.json();
+                        console.log(`🔄 Check Status [${reff}]:`, result.status);
+
+                        // Jika pembayaran diterima di sisi Payment Gateway
+                        if (result.status === "SUCCESS" || result.status === "SETTLED") {
+                            clearInterval(this.paymentInterval);
+                            console.log("%c 💰 PEMBAYARAN SUKSES! Memulai reservasi hotel...", "color: #00ff00; font-weight: bold;");
+
+                            this.showToast("Pembayaran Diterima! Memproses reservasi...", "success");
+
+                            // EKSEKUSI RESERVASI KE VENDOR HOTEL
+                            await this.executeFinalBooking();
+                        }
+                    } catch (e) {
+                        console.error("Polling Error:", e.message);
+                    }
+                }, 5000);
+            },
+
+
             showToastProcessed(message) { const existingToast = document.getElementById('toast-processed'); if (existingToast) existingToast.remove(); const toast = document.createElement('div'); toast.id = 'toast-processed'; toast.innerHTML = `<div style=" position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 30px rgba(245,158,11,0.4); font-size: 14px; font-weight: 500; max-width: 420px; width: 90%; text-align: center; z-index: 9999; display: flex; align-items: center; gap: 12px; animation: slideUpFade 0.4s ease; "><div><div style="font-weight: 700; margin-bottom: 4px;">Diproses</div><div style="opacity: 0.9; font-size: 13px;">${message}</div><div style="opacity: 0.8; font-size: 12px; margin-top: 6px;">Mengalihka</div></div></div>`; if (!document.getElementById('toast-style')) { const style = document.createElement('style'); style.id = 'toast-style'; style.textContent = ` @keyframes slideUpFade{from{opacity:0;transform:translateX(-50%) translateY(20ppx)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`; document.head.appendChild(style) } document.body.appendChild(toast); setTimeout(() => toast.remove(), 4000) }
         }
     }
