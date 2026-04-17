@@ -2598,6 +2598,7 @@
                     const draftPayload = {
                         hotel_id: this.selectedHotel?.ID || this.search.hotelID || null,
                         hotel_name: this.selectedHotel?.name || this.bookingData.hotelName || "Hotel",
+                        hotel_address: this.selectedHotel?.address || this.bookingData.hotelAddress || null,
                         total_price: finalAmount || 0,
                         check_in_date: checkInFormatted,
                         check_out_date: checkOutFormatted, // Ini yang sudah di-fix
