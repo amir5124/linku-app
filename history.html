@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Booking Hotel — LinkU Travel</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #24b3ae;
+            --primary-light: #24b3ae;
+            --accent: #e03f7d;
+            --accent-dark: #e03f7d;
+            --success: #10b981;
+            --danger: #e03f7d;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 24px rgba(15, 76, 129, 0.08);
+            --shadow-hover: 0 8px 40px rgba(15, 76, 129, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e3a5f 100%);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(15, 76, 129, 0.3);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            height: 64px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .header-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            flex: 1;
+        }
+
+        .header-logo {
+            font-family: 'Sora', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .header-logo span {
+            color: var(--accent);
+        }
+
+        /* MAIN */
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* USER INFO CARD */
+        .user-banner {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .user-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
+        }
+
+        .user-info h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .user-info p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .total-badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .total-badge .num {
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'Sora', sans-serif;
+            line-height: 1;
+        }
+
+        .total-badge .label {
+            font-size: 11px;
+            opacity: 0.75;
+            margin-top: 3px;
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .filter-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .search-input {
+            margin-left: auto;
+            padding: 8px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 220px;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        /* BOOKING CARDS */
+        .bookings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .booking-card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.25s;
+            animation: fadeInUp 0.4s ease both;
+        }
+
+        .booking-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: #fafbfc;
+        }
+
+        .reservation-no {
+            font-family: 'Sora', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .booking-date {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .status-accept {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-processed {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-cancel {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-pending {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .card-body {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .card-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hotel-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .hotel-info .address {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .room-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eff6ff;
+            color: var(--primary);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .booking-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .detail-icon {
+            font-size: 15px;
+            width: 20px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .detail-text {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .detail-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 1px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            background: #fafbfc;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .price-total {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .price-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .pax-list {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .pax-chip {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 12px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .btn-detail {
+            padding: 9px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-detail:hover {
+            background: var(--primary-light);
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 32px;
+        }
+
+        .page-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 80px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* LOADING */
+        .loading-state {
+            text-align: center;
+            padding: 80px 24px;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            animation: toastIn 0.3s ease;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* MODAL DETAIL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 76, 129, 0.4);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--bg);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .modal-row:last-child {
+            border-bottom: none;
+        }
+
+        .modal-row .label {
+            color: var(--text-muted);
+        }
+
+        .modal-row .val {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        @media (max-width: 480px) {
+            .user-banner {
+                flex-wrap: wrap;
+            }
+
+            .total-badge {
+                width: 100%;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-input {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        .btn-sync,
+        .btn-resend {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-sync {
+            background-color: var(--primary);
+            /* Ganti dengan warna tema kamu, misal #2563eb */
+            color: white;
+        }
+
+        .btn-resend {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-sync:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-resend:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+
+            <div class="header-title">Riwayat Booking</div>
+            <div class="header-logo">Link<span>U</span></div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- USER BANNER -->
+        <div class="user-banner" id="userBanner">
+            <div class="user-avatar" id="userAvatar">?</div>
+            <div class="user-info">
+                <h2 id="usernameDisplay">Memuat...</h2>
+                <p>Riwayat pemesanan hotel Anda</p>
+            </div>
+            <div class="total-badge">
+                <div class="num" id="totalBookings">0</div>
+                <div class="label">Total Booking</div>
+            </div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <!-- <div class="filter-bar">
+        <span class="filter-label">Filter:</span>
+        <button class="filter-btn active" onclick="setFilter('all', this)">Semua</button>
+        <button class="filter-btn" onclick="setFilter('Accept', this)">✅ Berhasil</button>
+        <button class="filter-btn" onclick="setFilter('PROCESSED', this)">⏳ Diproses</button>
+        <button class="filter-btn" onclick="setFilter('Cancel', this)">❌ Dibatalkan</button>
+        <input type="text" class="search-input" placeholder="🔍 Cari hotel atau kode..." id="searchInput" oninput="handleSearch(this.value)">
+    </div> -->
+
+        <!-- LIST AREA -->
+        <div id="listArea">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p style="color: var(--text-muted)">Memuat data booking...</p>
+            </div>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination" id="pagination"></div>
+
+    </main>
+
+    <!-- MODAL DETAIL -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" id="modalContent">
+            <div class="modal-header">
+                <h3>Detail Booking</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- diisi oleh JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── CONFIG ───────────────────────────────────────────────
+        const API_BASE = 'https://darma.siappgo.id/api/hotels';
+
+        // Ambil username dari URL param atau session
+        // Username langsung didefinisikan dari sistem/backend
+const usernames = 'amir'; 
+
+function getUsername() {
+    return usernames;
+}
+
+console.log("Sesi aktif untuk user:", getUsername());
+
+        // ─── STATE ────────────────────────────────────────────────
+        let allBookings = [];
+        let filteredBookings = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let currentPage = 1;
+        const LIMIT = 10;
+
+        // ─── INIT ─────────────────────────────────────────────────
+        const username = getUsername();
+
+        document.getElementById('usernameDisplay').textContent = usernames;
+        document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+
+        fetchBookings();
+
+        // ─── FETCH DATA ───────────────────────────────────────────
+        async function fetchBookings() {
+            try {
+                const res = await fetch(`${API_BASE}/history?username=${encodeURIComponent(usernames)}&page=1&limit=100`);
+                const data = await res.json();
+
+                if (data.status !== 'SUCCESS') throw new Error(data.respMessage || 'Gagal memuat data.');
+
+                allBookings = data.data;
+                document.getElementById('totalBookings').textContent = data.total;
+
+                applyFilterAndSearch();
+
+            } catch (e) {
+                document.getElementById('listArea').innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">⚠️</div>
+                    <h3>Gagal Memuat Data</h3>
+                    <p>${e.message}</p>
+                </div>
+            `;
+            }
+        }
+
+        // ─── FILTER & SEARCH ──────────────────────────────────────
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            currentPage = 1;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilterAndSearch();
+        }
+
+        function handleSearch(val) {
+            currentSearch = val.toLowerCase();
+            currentPage = 1;
+            applyFilterAndSearch();
+        }
+
+        function applyFilterAndSearch() {
+            filteredBookings = allBookings.filter(b => {
+                const matchFilter = currentFilter === 'all' ||
+                    b.booking_status.toLowerCase().includes(currentFilter.toLowerCase());
+                const matchSearch = !currentSearch ||
+                    b.hotel_name.toLowerCase().includes(currentSearch) ||
+                    b.reservation_no.toLowerCase().includes(currentSearch) ||
+                    (b.room_name || '').toLowerCase().includes(currentSearch);
+                return matchFilter && matchSearch;
+            });
+
+            renderBookings();
+            renderPagination();
+        }
+
+        // ─── RENDER CARDS ─────────────────────────────────────────
+        function renderBookings() {
+            const start = (currentPage - 1) * LIMIT;
+            const paginated = filteredBookings.slice(start, start + LIMIT);
+
+            if (paginated.length === 0) {
+                document.getElementById('listArea').innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">🏨</div>
+                    <h3>Belum Ada Booking</h3>
+                    <p>Riwayat pemesanan hotel Anda akan muncul di sini.</p>
+                </div>
+            `;
+                return;
+            }
+
+            const html = paginated.map((b, i) => `
+            <div class="booking-card" style="animation-delay:${i * 0.05}s">
+                <div class="card-header">
+                    <div>
+                        <div class="reservation-no"># ${b.reservation_no}</div>
+                        <div class="booking-date">📅 Dipesan: ${formatDate(b.booking_date)}</div>
+                    </div>
+                    <span class="status-badge ${getStatusClass(b.booking_status)}">
+                        ${getStatusLabel(b.booking_status)}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="hotel-info">
+                        <h3>${b.hotel_name}</h3>
+                        <div class="address">${b.hotel_address ? b.hotel_address.split(',').slice(0, 2).join(', ') : '-'}</div>
+                        <span class="room-pill">🛏 ${b.room_name || '-'}</span>
+                        ${b.breakfast_type ? `<span class="room-pill" style="margin-left:6px">🍳 ${b.breakfast_type}</span>` : ''}
+                    </div>
+                    <div class="booking-detail">
+                        <div class="detail-row">
+                            <span class="detail-icon">📥</span>
+                            <div class="detail-text">
+                                <div class="detail-label">Check-in</div>
+                                <div class="detail-value">${formatDate(b.check_in_date)}</div>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">📤</span>
+                            <div class="detail-text">
+                                <div class="detail-label">Check-out</div>
+                                <div class="detail-value">${formatDate(b.check_out_date)}</div>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">📧</span>
+                            <div class="detail-text">
+                                <div class="detail-label">Kontak</div>
+                                <div class="detail-value">${b.contact_email}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div>
+                        <div class="price-label">Total Bayar</div>
+                      <div class="price-value">
+    ${formatPrice(
+        (parseFloat(b.total_price) || 0) + (parseFloat(b.handling_fee) || 0), 
+        b.currency
+    )}
+</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        ${b.paxes && b.paxes.length > 0 ? `
+                            <div class="pax-list">
+                                ${b.paxes.map(p => `<span class="pax-chip">👤 ${p.title} ${p.first_name} ${p.last_name}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <button class="btn-detail" onclick="showDetail(${JSON.stringify(b).replace(/"/g, '&quot;')})">
+                            Detail →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+            document.getElementById('listArea').innerHTML = `<div class="bookings-list">${html}</div>`;
+        }
+
+        // ─── PAGINATION ───────────────────────────────────────────
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredBookings.length / LIMIT);
+            if (totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+
+            let html = `
+            <button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>
+        `;
+            for (let p = 1; p <= totalPages; p++) {
+                html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+            }
+            html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
+
+            document.getElementById('pagination').innerHTML = html;
+        }
+
+        function goPage(p) {
+            const totalPages = Math.ceil(filteredBookings.length / LIMIT);
+            if (p < 1 || p > totalPages) return;
+            currentPage = p;
+            renderBookings();
+            renderPagination();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ─── MODAL DETAIL ─────────────────────────────────────────
+        // Buka modal dulu dengan loading, lalu hit endpoint supplier
+        async function showDetail(booking) {
+            // 1. Tampilkan Overlay & Loading Spinner
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalBody = document.getElementById('modalBody');
+
+            modalOverlay.classList.add('open');
+            modalBody.innerHTML = `
+        <div style="text-align:center; padding:48px 24px;">
+            <div class="spinner"></div>
+            <p style="color:var(--text-muted); margin-top:12px; font-size:14px;">
+                Sinkronisasi data dengan supplier...
+            </p>
+        </div>
+    `;
+
+            try {
+                // 2. Hit endpoint backend
+                const res = await fetch(`${API_BASE.replace('/hotels', '')}/hotels/booking-detail`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reservationNo: booking.reservation_no,
+                        osRefNo: booking.os_ref_no,
+                        agentOsRef: booking.agent_os_ref
+                    })
+                });
+
+                const result = await res.json();
+
+                // Ambil data detail dari supplier jika ada
+                const s = result.bookingDetail || {};
+                const supplierStatus = (s.bookingStatus || "").trim();
+
+                // 3. Logic Update: Jika backend baru saja mengubah status ke Accept
+                if (result.updatedToAccept === true) {
+                    console.log("Status diperbarui ke Accept. Me-refresh list history...");
+                    if (typeof fetchHistory === 'function') fetchHistory();
+                }
+
+                // 4. Merge Data (Prioritaskan data Supplier, Fallback ke Lokal)
+                const merged = {
+                    ...booking,
+                    // Jika status berubah dari Processed ke Accept, gunakan nomor reservasi asli dari supplier
+                    reservation_no: s.reservationNo || booking.reservation_no,
+                    booking_status: supplierStatus || booking.booking_status,
+                    hotel_name: s.hotelName || booking.hotel_name,
+                    hotel_address: s.hotelAddress || booking.hotel_address,
+                    room_name: s.roomName || booking.room_name,
+                    check_in_date: s.checkInDate || booking.check_in_date,
+                    check_out_date: s.checkOutDate || booking.check_out_date,
+                    total_price: s.totalPrice || booking.total_price,
+                    voucher_no: s.voucherNo || booking.voucher_no,
+                    _source: 'supplier'
+                };
+
+                // 5. Tampilkan ke UI modal
+                renderModalDetail(merged);
+
+            } catch (e) {
+                console.warn('Gagal mengambil data supplier, menampilkan data lokal:', e.message);
+                booking._source = 'local';
+                renderModalDetail(booking);
+            }
+        }
+        // Render isi modal dari data yang sudah di-merge (atau fallback lokal)
+        function renderModalDetail(b) {
+            const nights = Math.round(
+                (new Date(b.check_out_date) - new Date(b.check_in_date)) / (1000 * 60 * 60 * 24)
+            );
+
+            const paxHtml = b.paxes && b.paxes.length > 0
+                ? b.paxes.map(p => `
+            <div class="modal-row">
+                <span class="label">${p.pax_type || 'ADULT'}</span>
+                <span class="val">${p.title} ${p.first_name} ${p.last_name}</span>
+            </div>`).join('')
+                : '<div class="modal-row"><span class="label">-</span><span class="val">Data tamu tidak tersedia</span></div>';
+
+            // Tombol Aksi Dinamis
+            let actionButton = '';
+            if (b.booking_status !== 'Accept') {
+                actionButton = `
+            <button class="btn-sync" onclick="handleSyncStatus('${b.reservation_no}', '${b.os_ref_no}', '${b.agent_os_ref}')">
+                🔄 Cek Status & Kirim E-Tiket
+            </button>`;
+            } else {
+                actionButton = `
+            <button class="btn-resend" onclick="handleSyncStatus('${b.reservation_no}', '${b.os_ref_no}', '${b.agent_os_ref}')">
+                📩 Kirim Ulang E-Tiket ke Email
+            </button>`;
+            }
+
+            const sourceBadge = b._source === 'local'
+                ? `<div style="background:#fef3c7;color:#92400e;border-radius:6px;padding:12px;font-size:12px;font-weight:600;margin-bottom:16px;border:1px solid #fde68a;">
+            ⚠️ Data Lokal: Klik tombol di bawah untuk sinkronisasi dengan Supplier.
+           </div>`
+                : `<div style="background:#d1fae5;color:#065f46;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;margin-bottom:16px;">
+            ✅ Data real-time dari supplier
+           </div>`;
+
+            document.getElementById('modalBody').innerHTML = `
+        ${sourceBadge}
+        <div class="modal-section">
+            <div class="modal-section-title">Informasi Booking</div>
+            <div class="modal-row"><span class="label">Reservation No</span><span class="val">${b.reservation_no}</span></div>
+            <div class="modal-row"><span class="label">Voucher No</span><span class="val">${b.voucher_no || '-'}</span></div>
+            <div class="modal-row"><span class="label">Status</span><span class="val">${getStatusLabel(b.booking_status)}</span></div>
+            <div class="modal-row"><span class="label">Tanggal Booking</span><span class="val">${formatDate(b.booking_date)}</span></div>
+        </div>
+        
+        <div style="margin: 10px 0 20px 0;">
+            ${actionButton}
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">Detail Hotel</div>
+            <div class="modal-row"><span class="label">Hotel</span><span class="val">${b.hotel_name}</span></div>
+            <div class="modal-row"><span class="label">Kamar</span><span class="val">${b.room_name || '-'}</span></div>
+            <div class="modal-row"><span class="label">Sarapan</span><span class="val">${b.breakfast_type || '-'}</span></div>
+            <div class="modal-row"><span class="label">Check-in</span><span class="val">${formatDate(b.check_in_date)}</span></div>
+            <div class="modal-row"><span class="label">Check-out</span><span class="val">${formatDate(b.check_out_date)}</span></div>
+            <div class="modal-row"><span class="label">Durasi</span><span class="val">${nights} malam</span></div>
+        </div>
+        <div class="modal-section">
+            <div class="modal-section-title">Data Tamu</div>
+            ${paxHtml}
+        </div>
+        <div class="modal-section">
+            <div class="modal-section-title">Kontak</div>
+            <div class="modal-row"><span class="label">Email</span><span class="val">${b.contact_email}</span></div>
+            <div class="modal-row"><span class="label">Telepon</span><span class="val">${b.contact_phone || '-'}</span></div>
+        </div>
+        <div class="modal-section">
+            
+        </div>
+    `;
+        }
+        function closeModal(e) {
+            if (!e || e.target === document.getElementById('modalOverlay')) {
+                document.getElementById('modalOverlay').classList.remove('open');
+            }
+        }
+
+       async function handleSyncStatus(resNo, osNo, agentNo) {
+    if (typeof showToast !== 'function') {
+        window.showToast = (msg) => alert(msg);
+    }
+
+    showToast("Memproses permintaan Anda...", "info");
+
+    try {
+        const response = await fetch(`${API_BASE.replace('/hotels', '')}/hotels/booking-detail`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                reservationNo: resNo,
+                osRefNo: osNo,
+                agentOsRef: agentNo,
+                // --- TAMBAHKAN BARIS INI ---
+                forceResend: true 
+                // ---------------------------
+            })
+        });
+
+        const result = await response.json();
+        const s = result.bookingDetail || {};
+        const supplierStatus = (s.bookingStatus || "").trim();
+
+        if (result.status === "SUCCESS" && supplierStatus === "Accept") {
+            // Jika ini kirim ulang, pesannya lebih spesifik
+            showToast("E-Tiket telah dikirim ulang ke email Anda.", "success");
+            if (typeof fetchHistory === 'function') fetchHistory();
+            
+            // Opsional: Tutup modal setelah sukses kirim ulang
+            // closeModal(); 
+        } 
+        else if (supplierStatus === "Processed" || (result.respMessage && result.respMessage.includes("PROCESSED"))) {
+            showToast("Pesanan masih dalam proses supplier.", "warning");
+        } 
+        else {
+            showToast(result.respMessage || "Terjadi kendala saat sinkronisasi.", "info");
+        }
+
+    } catch (error) {
+        showToast("Gagal terhubung ke server.", "error");
+        console.error("Sync Error:", error);
+    }
+}
+
+        // Fungsi Toast Sederhana
+        function showToast(message, type = "info") {
+            const colors = {
+                success: "#10b981",
+                error: "#ef4444",
+                warning: "#f59e0b",
+                info: "#3b82f6"
+            };
+
+            const toast = document.createElement("div");
+            toast.innerText = message;
+            toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: ${colors[type]};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        font-family: sans-serif;
+        transition: opacity 0.5s;
+    `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        // ─── HELPERS ──────────────────────────────────────────────
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatPrice(price, currency) {
+            const num = parseFloat(price) || 0;
+            return (currency || 'IDR') + ' ' + Math.round(num).toLocaleString('id-ID');
+        }
+
+        function getStatusClass(status) {
+            if (!status) return 'status-pending';
+            const s = status.toLowerCase();
+            if (s === 'accept') return 'status-accept';
+            if (s.includes('processed')) return 'status-processed';
+            if (s.includes('cancel')) return 'status-cancel';
+            return 'status-pending';
+        }
+
+        function getStatusLabel(status) {
+            if (!status) return 'Pending';
+            const s = status.toLowerCase();
+            if (s === 'accept') return '✅ Berhasil';
+            if (s.includes('processed')) return '⏳ Diproses';
+            if (s.includes('cancel')) return '❌ Dibatalkan';
+            return status;
+        }
+    </script>
+
+</body>
+
+</html>

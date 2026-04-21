@@ -2665,119 +2665,136 @@
                     this.isLoading = false;
                 }
             },
-            async executeFinalBooking() {
-                // 1. Hindari double execution
-                if (this.loading) return;
+           async executeFinalBooking() {
+    // 1. Hindari double execution
+    if (this.loading) return;
 
-                // Matikan polling pembayaran jika masih berjalan dari step sebelumnya
-                if (this.pollingInterval) {
-                    clearInterval(this.pollingInterval);
-                    this.pollingInterval = null;
-                }
+    // Matikan polling pembayaran jika masih berjalan
+    if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+        this.pollingInterval = null;
+    }
 
-                this.loading = true;
-                this.isLoading = true; // Pastikan kedua variabel loading sinkron
-                this.loadingText = "Menghubungi vendor hotel...";
+    this.loading = true;
+    this.isLoading = true; 
+    this.loadingText = "Menghubungi vendor hotel...";
 
-                const targetUsername = this.username;
-                const hFee = Math.round(parseFloat(this.inputHandlingFee || 0));
+    // Ambil data kontak yang pasti dari state AlpineJS
+    const userEmail = this.bookingData.customer.email;
+    const userPhone = this.bookingData.customer.phone;
+    const targetUsername = this.username;
+    const hFee = Math.round(parseFloat(this.inputHandlingFee || 0));
 
-                const post = async (url, body) => {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body)
-                    });
-                    return await response.json();
-                };
+    const post = async (url, body) => {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        return await response.json();
+    };
 
-                try {
-                    console.log("🏨 Step 1: Validasi Ketersediaan & Harga Terkini...");
-                    const { checkIn, checkOut } = this.buildDateRange();
-                    const currentRoomRequest = this.buildRoomRequest(true);
+    try {
+        console.log("🏨 Step 1: Validasi Ketersediaan & Harga Terkini...");
+        const { checkIn, checkOut } = this.buildDateRange();
+        const currentRoomRequest = this.buildRoomRequest(true);
 
-                    const p = await post('https://darma.siappgo.id/api/hotels/price-info', {
-                        cityID: String(this.search.cityID),
-                        checkInDate: checkIn,
-                        checkOutDate: checkOut,
-                        roomRequest: currentRoomRequest,
-                        internalCode: this.selectedHotel.internalCode,
-                        hotelID: this.selectedHotel.ID,
-                        breakfast: this.selectedRoom.breakfast,
-                        roomID: this.selectedRoom.ID
-                    });
+        const p = await post('https://darma.siappgo.id/api/hotels/price-info', {
+            cityID: String(this.search.cityID),
+            checkInDate: checkIn,
+            checkOutDate: checkOut,
+            roomRequest: currentRoomRequest,
+            internalCode: this.selectedHotel.internalCode,
+            hotelID: this.selectedHotel.ID,
+            breakfast: this.selectedRoom.breakfast,
+            roomID: this.selectedRoom.ID
+        });
 
-                    if (p.status !== "SUCCESS") throw new Error(p.respMessage || "Kamar tidak lagi tersedia.");
-                    const totalWajibBayar = Math.round(parseFloat(p.totalPrice)) + hFee;
+        if (p.status !== "SUCCESS") throw new Error(p.respMessage || "Kamar tidak lagi tersedia.");
+        
+        const totalWajibBayar = Math.round(parseFloat(p.totalPrice)) + hFee;
 
-                    console.log("🏨 Step 2: Mengirim Payload Reservasi...");
-                    const bookingPayload = {
-                        paxPassport: p.paxPassport || "ID",
-                        countryID: p.countryID || "ID",
-                        cityID: p.cityID,
-                        checkInDate: p.checkInDate,
-                        checkOutDate: p.checkOutDate,
-                        roomRequest: p.roomRequest,
-                        internalCode: p.internalCode,
-                        hotelID: p.hotelID,
-                        breakfast: p.breakfast,
-                        roomID: p.roomID,
-                        bedType: p.bedTypes ? { ID: p.bedTypes[0].ID, bed: p.bedTypes[0].bed } : { ID: "", bed: "" },
-                        agentOsRef: "HTL-" + Date.now(),
-                        commission: p.commission,
-                        totalPrice: p.totalPrice,
-                        handlingFee: hFee,
-                        username: targetUsername
-                    };
+        console.log("🏨 Step 2: Mengirim Payload Reservasi...");
+        
+        /**
+         * PERBAIKAN KRUSIAL:
+         * Jangan hanya menggunakan p.roomRequest mentah-mentah karena data paxes/email 
+         * seringkali hilang di response vendor. Kita paksa masukkan data dari UI.
+         */
+        const fixedRoomRequest = p.roomRequest.map(room => ({
+            ...room,
+            email: userEmail,
+            phone: userPhone,
+            paxes: this.bookingData.paxes.map(pax => ({
+                title: pax.title,
+                firstName: pax.firstName.trim().toUpperCase(),
+                lastName: pax.lastName.trim().toUpperCase(),
+                type: "Adult"
+            }))
+        }));
 
-                    const r = await post('https://darma.siappgo.id/api/hotels/booking', bookingPayload);
+        const bookingPayload = {
+            paxPassport: p.paxPassport || "ID",
+            countryID: p.countryID || "ID",
+            cityID: p.cityID,
+            checkInDate: p.checkInDate,
+            checkOutDate: p.checkOutDate,
+            roomRequest: fixedRoomRequest, // Gunakan yang sudah diperbaiki
+            internalCode: p.internalCode,
+            hotelID: p.hotelID,
+            breakfast: p.breakfast,
+            roomID: p.roomID,
+            bedType: p.bedTypes ? { ID: p.bedTypes[0].ID, bed: p.bedTypes[0].bed } : { ID: "", bed: "" },
+            agentOsRef: "HTL-" + Date.now(),
+            commission: p.commission,
+            totalPrice: p.totalPrice,
+            handlingFee: hFee,
+            username: targetUsername,
+            // Tambahkan level root untuk backup backend versi web
+            contact_email: userEmail,
+            contact_phone: userPhone
+        };
 
-                    console.log("🏨 Response Vendor:", r.internalStatus, r.bookingStatus);
+        const r = await post('https://darma.siappgo.id/api/hotels/booking', bookingPayload);
 
-                    const isAccept = r.internalStatus === "Accept";
-                    const isProcessed = r.internalStatus === "Processed" || r.bookingStatus === "Processed";
+        console.log("🏨 Response Vendor:", r.internalStatus, r.bookingStatus);
 
-                    if (isAccept || isProcessed) {
-                        console.log("✅ Reservasi Berhasil. Menghentikan loading dan pindah stage...");
+        const isAccept = r.internalStatus === "Accept";
+        const isProcessed = r.internalStatus === "Processed" || r.bookingStatus === "Processed";
 
-                        if (isProcessed) {
-                            this.showToast("Pesanan sedang diproses vendor (Waiting List).", "warning");
-                        }
+        if (isAccept || isProcessed) {
+            console.log("✅ Reservasi Berhasil.");
 
-                        // --- PERBAIKAN INFINITE LOADING ---
-                        this.bookingResult = { ...r, totalPrice: totalWajibBayar };
-                        this.showConfirmModal = false;
+            if (isProcessed) {
+                this.showToast("Pesanan sedang diproses vendor (Waiting List).", "warning");
+            }
 
-                        // Matikan loading sebelum pindah stage
-                        this.loading = false;
-                        this.isLoading = false;
+            this.bookingResult = { ...r, totalPrice: totalWajibBayar };
+            this.showConfirmModal = false;
+            this.loading = false;
+            this.isLoading = false;
+            this.stage = 'success_page';
 
-                        // Pindah ke halaman sukses
-                        this.stage = 'success_page';
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
 
-                        // Gunakan timeout kecil atau nextTick untuk memastikan DOM terupdate baru scroll
-                        setTimeout(() => {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }, 100);
+        } else {
+            throw new Error(r.respMessage || "Gagal konfirmasi dari vendor hotel.");
+        }
 
-                    } else {
-                        throw new Error(r.respMessage || "Gagal konfirmasi dari vendor hotel.");
-                    }
-
-                } catch (e) {
-                    console.error("❌ Final Booking Error:", e);
-                    this.showToast("Gagal Reservasi: " + e.message, "error");
-                    // Pastikan loading mati jika terjadi error di tengah jalan
-                    this.loading = false;
-                    this.isLoading = false;
-                } finally {
-                    // Fallback terakhir untuk mematikan loading jika tidak masuk ke success_page
-                    if (this.stage !== 'success_page') {
-                        this.loading = false;
-                        this.isLoading = false;
-                    }
-                }
-            },
+    } catch (e) {
+        console.error("❌ Final Booking Error:", e);
+        this.showToast("Gagal Reservasi: " + e.message, "error");
+        this.loading = false;
+        this.isLoading = false;
+    } finally {
+        if (this.stage !== 'success_page') {
+            this.loading = false;
+            this.isLoading = false;
+        }
+    }
+},
 
             startPollingStatus(reff) {
                 console.log(`⏳ Monitoring transaksi [${reff}] setiap 5 detik...`);

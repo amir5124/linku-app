@@ -2669,14 +2669,14 @@
                 // 1. Hindari double execution
                 if (this.loading) return;
 
-                // Matikan polling pembayaran jika masih berjalan dari step sebelumnya
+                // Matikan polling pembayaran jika masih berjalan
                 if (this.pollingInterval) {
                     clearInterval(this.pollingInterval);
                     this.pollingInterval = null;
                 }
 
                 this.loading = true;
-                this.isLoading = true; // Pastikan kedua variabel loading sinkron
+                this.isLoading = true;
                 this.loadingText = "Menghubungi vendor hotel...";
 
                 const targetUsername = this.username;
@@ -2710,7 +2710,7 @@
                     if (p.status !== "SUCCESS") throw new Error(p.respMessage || "Kamar tidak lagi tersedia.");
                     const totalWajibBayar = Math.round(parseFloat(p.totalPrice)) + hFee;
 
-                    console.log("🏨 Step 2: Mengirim Payload Reservasi...");
+                    console.log("🏨 Step 2: Mengirim Payload Reservasi ke Vendor...");
                     const bookingPayload = {
                         paxPassport: p.paxPassport || "ID",
                         countryID: p.countryID || "ID",
@@ -2730,6 +2730,7 @@
                         username: targetUsername
                     };
 
+                    // REQUEST KE VENDOR DARMAWISATA
                     const r = await post('https://darma.siappgo.id/api/hotels/booking', bookingPayload);
 
                     console.log("🏨 Response Vendor:", r.internalStatus, r.bookingStatus);
@@ -2738,24 +2739,35 @@
                     const isProcessed = r.internalStatus === "Processed" || r.bookingStatus === "Processed";
 
                     if (isAccept || isProcessed) {
-                        console.log("✅ Reservasi Berhasil. Menghentikan loading dan pindah stage...");
+                        console.log("✅ Reservasi Berhasil di Vendor. Menyinkronkan ke Database Lokal...");
+
+                        // --- CRITICAL STEP: SINKRONISASI DATABASE AGAR os_ref_no TIDAK NULL ---
+                        // Kita panggil endpoint update-after-vendor yang kita buat di backend tadi
+                        try {
+                            await post('https://darma.siappgo.id/api/hotels/hotel-bookings/update-after-vendor', {
+                                reservation_no: this.reservation_no, // Menggunakan nomor RES-xxx dari draft
+                                os_ref_no: r.bookingResponse.osRefNo,
+                                agent_os_ref: r.bookingResponse.agentOsRef,
+                                booking_status: r.bookingResponse.bookingStatus || 'Success',
+                                vendor_res_no: r.bookingResponse.reservationNo || null
+                            });
+                            console.log("💾 Database lokal berhasil diperbarui.");
+                        } catch (syncErr) {
+                            console.error("⚠️ Gagal update DB lokal, tapi booking vendor sukses:", syncErr);
+                            // Kita tidak throw error di sini agar user tetap bisa melihat halaman sukses
+                        }
 
                         if (isProcessed) {
                             this.showToast("Pesanan sedang diproses vendor (Waiting List).", "warning");
                         }
 
-                        // --- PERBAIKAN INFINITE LOADING ---
+                        // Update UI State
                         this.bookingResult = { ...r, totalPrice: totalWajibBayar };
                         this.showConfirmModal = false;
-
-                        // Matikan loading sebelum pindah stage
                         this.loading = false;
                         this.isLoading = false;
-
-                        // Pindah ke halaman sukses
                         this.stage = 'success_page';
 
-                        // Gunakan timeout kecil atau nextTick untuk memastikan DOM terupdate baru scroll
                         setTimeout(() => {
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         }, 100);
@@ -2767,11 +2779,9 @@
                 } catch (e) {
                     console.error("❌ Final Booking Error:", e);
                     this.showToast("Gagal Reservasi: " + e.message, "error");
-                    // Pastikan loading mati jika terjadi error di tengah jalan
                     this.loading = false;
                     this.isLoading = false;
                 } finally {
-                    // Fallback terakhir untuk mematikan loading jika tidak masuk ke success_page
                     if (this.stage !== 'success_page') {
                         this.loading = false;
                         this.isLoading = false;

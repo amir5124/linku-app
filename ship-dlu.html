@@ -307,29 +307,36 @@
                             Pembayaran</span>
                         <i data-lucide="credit-card" class="w-5 h-5 opacity-80"></i>
                     </div>
-                    <p class="text-3xl font-black" x-text="formatCurrency(bookingResponse.totalPrice)"></p>
+                    <p class="text-3xl font-black" x-text="formatCurrency(bookingResponse.totalPrice || 0)"></p>
                 </div>
 
                 <div class="space-y-4" x-show="passengerDetails.length > 0">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2 px-1">
                         <i data-lucide="users" class="w-5 h-5 text-[#24b3ae]"></i>
-                        Data Penumpang
-                        <template x-if="bookingResponse.listVehicle?.length > 0">
-                            <span class="text-[#24b3ae]">(Sekaligus Driver)</span>
-                        </template>
+                        Data Penumpang & Fasilitas
                     </h3>
 
                     <template x-for="(pax, index) in passengerDetails" :key="index">
                         <div
                             class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:border-[#24b3ae] transition-all">
+
                             <div
                                 class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
-                                <span class="text-[10px] font-black text-slate-500 uppercase"
-                                    x-text="(pax.paxInfo || 'Penumpang') + ' ' + (index + 1)"></span>
-                                <template x-if="index === 0 && bookingResponse.listVehicle?.length > 0">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-black text-[#24b3ae] uppercase tracking-wider"
+                                        x-text="pax.paxInfo"></span>
+                                    <span class="text-[10px] font-bold text-slate-400"
+                                        x-text="'Penumpang ' + (index + 1)"></span>
+                                </div>
+
+                                <template x-if="pax.sourceType === 'VEHICLE'">
                                     <span
-                                        class="bg-blue-100 text-blue-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Driver
-                                        / Pengendara</span>
+                                        class="bg-orange-100 text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Driver</span>
+                                </template>
+                                <template x-if="pax.sourceType === 'ROOM'">
+                                    <span
+                                        class="bg-purple-100 text-purple-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Fasilitas
+                                        Kamar</span>
                                 </template>
                             </div>
 
@@ -338,61 +345,63 @@
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Nama
                                         Lengkap (Sesuai KTP)</label>
                                     <input type="text" x-model="pax.name"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] focus:bg-white transition-all"
-                                        placeholder="Nama Lengkap">
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] focus:bg-white transition-all uppercase"
+                                        placeholder="NAMA LENGKAP">
                                 </div>
 
-                                <div>
-                                    <label
-                                        class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Jenis
-                                        Kelamin</label>
-                                    <select x-model="pax.gender"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] appearance-none">
-                                        <option value="L">Laki-laki (L)</option>
-                                        <option value="P">Perempuan (P)</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label
-                                        class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Tanggal
-                                        Lahir</label>
-                                    <input type="date" x-model="pax.dob"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">L/P</label>
+                                        <select x-model="pax.gender"
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] appearance-none">
+                                            <option value="L">Laki-laki (L)</option>
+                                            <option value="P">Perempuan (P)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Tgl
+                                            Lahir</label>
+                                        <input type="date" x-model="pax.dob"
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]">
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">NIK
                                         (Nomor Induk Kependudukan)</label>
                                     <input type="number" x-model="pax.id"
+                                        oninput="if(this.value.length > 16) this.value = this.value.slice(0, 16)"
                                         class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
-                                        placeholder="Masukkan 16 digit NIK">
+                                        placeholder="16 DIGIT NIK">
                                 </div>
 
-                                <div>
-                                    <label
-                                        class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Email
-                                        Aktif</label>
-                                    <input type="email" x-model="pax.email"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] focus:bg-white transition-all"
-                                        placeholder="contoh@email.com">
-                                </div>
-
-                                <div>
-                                    <label
-                                        class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Nomor
-                                        WhatsApp/HP</label>
-                                    <input type="tel" x-model="pax.phone"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] focus:bg-white transition-all"
-                                        placeholder="08123456789">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Email
+                                            Aktif</label>
+                                        <input type="email" x-model="pax.email"
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
+                                            placeholder="contoh@email.com">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">No.
+                                            WhatsApp</label>
+                                        <input type="tel" x-model="pax.phone"
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
+                                            placeholder="08123456789">
+                                    </div>
                                 </div>
 
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Kota
                                         Asal / Alamat</label>
                                     <input type="text" x-model="pax.city"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
-                                        placeholder="CONTOH: BALIKPAPAN">
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] uppercase"
+                                        placeholder="CONTOH: JAKARTA">
                                 </div>
                             </div>
                         </div>
@@ -403,7 +412,7 @@
                     <div class="space-y-4">
                         <h3 class="font-bold text-slate-800 flex items-center gap-2 px-1">
                             <i data-lucide="truck" class="w-5 h-5 text-orange-500"></i>
-                            Data Kendaraan
+                            Detail Kendaraan
                         </h3>
 
                         <template x-for="(vhc, vIdx) in bookingResponse.listVehicle" :key="'v-'+vIdx">
@@ -413,22 +422,23 @@
                                         x-text="vhc.vehicleInfo"></span>
                                 </div>
 
-                                <div>
-                                    <label
-                                        class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nomor
-                                        Polisi (Plat)</label>
-                                    <input type="text" x-model="vhc.regNo"
-                                        class="w-full p-4 bg-white border border-orange-200 rounded-2xl text-sm font-bold outline-none focus:border-orange-500"
-                                        placeholder="KH 1234 ABC">
-                                </div>
-
-                                <div>
-                                    <label
-                                        class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nama
-                                        Pemilik (Sesuai STNK)</label>
-                                    <input type="text" x-model="vhc.ownerName"
-                                        class="w-full p-4 bg-white border border-orange-200 rounded-2xl text-sm font-bold outline-none focus:border-orange-500"
-                                        placeholder="NAMA SESUAI STNK">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nomor
+                                            Polisi (Plat)</label>
+                                        <input type="text" x-model="vhc.regNo"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-2xl text-sm font-bold outline-none focus:border-orange-500 uppercase"
+                                            placeholder="KH 1234 ABC">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nama
+                                            Pemilik (STNK)</label>
+                                        <input type="text" x-model="vhc.ownerName"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-2xl text-sm font-bold outline-none focus:border-orange-500 uppercase"
+                                            placeholder="SESUAI STNK">
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -437,11 +447,12 @@
 
                 <div class="flex flex-col gap-3 pt-4">
                     <button @click="confirmBookingAndIssued()"
-                        class="w-full bg-[#24b3ae] text-white py-5 rounded-2xl font-black uppercase text-sm shadow-lg shadow-cyan-100 transform active:scale-95 transition-all">
-                        Lanjutkan ke Pembayaran
+                        class="w-full bg-[#24b3ae] text-white py-5 rounded-2xl font-black uppercase text-sm shadow-lg shadow-cyan-100 transform active:scale-95 transition-all flex justify-center items-center gap-2">
+                        <span>Lanjutkan ke Pembayaran</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
                     </button>
                     <button @click="stage = 'results'; window.scrollTo(0,0)"
-                        class="w-full text-slate-400 py-2 text-xs font-bold uppercase tracking-widest">
+                        class="w-full text-slate-400 py-2 text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors">
                         Batal dan Kembali
                     </button>
                 </div>
@@ -458,6 +469,15 @@
                     <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight">Pembayaran Berhasil</h3>
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-widest"
                         x-text="'Kode Booking: ' + issuedResponse.bookingNumber"></p>
+                </div>
+
+                <div class="px-2">
+                    <button @click="viewEticket(issuedResponse.bookingNumber)"
+                        class="w-full bg-[#e03f7d] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"
+                        :disabled="loading">
+                        <i data-lucide="qr-code" class="w-5 h-5"></i>
+                        <span x-text="loading ? 'MEMPROSES...' : 'DOWNLOAD E-TIKET'"></span>
+                    </button>
                 </div>
 
                 <div class="bg-white border-2 border-slate-100 rounded-3xl overflow-hidden shadow-sm">
@@ -488,7 +508,7 @@
                     </div>
 
                     <div class="p-5 space-y-4">
-                        <template x-for="pax in issuedResponse.paxBookingDetails" :key="pax.ticketNumber">
+                        <template x-for="(pax, index) in issuedResponse.paxBookingDetails" :key="index">
                             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 relative overflow-hidden">
                                 <i data-lucide="ticket"
                                     class="absolute -right-2 -bottom-2 w-16 h-16 text-slate-200/50 -rotate-12"></i>
@@ -517,13 +537,10 @@
                                             <p class="text-[10px] font-bold text-slate-600" x-text="pax.ticketNumber">
                                             </p>
                                         </div>
-
-                                        <button @click="viewEticket(issuedResponse.bookingNumber)"
-                                            class="flex items-center gap-1 text-[10px] font-black text-[#ff5e1f] uppercase tracking-widest underline decoration-2 underline-offset-4 disabled:opacity-50"
-                                            :disabled="loading">
-                                            <i data-lucide="qr-code" class="w-3 h-3"></i>
-                                            <span x-text="loading ? 'Loading...' : 'E-Tiket'"></span>
-                                        </button>
+                                        <div
+                                            class="bg-green-100 text-green-700 text-[8px] px-2 py-1 rounded-md font-black uppercase">
+                                            Berhasil
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -549,6 +566,7 @@
                 </div>
             </div>
         </template>
+
         </div>
 
         <div x-show="toast.show" x-transition x-cloak
@@ -796,16 +814,85 @@
                         return total;
                     },
 
-                    async goToPassengerForm() {
-                        console.group("🛳️ DEBUG: Proses Go To Passenger Form");
+                    // --- FUNGSI 1: Persiapan Form (Logic Utama untuk Bongkar listPax, listRoom, listVehicle) ---
+                    preparePassengerForms() {
+                        this.passengerDetails = [];
+                        const res = this.bookingResponse;
+                        if (!res) return;
 
-                        // 1. Validasi: Cari jadwal yang memiliki tiket terpilih
+                        // 1. Ambil Penumpang Reguler (Kursi)
+                        if (res.listPax && res.listPax.length > 0) {
+                            res.listPax.forEach((pax, index) => {
+                                this.passengerDetails.push(this.createNewPaxObject(pax, 'REGULAR', index));
+                            });
+                        }
+
+                        // 2. Ambil Penumpang di DALAM Kamar
+                        if (res.listRoom && res.listRoom.length > 0) {
+                            res.listRoom.forEach((room, rIdx) => {
+                                if (room.paxes && room.paxes.length > 0) {
+                                    room.paxes.forEach((pax, pIdx) => {
+                                        const roomLabel = room.info || 'Kamar';
+                                        this.passengerDetails.push(
+                                            this.createNewPaxObject(pax, 'ROOM', pIdx, rIdx, `${roomLabel} - Bed ${pIdx + 1}`)
+                                        );
+                                    });
+                                }
+                            });
+                        }
+
+                        // 3. Ambil Penumpang/Driver di DALAM Kendaraan
+                        if (res.listVehicle && res.listVehicle.length > 0) {
+                            res.listVehicle.forEach((vhc, vIdx) => {
+                                if (vhc.paxes && vhc.paxes.length > 0) {
+                                    vhc.paxes.forEach((pax, pIdx) => {
+                                        const vhcLabel = vhc.vehicleInfo || 'Kendaraan';
+                                        this.passengerDetails.push(
+                                            this.createNewPaxObject(pax, 'VEHICLE', pIdx, vIdx, `Driver: ${vhcLabel}`)
+                                        );
+                                    });
+                                }
+                            });
+                        }
+                    },
+
+                    // --- FUNGSI 2: Helper Pembuat Object (Konsistensi Data) ---
+                    createNewPaxObject(pax, source, pIdx, parentIdx = 0, label = null) {
+                        const today = new Date().toISOString().split('T')[0];
+                        return {
+                            sourceType: source,
+                            parentIndex: parentIdx,
+                            paxIndex: pIdx,
+                            paxInfo: label || pax.paxInfo || 'Penumpang',
+
+                            // Input User (Kosong untuk diisi di form)
+                            name: '',
+                            gender: 'L',
+                            dob: '1990-01-01',
+                            id: '',
+                            city: 'BALIKPAPAN',
+                            email: '',
+                            phone: '',
+
+                            // Metadata untuk Validasi & API
+                            paxGroup: String(pax.paxGroup || "1"),
+                            paxType: String(pax.paxType || "1"),
+                            paxClass: String(pax.paxClass || "1"),
+                            price: Number(pax.price || 0),
+                            admin: Number(pax.admin || 0)
+                        };
+                    },
+
+                    // --- FUNGSI 3: Aksi Klik Tombol Lanjutkan ---
+                    async goToPassengerForm() {
+                        console.group("🛳️ Proses Booking & Form");
+
+                        // 1. Ambil Jadwal Terpilih
                         const selectedItem = this.scheduleList.find(item =>
                             item.Fares && item.Fares.some(f => f.count > 0)
                         );
 
                         if (!selectedItem) {
-                            console.warn("Validation Fail: No tickets selected");
                             this.showToast("Silakan pilih minimal satu tiket.");
                             console.groupEnd();
                             return;
@@ -813,28 +900,13 @@
 
                         this.selectedShip = selectedItem;
 
-                        // 2. Persiapan Payload Fares yang Teliti
-                        // Kita pastikan mengambil .Data atau .data karena sering terjadi perbedaan case di API
+                        // 2. Mapping Fares dari count yang diinput user
                         const selectedFares = selectedItem.Fares
                             .filter(f => f.count > 0)
-                            .map(f => {
-                                const fareString = f.Data || f.data || "";
-                                if (!fareString) console.error("CRITICAL: Fare Data is EMPTY for", f);
-                                return {
-                                    count: f.count,
-                                    data: fareString
-                                };
-                            });
-
-                        // 3. Hitung jumlah ORANG saja (untuk validasi form nanti)
-                        // Filter hanya yang mengandung kata 'PAX' di dalam string datanya
-                        const totalPaxOnly = selectedFares
-                            .filter(f => f.data.includes('|PAX|'))
-                            .reduce((sum, f) => sum + f.count, 0);
-
-                        console.log("Selected Ship:", selectedItem.shipNumber);
-                        console.log("Total Pax Detected:", totalPaxOnly);
-                        console.log("Fares Payload:", selectedFares);
+                            .map(f => ({
+                                count: f.count,
+                                data: f.Data || f.data || ""
+                            }));
 
                         this.loading = true;
                         this.loadingText = 'Mengunci Kursi...';
@@ -848,8 +920,6 @@
                                 fares: selectedFares
                             };
 
-                            console.log("Sending Request to /select-schedule...", payload);
-
                             const res = await fetch('https://darma.siappgo.id/api/shipdlu/select-schedule', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -857,76 +927,32 @@
                             });
 
                             const data = await res.json();
-                            console.log("Response /select-schedule:", data);
 
                             if (data.status === "SUCCESS") {
-                                // PENTING: Simpan fares yang kita kirim tadi ke dalam bookingResponse 
-                                // agar saat hit API /price, data 'data' (pipe string) tidak hilang
+                                // Simpan response mentah dari API
                                 this.bookingResponse = {
                                     ...data,
                                     fares: selectedFares
                                 };
 
-                                // 4. Inisialisasi Tanggal
-                                const today = new Date();
-                                const maxDateDefault = today.toISOString().split('T')[0];
-                                const minDateBayi = new Date();
-                                minDateBayi.setFullYear(today.getFullYear() - 2);
-                                const minDateBayiStr = minDateBayi.toISOString().split('T')[0];
-
-                                // 5. Ambil list Pax secara Robust
-                                let rawPaxes = this.getPaxList(data);
-                                console.log("Raw Paxes from API:", rawPaxes.length);
-
-                                // 6. Sinkronisasi FORM Penumpang
-                                // Jika API kasih pax lebih sedikit dari yang kita beli, tambahkan dummy
-                                if (rawPaxes.length < totalPaxOnly) {
-                                    const diff = totalPaxOnly - rawPaxes.length;
-                                    console.log(`Syncing: Adding ${diff} extra passenger objects`);
-                                    for (let i = 0; i < diff; i++) {
-                                        rawPaxes.push({
-                                            name: '', id: '', gender: "0", paxGroup: "1",
-                                            city: 'BALIKPAPAN', dob: '1990-01-01', paxType: "1",
-                                            paxInfo: 'Penumpang'
-                                        });
-                                    }
-                                }
-
-                                // 7. Transformasi Data untuk UI Form
-                                this.passengerDetails = rawPaxes.slice(0, totalPaxOnly).map((p, index) => {
-                                    const isBayi = p.paxType === "2" || (p.paxInfo && p.paxInfo.toLowerCase().includes('bayi'));
-
-                                    return {
-                                        ...p,
-                                        name: p.name || '',
-                                        id: p.id || '',
-                                        gender: String(p.gender || "0"),
-                                        city: p.city || 'BALIKPAPAN',
-                                        isBayi: isBayi,
-                                        dob: (p.dob && !p.dob.startsWith('0001')) ? p.dob.split('T')[0] : (isBayi ? maxDateDefault : '1990-01-01'),
-                                        minDob: isBayi ? minDateBayiStr : '1900-01-01',
-                                        maxDob: maxDateDefault
-                                    };
-                                });
-
-                                // 8. Inisialisasi Booker (Pemesan) jika null
+                                // Inisialisasi Booker Data jika belum ada
                                 if (!this.bookingResponse.bookerData) {
-                                    this.bookingResponse.bookerData = {
-                                        name: '', phone: '', email: '', city: 'BALIKPAPAN'
-                                    };
+                                    this.bookingResponse.bookerData = { name: '', phone: '', email: '', city: 'BALIKPAPAN' };
                                 }
 
-                                console.log("Final Passenger Details for Form:", this.passengerDetails);
+                                // 🚀 POINT UTAMA: Panggil fungsi pemetaan form yang baru
+                                this.preparePassengerForms();
+
+                                // Pindah Stage & Scroll ke atas
                                 this.stage = 'passenger_form';
                                 window.scrollTo(0, 0);
 
                             } else {
-                                console.error("API Error Response:", data.respMessage);
-                                this.showToast(data.respMessage || "Gagal mengunci jadwal");
+                                throw new Error(data.respMessage || "Gagal mengunci jadwal");
                             }
                         } catch (e) {
-                            console.error("CRITICAL EXCEPTION:", e);
-                            this.showToast("Gangguan koneksi ke server");
+                            console.error("Error:", e);
+                            this.showToast(e.message || "Gangguan koneksi ke server");
                         } finally {
                             this.loading = false;
                             console.groupEnd();
@@ -935,17 +961,18 @@
                     },
 
                     getPaxList(data) {
-                        // Helper untuk mencari list penumpang di berbagai struktur response API DLU
                         const source = data || this.bookingResponse;
                         if (!source) return [];
 
-                        if (source.listRoom?.length > 0 && source.listRoom[0].paxes?.length > 0) {
-                            return source.listRoom[0].paxes;
+                        // Prioritas 1: Jika ada di listRoom (Kamar)
+                        if (source.listRoom?.length > 0) {
+                            return source.listRoom[0].paxes || [];
                         }
-                        if (source.listVehicle?.length > 0 && source.listVehicle[0].paxes?.length > 0) {
-                            // Beberapa tiket kendaraan menyertakan pax driver di dalamnya
-                            return source.listVehicle[0].paxes;
+                        // Prioritas 2: Jika ada di listVehicle (Kendaraan)
+                        if (source.listVehicle?.length > 0) {
+                            return source.listVehicle[0].paxes || [];
                         }
+                        // Prioritas 3: Penumpang Biasa
                         if (source.listPax?.length > 0) {
                             return source.listPax;
                         }
@@ -1043,81 +1070,98 @@
                         this.loadingText = 'Memproses Pesanan...';
 
                         try {
-                            // 1. Ambil data Auth & Pendukung
+                            // 1. Validasi Auth Dasar
                             const userID = this.bookingResponse.userID;
                             const accessToken = this.bookingResponse.accessToken;
-                            const fareStr = String(this.selectedFareData || ""); // Pastikan ambil dari state fare yang dipilih
 
                             if (!userID || !accessToken) {
                                 throw new Error("Sesi tidak valid. Silakan ulangi pencarian.");
                             }
 
-                            // 2. Helper Sanitasi Tanggal (Menghapus Z dan mencegah double format)
-                            // API DLU meminta format ISO Lokal tanpa akhiran Z
+                            // 2. Helper Sanitasi Tanggal agar formatnya yyyy-mm-ddT00:00:00
                             const getCleanDate = (str) => {
-                                if (!str) return "2026-04-11T00:00:00";
+                                if (!str || str.startsWith('0001')) return "1990-01-01T00:00:00";
                                 return str.split('T')[0] + "T00:00:00";
                             };
 
-                            // 3. Bersihkan Data Penumpang (Mapping Gender L/P)
-                            const cleanedPax = this.passengerDetails.map(p => {
-                                // Mapping gender sesuai keberhasilan: 0/L atau 1/P
-                                let genderLetter = "L";
-                                if (p.gender === "1" || p.gender === 1 || p.gender === "P") genderLetter = "P";
-
-                                return {
-                                    name: (p.name || "PENUMPANG").toUpperCase().trim(),
-                                    gender: genderLetter, // WAJIB L/P
-                                    dob: getCleanDate(p.dob || "1990-01-01"),
-                                    id: String(p.id || "1234567890"),
-                                    city: (p.city || 'BALIKPAPAN').toUpperCase().trim(),
-                                    paxGroup: String(p.paxGroup || "1"),
-                                    paxType: String(p.paxType || "1"),
-                                    paxClass: String(p.paxClass || "1"),
-                                    paxInfo: p.paxInfo || "VIP Dewasa",
-                                    note: p.note || "",
-                                    price: Number(p.price || 0),
-                                    admin: Number(p.admin || 0)
-                                };
-                            });
-
-                            // 4. Deteksi Tipe Tiket (Kamar / Kendaraan / Penumpang Saja)
-                            const isRoom = fareStr.includes('|ROM|');
-                            const isVehicle = fareStr.includes('|VHC|');
-
-                            // 5. Bangun Payload untuk Price
-                            const payloadPrice = {
+                            // 3. Bangun Struktur Payload Baru (Menghindari referensi objek lama)
+                            // Kita harus menyertakan field wajib di level root
+                            let finalPayload = {
                                 userID: userID,
                                 accessToken: accessToken,
+                                shipNumber: String(this.selectedShip.shipNumber),
                                 originPort: String(this.selectedShip.originCode || this.search.originPort),
                                 destinationPort: String(this.selectedShip.destCode || this.search.destinationPort),
-                                shipNumber: String(this.selectedShip.shipNumber),
                                 departDate: getCleanDate(this.selectedShip.departDateTime),
-                                // Jika single fare gunakan array, jika multiple gunakan yang dari bookingResponse
-                                fares: this.selectedFareData ? [{ count: cleanedPax.length, data: this.selectedFareData }] : JSON.parse(JSON.stringify(this.bookingResponse.fares)),
+                                fares: this.bookingResponse.fares, // Ambil dari fares yang disimpan saat select-schedule
 
-                                // Logic null sesuai keberhasilan kode kamu
-                                listPax: (!isRoom && !isVehicle) ? cleanedPax : null,
-                                listRoom: isRoom ? [{
-                                    info: this.bookingResponse.listRoom[0]?.info,
-                                    roomClass: String(this.bookingResponse.listRoom[0]?.roomClass),
-                                    price: parseFloat(this.bookingResponse.listRoom[0]?.price || 0),
-                                    admin: parseFloat(this.bookingResponse.listRoom[0]?.admin || 0),
-                                    paxes: cleanedPax
-                                }] : null,
-                                listVehicle: isVehicle ? [{
-                                    ...JSON.parse(JSON.stringify(this.bookingResponse.listVehicle[0])),
-                                    paxes: cleanedPax
-                                }] : null
+                                // Inisialisasi struktur array kosong agar tidak null
+                                listPax: [],
+                                listRoom: [],
+                                listVehicle: null
                             };
 
-                            console.log("🚀 Step 1: Validasi Harga...", payloadPrice);
+                            // 4. MAPPING DATA PENUMPANG DARI FORM (passengerDetails)
+                            // Kita petakan kembali ke listPax atau listRoom berdasarkan sourceType
 
-                            // --- EXECUTE PRICE ---
+                            // --- A. Proses listPax (Reguler) ---
+                            const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
+                            finalPayload.listPax = regularPaxes.map(p => ({
+                                name: (p.name || "PENUMPANG").toUpperCase().trim(),
+                                gender: p.gender === "P" ? "P" : "L",
+                                dob: getCleanDate(p.dob),
+                                id: String(p.id || "1234567890"),
+                                city: (p.city || 'BALIKPAPAN').toUpperCase().trim(),
+                                paxGroup: String(p.paxGroup || "1"),
+                                paxType: String(p.paxType || "1"),
+                                paxClass: String(p.paxClass || "1"),
+                                paxInfo: p.paxInfo || "",
+                                note: p.note || "",
+                                price: Number(p.price || 0),
+                                admin: Number(p.admin || 0)
+                            }));
+
+                            // --- B. Proses listRoom (Kamar) ---
+                            if (this.bookingResponse.listRoom && this.bookingResponse.listRoom.length > 0) {
+                                finalPayload.listRoom = this.bookingResponse.listRoom.map((room, rIdx) => {
+                                    return {
+                                        info: room.info,
+                                        roomClass: room.roomClass,
+                                        price: room.price,
+                                        admin: room.admin,
+                                        paxes: this.passengerDetails
+                                            .filter(p => p.sourceType === 'ROOM' && p.parentIndex === rIdx)
+                                            .map(p => ({
+                                                name: (p.name || "PENUMPANG").toUpperCase().trim(),
+                                                gender: p.gender === "P" ? "P" : "L",
+                                                dob: getCleanDate(p.dob),
+                                                id: String(p.id || "1234567890"),
+                                                city: (p.city || 'BALIKPAPAN').toUpperCase().trim(),
+                                                paxGroup: "1", // Wajib diisi (bukan null)
+                                                paxType: "1",  // Wajib diisi (bukan null)
+                                                note: ""
+                                            }))
+                                    };
+                                });
+                            }
+
+                            // 5. Booker Data (Gunakan data dari form booker atau penumpang pertama)
+                            const booker = this.bookingResponse.bookerData;
+                            finalPayload.bookerData = {
+                                name: (booker.name || regularPaxes[0]?.name || "PEMESAN").toUpperCase().trim(),
+                                gender: booker.gender || "L",
+                                id: String(booker.id || "1234567890"),
+                                email: booker.email || "guest@mail.com",
+                                phone: booker.phone || "08123456789",
+                                city: (booker.city || "BALIKPAPAN").toUpperCase().trim()
+                            };
+
+                            // 6. --- STEP 1: VALIDASI HARGA (API PRICE) ---
+                            console.log("🚀 Menjalankan /price...", finalPayload);
                             const resPrice = await fetch('https://darma.siappgo.id/api/shipdlu/price', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payloadPrice)
+                                body: JSON.stringify(finalPayload)
                             });
 
                             const dataPrice = await resPrice.json();
@@ -1125,41 +1169,21 @@
                                 throw new Error(dataPrice.respMessage || "Gagal verifikasi harga.");
                             }
 
-                            // --- EXECUTE ISSUED (Sesuai Dokumentasi H2H) ---
-                            this.loadingText = 'Memproses Tiket...';
+                            // Update data harga dari response price terbaru
+                            finalPayload.totalPrice = dataPrice.totalPrice;
+                            finalPayload.salesPrice = dataPrice.salesPrice;
 
-                            // Generate Unique numCode
-                            const numCode = "AGNT-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+                            // 7. --- STEP 2: PROSES ISSUED (API ISSUED) ---
+                            this.loadingText = 'Menerbitkan Tiket...';
 
-                            const primaryContact = this.passengerDetails[0] || {};
+                            // Tambahkan nomor referensi unik agar tidak double booking di provider
+                            finalPayload.numCode = "AGNT-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
 
-                            const payloadIssued = {
-                                numCode: numCode,
-                                userID: userID,
-                                accessToken: accessToken,
-                                originPort: payloadPrice.originPort,
-                                destinationPort: payloadPrice.destinationPort,
-                                shipNumber: payloadPrice.shipNumber,
-                                departDate: payloadPrice.departDate,
-                                listPax: payloadPrice.listPax,
-                                listVehicle: payloadPrice.listVehicle,
-                                listRoom: payloadPrice.listRoom,
-                                bookerData: {
-                                    name: (this.bookingResponse.bookerData?.name || cleanedPax[0].name).toUpperCase(),
-                                    gender: cleanedPax[0].gender, // Ikuti gender penumpang pertama
-                                    id: String(this.bookingResponse.bookerData?.id || cleanedPax[0].id),
-                                    email: primaryContact.email || this.bookingResponse.bookerData?.email || "guest@mail.com",
-                                    phone: primaryContact.phone || this.bookingResponse.bookerData?.phone || "08123456789",
-                                    city: (this.bookingResponse.bookerData?.city || cleanedPax[0].city).toUpperCase()
-                                }
-                            };
-
-                            console.log("🚀 Step 2: Hit Issued...", payloadIssued);
-
+                            console.log("🚀 Menjalankan /issued...", finalPayload);
                             const resIssued = await fetch('https://darma.siappgo.id/api/shipdlu/issued', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payloadIssued)
+                                body: JSON.stringify(finalPayload)
                             });
 
                             const dataIssued = await resIssued.json();
@@ -1168,6 +1192,7 @@
                                 this.issuedResponse = dataIssued;
                                 this.stage = 'issued_success';
                                 this.showToast("Booking & Issued Berhasil!", "success");
+                                window.scrollTo(0, 0);
                             } else {
                                 throw new Error(dataIssued.respMessage || "Proses Issued gagal.");
                             }
