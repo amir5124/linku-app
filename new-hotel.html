@@ -2665,129 +2665,130 @@
                     this.isLoading = false;
                 }
             },
-            async executeFinalBooking() {
-                // 1. Hindari double execution
-                if (this.loading) return;
+           async executeFinalBooking() {
+    if (this.loading) return;
 
-                // Matikan polling pembayaran jika masih berjalan
-                if (this.pollingInterval) {
-                    clearInterval(this.pollingInterval);
-                    this.pollingInterval = null;
-                }
+    if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+        this.pollingInterval = null;
+    }
 
-                this.loading = true;
-                this.isLoading = true;
-                this.loadingText = "Menghubungi vendor hotel...";
+    this.loading = true;
+    this.isLoading = true;
+    this.loadingText = "Menghubungi vendor hotel...";
 
-                const targetUsername = this.username;
-                const hFee = Math.round(parseFloat(this.inputHandlingFee || 0));
+    const targetUsername = this.username;
+    const hFee = Math.round(parseFloat(this.inputHandlingFee || 0));
 
-                const post = async (url, body) => {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body)
-                    });
-                    return await response.json();
+    // --- 1. RECOVERY DATA TAMU & KONTAK (LOGIKA SAMA DENGAN selectPayment) ---
+    const mainRoomReq = (this.bookingData.roomRequest && this.bookingData.roomRequest[0]) || {};
+    const allPaxes = mainRoomReq.paxes || this.bookingData.paxes || [];
+    const currentUserEmail = mainRoomReq.email || this.bookingData.customer?.email || "guest@mail.com";
+    const currentUserPhone = mainRoomReq.phone || this.bookingData.customer?.phone || "08123456789";
+
+    const post = async (url, body) => {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        return await response.json();
+    };
+
+    try {
+        console.log("🏨 Step 1: Validasi Ketersediaan & Harga Terkini...");
+        const { checkIn, checkOut } = this.buildDateRange();
+        const currentRoomRequest = this.buildRoomRequest(true);
+
+        const p = await post('https://darma.siappgo.id/api/hotels/price-info', {
+            cityID: String(this.search.cityID),
+            checkInDate: checkIn,
+            checkOutDate: checkOut,
+            roomRequest: currentRoomRequest,
+            internalCode: this.selectedHotel.internalCode,
+            hotelID: this.selectedHotel.ID,
+            breakfast: this.selectedRoom.breakfast,
+            roomID: this.selectedRoom.ID
+        });
+
+        if (p.status !== "SUCCESS") throw new Error(p.respMessage || "Kamar tidak lagi tersedia.");
+        const totalWajibBayar = Math.round(parseFloat(p.totalPrice)) + hFee;
+
+        // --- 2. INJECT DATA TAMU KE PAYLOAD VENDOR ---
+        // Kita pastikan array paxes dari state awal ikut masuk ke dalam roomRequest untuk vendor
+        const finalRoomRequest = p.roomRequest.map(room => ({
+            ...room,
+            paxes: allPaxes, // Masukkan data paxes asli
+            email: room.email || currentUserEmail,
+            phone: room.phone || currentUserPhone
+        }));
+
+        console.log("🏨 Step 2: Mengirim Payload Reservasi ke Vendor...");
+        const bookingPayload = {
+            paxPassport: p.paxPassport || "ID",
+            countryID: p.countryID || "ID",
+            cityID: p.cityID,
+            checkInDate: p.checkInDate,
+            checkOutDate: p.checkOutDate,
+            roomRequest: finalRoomRequest,
+            internalCode: p.internalCode,
+            hotelID: p.hotelID,
+            breakfast: p.breakfast,
+            roomID: p.roomID,
+            bedType: p.bedTypes ? { ID: p.bedTypes[0].ID, bed: p.bedTypes[0].bed } : { ID: "", bed: "" },
+            agentOsRef: "HTL-" + Date.now(),
+            commission: p.commission,
+            totalPrice: p.totalPrice,
+            handlingFee: hFee,
+            username: targetUsername,
+            contact_email: currentUserEmail
+        };
+
+        const r = await post('https://darma.siappgo.id/api/hotels/booking', bookingPayload);
+
+        // Anggap Accept atau Processed sebagai sukses awal
+        if (r.internalStatus === "Accept" || r.bookingStatus === "Processed" || r.status === "SUCCESS") {
+            console.log("✅ Reservasi Berhasil di Vendor. Menyinkronkan ke DB Lokal...");
+
+            // --- 3. UPDATE DB LOKAL DENGAN DATA TAMU LENGKAP ---
+            try {
+                const updatePayload = {
+                    reservation_no: this.reservation_no,
+                    os_ref_no: r.bookingResponse?.osRefNo || r.osRefNo,
+                    agent_os_ref: r.bookingResponse?.agentOsRef || r.agentOsRef,
+                    booking_status: r.bookingResponse?.bookingStatus || 'Accept',
+                    vendor_res_no: r.bookingResponse?.reservationNo || null,
+                    // PENTING: Kirim paxes dan email lagi agar backend bisa update tabel paxes & kirim PDF
+                    paxes: allPaxes, 
+                    contact_email: currentUserEmail,
+                    contact_phone: currentUserPhone
                 };
 
-                try {
-                    console.log("🏨 Step 1: Validasi Ketersediaan & Harga Terkini...");
-                    const { checkIn, checkOut } = this.buildDateRange();
-                    const currentRoomRequest = this.buildRoomRequest(true);
+                await post('https://darma.siappgo.id/api/hotels/hotel-bookings/update-after-vendor', updatePayload);
+                console.log("💾 Database lokal berhasil diperbarui dengan data tamu.");
+            } catch (syncErr) {
+                console.error("⚠️ Gagal update DB lokal (Paxes/Email):", syncErr);
+            }
 
-                    const p = await post('https://darma.siappgo.id/api/hotels/price-info', {
-                        cityID: String(this.search.cityID),
-                        checkInDate: checkIn,
-                        checkOutDate: checkOut,
-                        roomRequest: currentRoomRequest,
-                        internalCode: this.selectedHotel.internalCode,
-                        hotelID: this.selectedHotel.ID,
-                        breakfast: this.selectedRoom.breakfast,
-                        roomID: this.selectedRoom.ID
-                    });
+            this.bookingResult = { ...r, totalPrice: totalWajibBayar };
+            this.stage = 'success_page';
+            this.showConfirmModal = false;
 
-                    if (p.status !== "SUCCESS") throw new Error(p.respMessage || "Kamar tidak lagi tersedia.");
-                    const totalWajibBayar = Math.round(parseFloat(p.totalPrice)) + hFee;
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        } else {
+            throw new Error(r.respMessage || "Gagal konfirmasi dari vendor hotel.");
+        }
 
-                    console.log("🏨 Step 2: Mengirim Payload Reservasi ke Vendor...");
-                    const bookingPayload = {
-                        paxPassport: p.paxPassport || "ID",
-                        countryID: p.countryID || "ID",
-                        cityID: p.cityID,
-                        checkInDate: p.checkInDate,
-                        checkOutDate: p.checkOutDate,
-                        roomRequest: p.roomRequest,
-                        internalCode: p.internalCode,
-                        hotelID: p.hotelID,
-                        breakfast: p.breakfast,
-                        roomID: p.roomID,
-                        bedType: p.bedTypes ? { ID: p.bedTypes[0].ID, bed: p.bedTypes[0].bed } : { ID: "", bed: "" },
-                        agentOsRef: "HTL-" + Date.now(),
-                        commission: p.commission,
-                        totalPrice: p.totalPrice,
-                        handlingFee: hFee,
-                        username: targetUsername
-                    };
-
-                    // REQUEST KE VENDOR DARMAWISATA
-                    const r = await post('https://darma.siappgo.id/api/hotels/booking', bookingPayload);
-
-                    console.log("🏨 Response Vendor:", r.internalStatus, r.bookingStatus);
-
-                    const isAccept = r.internalStatus === "Accept";
-                    const isProcessed = r.internalStatus === "Processed" || r.bookingStatus === "Processed";
-
-                    if (isAccept || isProcessed) {
-                        console.log("✅ Reservasi Berhasil di Vendor. Menyinkronkan ke Database Lokal...");
-
-                        // --- CRITICAL STEP: SINKRONISASI DATABASE AGAR os_ref_no TIDAK NULL ---
-                        // Kita panggil endpoint update-after-vendor yang kita buat di backend tadi
-                        try {
-                            await post('https://darma.siappgo.id/api/hotels/hotel-bookings/update-after-vendor', {
-                                reservation_no: this.reservation_no, // Menggunakan nomor RES-xxx dari draft
-                                os_ref_no: r.bookingResponse.osRefNo,
-                                agent_os_ref: r.bookingResponse.agentOsRef,
-                                booking_status: r.bookingResponse.bookingStatus || 'Success',
-                                vendor_res_no: r.bookingResponse.reservationNo || null
-                            });
-                            console.log("💾 Database lokal berhasil diperbarui.");
-                        } catch (syncErr) {
-                            console.error("⚠️ Gagal update DB lokal, tapi booking vendor sukses:", syncErr);
-                            // Kita tidak throw error di sini agar user tetap bisa melihat halaman sukses
-                        }
-
-                        if (isProcessed) {
-                            this.showToast("Pesanan sedang diproses vendor (Waiting List).", "warning");
-                        }
-
-                        // Update UI State
-                        this.bookingResult = { ...r, totalPrice: totalWajibBayar };
-                        this.showConfirmModal = false;
-                        this.loading = false;
-                        this.isLoading = false;
-                        this.stage = 'success_page';
-
-                        setTimeout(() => {
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }, 100);
-
-                    } else {
-                        throw new Error(r.respMessage || "Gagal konfirmasi dari vendor hotel.");
-                    }
-
-                } catch (e) {
-                    console.error("❌ Final Booking Error:", e);
-                    this.showToast("Gagal Reservasi: " + e.message, "error");
-                    this.loading = false;
-                    this.isLoading = false;
-                } finally {
-                    if (this.stage !== 'success_page') {
-                        this.loading = false;
-                        this.isLoading = false;
-                    }
-                }
-            },
+    } catch (e) {
+        console.error("❌ Final Booking Error:", e);
+        this.showToast("Gagal Reservasi: " + e.message, "error");
+    } finally {
+        this.loading = false;
+        this.isLoading = false;
+    }
+},
 
             startPollingStatus(reff) {
                 console.log(`⏳ Monitoring transaksi [${reff}] setiap 5 detik...`);
