@@ -905,8 +905,16 @@
                             .filter(f => f.count > 0)
                             .map(f => ({
                                 count: f.count,
+                                // Gunakan f.Data (Capital D) sesuai response API yang Anda kirim
                                 data: f.Data || f.data || ""
                             }));
+
+                        // Validasi Tambahan: Pastikan tidak ada data yang kosong sebelum fetch
+                        if (selectedFares.some(f => f.data === "")) {
+                            console.error("Payload Error: Data string pipa kosong!", selectedFares);
+                            this.showToast("Terjadi kesalahan mapping data tiket.");
+                            return;
+                        }
 
                         this.loading = true;
                         this.loadingText = 'Mengunci Kursi...';
