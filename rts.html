@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+    <script src="https://code.iconify.design/iconify-icon/1.0.1/iconify-icon.min.js"></script>
+    <link href="https://linku.co.id/rts.css" rel="stylesheet">
+    <title>Hello, world!</title>
+    <style>
+       .wrap-img-btl{min-width:60px;width:60px;height:60px;border-radius:10px;border:1px solid #ccc;box-shadow:none}.wrap-img-btl img{width:100%;height:100%;border-radius:10px}.responsive-video{width:100%;height:auto;max-width:100%}.whatsapp-button{position:fixed;bottom:70px;right:20px;z-index:2;background-color:#25d366;border-radius:50%;width:50px;height:50px;display:flex;justify-content:center;align-items:center;box-shadow:0 4px 10px rgb(0 0 0 / .1);cursor:pointer;transition:transform 0.3s ease}.whatsapp-button:hover{transform:scale(1.1)}
+       .bg-merah{
+    background-color: #fe0000;
+    height: 60px;
+    width: 100%;
+    /* Gunakan properti flexbox di sini */
+    display: flex;
+    align-items: center;       /* Vertical alignment */
+    justify-content: space-between; /* Horizontal spacing */
+    padding: 0 15px;            /* Tambahkan padding horizontal agar tidak menempel di tepi */
+    top: 0;
+}
+    </style>
+</head>
+
+<body>
+    <div class="bg-merah">
+        <p style="font-size: 20px; color: #fff;">RTS INDONESIA</p>
+        <p style="font-size: 20px; color: #fff; text-transform: uppercase;">{nama}</p>
+    </div>
+    <div class="cardo" style="padding:10px;border-radius:20px;border:3px solid #fff;margin-top:20px;margin-bottom:0;">
+        <div class="cardo5"
+            style="padding:5px;width:45%;margin-bottom:0px;margin-left:0px;border-radius:10px;background-image:none;">
+            <iconify-icon icon="entypo:wallet" width="25" height="25"
+                style="color: #fe0000; float:left; margin-right:2%;"></iconify-icon>
+            <p style="margin-bottom:0%;margin-top:3%;color:#fe0000; font-size: 13px; font-weight: bold;">Saldo RTS
+            </p>
+            <p style="margin-top:2px;font-size:11px;margin-left:2%;color:#fe0000;font-weight:bold;">
+                Saldo Anda</p>
+            <div class="slider4 slider4-2">
+                <div class="slide4">
+                    <p
+                        style="margin-top:-5%;margin-bottom:-13%;color:#000; font-size: 14px; margin-left: 2%; font-weight: bold;">
+                        {saldo}</p>
+                    <a href="#" style="text-decoration:none" target="_blank">
+                    </a>
+                </div>
+                <div class="slide4" style="font-size:12px;color:#000; margin-left: 2%; margin-top: -3px;">
+                    <p style="font-size: 12px; color: #000;">Lebih Mudah & Praktis</p>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; position: absolute; margin-left: 45%; margin-top: -73px; ">
+            <a href="https://jgjk.mobi/m/68f720f107cd0">
+                <div
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 8px;">
+                    <iconify-icon icon="fa6-solid:square-plus" width="35" height="35"
+                        style="color: #fff"></iconify-icon>
+                    <p style="font-size: 10px; color: #fff;">Topup</p>
+                </div>
+            </a>
+            <a href="https://jgjk.mobi/m/68f7716648fb8">
+                <div
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 8px;">
+                    <iconify-icon icon="jam:arrow-square-down-f" width="35" height="35"
+                        style="color: #fff"></iconify-icon>
+                    <p style="font-size: 10px; color: #fff;">Withdraw</p>
+                </div>
+            </a>
+            <a href="https://jgjk.mobi/m/68f8e8e5f38b1">
+                <div
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 8px;">
+                    <iconify-icon icon="jam:arrow-square-up-f" width="35" height="35"
+                        style="color: #fff"></iconify-icon>
+                    <p style="font-size: 10px; color: #fff;">Transfer</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <a href="https://wa.me/6289663762807" class="whatsapp-button" target="_blank">
+        <iconify-icon icon="logos:whatsapp-icon" width="30" height="30"></iconify-icon>
+    </a>
+
+    <!-- banner scroll -->
+    <script
+        src="https://rawcdn.githack.com/modernplay/hostfile/93642d66b6e3fa9e51a05fdfd3912164f87d2814/jssor.slider-28.0.0.min.js"
+        type="text/javascript"></script>
+    <script type="text/javascript">
+        window.jssor_1_slider_init = function () {
+
+            var jssor_1_options = {
+                $AutoPlay: 1,
+                $SlideWidth: 800,
+                $SlideHeight: 350,
+                $SlideSpacing: 200,
+            };
+
+            var jssor_1_slider = new $JssorSlider$("jssor_1", jssor_1_options);
+
+            /#region responsive code begin/
+
+            var MAX_WIDTH = 1000;
+
+            function ScaleSlider() {
+                var containerElement = jssor_1_slider.$Elmt.parentNode;
+                var containerWidth = containerElement.clientWidth;
+
+                if (containerWidth) {
+
+                    var expectedWidth = Math.min(MAX_WIDTH || containerWidth, containerWidth);
+
+                    jssor_1_slider.$ScaleWidth(expectedWidth);
+                }
+                else {
+                    window.setTimeout(ScaleSlider, 30);
+                }
+            }
+
+            ScaleSlider();
+
+            $Jssor$.$AddEvent(window, "load", ScaleSlider);
+            $Jssor$.$AddEvent(window, "resize", ScaleSlider);
+            $Jssor$.$AddEvent(window, "orientationchange", ScaleSlider);
+            /#endregion responsive code end/
+        };
+    </script>
+    <style>
+        .jssorl-009-spin img {
+            animation-name: jssorl-009-spin;
+            animation-duration: 1.6s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+
+        @keyframes jssorl-009-spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .img-slide {
+            border-radius: 20px;
+            box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.0);
+        }
+    </style>
+
+    <div id="jssor_1"
+        style="position: relative;margin:0 auto; top:15px;  left:0px; width:850px; height: 350px;overflow:hidden; visibility:hidden;">
+
+
+        <!-- Loading Screen -->
+
+        <div data-u="slides"
+            style="cursor:default; position:relative; top:0px; left:0px; width:850px; height:350px; overflow:hidden;">
+
+            <div class="img-slide"><a href="">
+                    <img data-u="image" src="https://linku.co.id/rts1.png"></a>
+            </div>
+
+            <div class="img-slide"> <a href="">
+                    <a href="https://shopee.co.id/rts_indonesia">
+                        <img data-u="image" src="https://linku.co.id/rts2.png"></a>
+                </a>
+            </div>
+        </div><a data-scale="0" href="https://www.jssor.com" style="display:none;position:absolute;">animation
+            software</a>
+    </div>
+    <script type="text/javascript">jssor_1_slider_init();
+    </script>
+
+    <div style="margin-left: 12px; margin-right: 12px; margin-top: 30px;">
+        <div class="bg-menu">
+            <div class="row">
+                <div class="col-3">
+                    <a href="#bodymessage_1" class="open-modal cta"
+                        class="d-flex flex-column align-items-center justify-content-center">
+                        <div class="bg-item">
+                            <img src="https://linku.co.id/otak.png" style="width: 50px; height: 50px; ">
+                        </div>
+                        <p class="font-12 ws-nowrap text-hitam ws-nowrap mt-1 text-center">Pijat Otak Cranial</p>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="#totokwajah_1" class="open-modal cta"
+                        class="d-flex flex-column align-items-center justify-content-center">
+                        <div class="bg-item">
+                            <img src="https://linku.co.id/reposisi.png" style="width: 50px; height: 50px; ">
+                        </div>
+                        <p class="font-12 ws-nowrap text-hitam ws-nowrap mt-1 text-center">Pijat Reposisi Tulang&Sendi
+                        </p>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="#refleksi_1" class="open-modal cta"
+                        class="d-flex flex-column align-items-center justify-content-center">
+                        <div class="bg-item">
+                            <img src="https://linku.co.id/cidera.png" style="width: 50px; height: 50px; ">
+                        </div>
+                        <p class="font-12 ws-nowrap text-hitam ws-nowrap mt-1 text-center">Penanganan Cidera</p>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="#lulur_1" class="open-modal cta"
+                        class="d-flex flex-column align-items-center justify-content-center">
+                        <div class="bg-item">
+                            <img src="https://linku.co.id/sar.png" style="width: 50px; height: 50px; ">
+                        </div>
+                        <p class="font-12 ws-nowrap text-hitam ws-nowrap mt-1 text-center">Pijat Saraf</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-infos" id="infoDriverDiv">
+        <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1761537467/Massage_Therapist_YouTube_Thumbnail_2_vi2ysr.png"
+            style="width: 100%; height: 150px; border-radius: 5px;" alt="Video Informasi Driver">
+    </div>
+
+    <div class="bg-infos" style="margin-right: 12px; margin-left: 12px;">
+        <div class="mt-0">
+            <p class="font-16 fwb" style="color: #fe0000;">INFORMASI TERBARU</p>
+            <p style="font-size: 12px;  color: #000;">Selamat datang Di Aplikasi RTS INDONESIA kak {nama}<br>Dapatkan
+                Support dan
+                Informasi bermanfaat di bawah ini</p>
+        </div>
+        <div class="container123 mt-3">
+            <ul class="tab1-menu">
+                <li class="active123" data-target="homee">
+                    <div class="bg-danger">Galery</div>
+                </li>
+
+                <li data-target="contact123">
+                    <div class="bg-danger">Kelas RTS</div>
+                </li>
+                <span class="line123"></span>
+            </ul>
+            <div class="contents">
+                <div class="content123 active123" id="homee">
+                    <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726110586/WhatsApp_Image_2024-09-12_at_01.08.14_gl4hcd.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726110762/WhatsApp_Image_2024-09-12_at_01.08.17_ecnfbq.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726110947/WhatsApp_Image_2024-09-12_at_01.08.18_zmy6yd.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111048/WhatsApp_Image_2024-09-12_at_01.08.19_ulf7ex.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111140/WhatsApp_Image_2024-09-12_at_01.08.21_pgqwum.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111195/WhatsApp_Image_2024-09-12_at_01.08.22_ps43o6.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111262/WhatsApp_Image_2024-09-12_at_01.08.22_1_vobkgw.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111311/WhatsApp_Image_2024-09-12_at_01.08.22_2_h9yidf.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111358/WhatsApp_Image_2024-09-12_at_01.08.23_f5dmtq.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111429/WhatsApp_Image_2024-09-12_at_01.08.24_mlme12.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726111998/WhatsApp_Image_2024-09-12_at_01.08.25_1_wlgnzl.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726112048/WhatsApp_Image_2024-09-12_at_01.08.25_2_scn80x.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726114619/WhatsApp_Image_2024-09-12_at_01.08.26_wlvoa2.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185476/WhatsApp_Image_2024-09-13_at_06.53.01_twacxc.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185565/WhatsApp_Image_2024-09-13_at_06.53.01_1_orubb8.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185603/WhatsApp_Image_2024-09-13_at_06.53.02_aapoxn.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185673/WhatsApp_Image_2024-09-13_at_06.53.02_1_texawb.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185730/WhatsApp_Image_2024-09-13_at_06.53.03_gqjles.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185775/WhatsApp_Image_2024-09-13_at_06.53.04_j9t80i.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185862/WhatsApp_Image_2024-09-13_at_06.53.05_t13ezj.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185909/WhatsApp_Image_2024-09-13_at_06.53.05_1_piqzxq.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726185957/WhatsApp_Image_2024-09-13_at_06.53.06_lxuyei.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726186005/WhatsApp_Image_2024-09-13_at_06.53.06_vgdnzi.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726186100/WhatsApp_Image_2024-09-13_at_06.53.07_cm9fs1.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726186171/WhatsApp_Image_2024-09-13_at_06.53.07_2_l6nwsf.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726186233/WhatsApp_Image_2024-09-13_at_06.53.08_1_v4et70.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726186289/WhatsApp_Image_2024-09-13_at_06.53.08_3_ceojhp.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188036/WhatsApp_Image_2024-09-13_at_06.53.09_1_cp1ku8.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188092/WhatsApp_Image_2024-09-13_at_06.53.10_b4atw6.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188147/WhatsApp_Image_2024-09-13_at_06.53.10_1_negsvd.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188209/WhatsApp_Image_2024-09-13_at_06.53.11_acxjxj.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188277/WhatsApp_Image_2024-09-13_at_06.53.11_1_tfddd6.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188321/WhatsApp_Image_2024-09-13_at_06.53.12_kokdg8.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188389/WhatsApp_Image_2024-09-13_at_06.53.12_1_b4uxw6.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726188444/WhatsApp_Image_2024-09-13_at_06.53.13_1_x3nzrx.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                        </div>
+                        <a class="carousel-control-prev" href="#carouselExampleSlidesOnly" role="button"
+                            data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+
+                        <!-- Tombol Next -->
+                        <a class="carousel-control-next" href="#carouselExampleSlidesOnly" role="button"
+                            data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+
+                </div>
+                <div class="content123" id="contact123">
+
+                    <div class="cardpay">
+                        <a href="https://rtsindonesia.net/kelas-rts-pkn/"><img
+                                src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1761188128/Massage_Therapist_YouTube_Thumbnail_1_keoido.png">
+                            <p class="font-12 pt-3">Ikuti kelas pelatihan RTS INDONESIA DAFTAR SEKARANG!!!</p>
+                        </a>
+                    </div>
+
+                </div>
+
+                <div style="margin-right: 12px; margin-left: 12px;">
+                    <div class="bg-infos">
+                        <center>
+                            <p class="font-15 fwb" style="color: #fe0000;">IKUTI SOSIAL MEDIA RTS</p>
+                        </center>
+                        <div class="d-flex align-items-center justify-content-around">
+                            <div class="d-flex flex-column align-items-center m-2">
+                                <a href="https://www.facebook.com/share/t557kr2CKFBP8Dq9/?mibextid=qi2Omg">
+                                    <iconify-icon icon="ic:sharp-facebook" width="40" height="40"
+                                        style="color: #0080ff;"></iconify-icon>
+                                </a>
+                            </div>
+
+                            <div class="d-flex flex-column align-items-center m-2">
+                                <a
+                                    href="https://www.instagram.com/invites/contact/?igsh=133s8y4fmhxgy&utm_content=1edhkuy">
+                                    <iconify-icon icon="ri:instagram-fill" width="40" height="40"
+                                        style="color: #ef3b32;"></iconify-icon>
+                                </a>
+                            </div>
+
+                            <div class="d-flex flex-column align-items-center m-2">
+                                <a href="https://www.tiktok.com/@rtsindonesia?_t=8nK43ZmW6lj&_r=1">
+                                    <iconify-icon icon="mage:tiktok-circle" width="40" height="40"
+                                        style="color: #000;"></iconify-icon>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-right: 12px; margin-left: 12px;">
+                    <div class="bg-infos">
+                        <center>
+                            <p class="font-15 fwb" style="color: #fe0000;">IZIN & LEGALITAS</p>
+                        </center>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726189801/WhatsApp_Image_2024-09-13_at_06.53.15_1_ugq99y.jpg">
+                            </div>
+
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726189840/WhatsApp_Image_2024-09-13_at_06.53.16_ht0dgu.jpg">
+                            </div>
+
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726189875/WhatsApp_Image_2024-09-13_at_06.53.16_1_vz85ew.jpg">
+                            </div>
+
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726189950/WhatsApp_Image_2024-09-13_at_06.53.17_1_or7kbs.jpg">
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726190064/WhatsApp_Image_2024-09-13_at_06.53.17_2_khfuve.jpg">
+                            </div>
+
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726190118/WhatsApp_Image_2024-09-13_at_06.53.18_npcwmw.jpg">
+                            </div>
+
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726190157/WhatsApp_Image_2024-09-13_at_06.53.19_ijusrg.jpg">
+                            </div>
+
+                            <div class="wrap-img-btl m-2">
+                                <img
+                                    src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1726190243/WhatsApp_Image_2024-09-13_at_06.53.20_1_bgtny6.jpg">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <br>
+                <!-- bar bawah -->
+                <div id="navbar">
+                    <a href="https://jgjk.mobi/m/6666846601306">
+                        <div class="d-flex flex-column align-items-center m-2 pt-2">
+                            <iconify-icon icon="majesticons:home" width="25" height="25"
+                                style="color: #fe0000"></iconify-icon>
+                            <p class="font-10 mb-0 mt-1 text-hitam">Home</p>
+                        </div>
+                    </a>
+                    <a href="https://jgjk.mobi/m/66a1194461459">
+                        <div class="d-flex flex-column align-items-center m-2 pt-2">
+                            <iconify-icon icon="ph:clock-countdown-bold" width="25" height="25"
+                                style="color: #4d4d4d"></iconify-icon>
+                            <p class="font-10 mb-0 mt-1 text-hitam">Timer</p>
+                        </div>
+                    </a>
+                    <div id="infoDriver">
+                        <div class="d-flex flex-column align-items-center m-2 pt-2">
+                            <iconify-icon icon="tabler:massage" width="25" height="25"
+                                style="color: #4d4d4d"></iconify-icon>
+                            <p class="font-10 mb-0 mt-1 text-hitam">Mitra</p>
+                        </div>
+                    </div>
+                    <a href="action://act/admin">
+                        <div class="d-flex flex-column align-items-center m-2 pt-2">
+                            <iconify-icon icon="ph:chat-text" width="25" height="25"
+                                style="color: #4d4d4d"></iconify-icon>
+                            <p class="font-10 mb-0 mt-1 text-hitam">Pesan</p>
+                        </div>
+                    </a>
+                    <a href="https://jgjk.mobi/act/account">
+                        <div class="d-flex flex-column align-items-center m-2 pt-2">
+                            <iconify-icon icon="mdi:account-outline" width="25" height="25"
+                                style="color: #4d4d4d"></iconify-icon>
+                            <p class="font-10 mb-0 mt-1 text-hitam">Akun</p>
+                        </div>
+                    </a>
+                </div>
+              <div id="bodymessage_1" class="modal custome_modal styledModal"><h3 class="text-center font-20">Pijat Otak Cranial</h3><p class="info_ font-14 mt-4"> Layanan pijat relaksasi untuk melancarkan sirkulasi darah ke otak, memberikan reaksi yang baik untuk menenangkan pikiran juga sebagai metode pengobatan </p><p class="mb-0 text-center mt-5 text-gray">Pilih Gender Terapis</p><div class="d-flex align-items-center justify-content-center mt-1"><a href="#bodymessage_3_pria" class="btn btn-success open-modal mr-3">Pria</a><a href="#bodymessage_3_wanita" class="btn btn-success open-modal">Wanita</a></div></a></div><div id="bodymessage_3_pria" class="modal custome_modal styledModal"><h3 class="text-center font-20">Waktu dan harga</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652cbfd5ad849" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652cc056306e9" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cd080e182f" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div><div id="bodymessage_2_wanita" class="modal custome_modal styledModal"><h1 class="text-center font-20">Pilih Gender Terapis</h1><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="#bodymessage_3_wanita" class="btn btn-success open-modal w-100 ">Pria</a><a href="#bodymessage_3_wanita" class="btn btn-success open-modal w-100 mt-2">Wanita</a></div></a></div><div id="bodymessage_3_wanita" class="modal custome_modal styledModal"><h3 class="text-center font-20">Waktu dan harga</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652cbcfb01d49" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652cbed56d959" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cd5829e905" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div><div id="modalSyaratKetentuan" class="modal custome_modal styledModal"><h3 class="text-center font-20" style="margin-top: 20px;">Syarat dan Ketentuan</h3><p class="info_ font-14 mt-4"> Dengan melanjutkan, Anda menyetujui untuk tidak melakukan pelecehan seksual atau tindakan melanggar hukum lainnya selama layanan berlangsung. </p><div class="d-flex align-items-center justify-content-center mt-3"><input type="checkbox" id="agreeTerms"><label for="agreeTerms" class="ml-2">Saya menyetujui syarat dan ketentuan</label></div><div class="d-flex flex-column align-items-center justify-content-center mt-3"><p id="errorMsg" class="text-danger font-14 mt-2" style="display:none;">Anda harus menyetujui syarat dan ketentuan!</p><div id="proceedBtn" class="btn btn-success w-100 font-12 mt-2">Lanjutkan</div></div></div><div id="totokwajah_1" class="modal custome_modal styledModal"><h3 class="text-center font-20">Pijat Reposisi Tulang & Sendi</h3><p class="info_ font-14 mt-4"> Layanan pijat untuk menangani masalah pergeseran sendi dan ruas tulang belakang, menata kembali posisi sendi yang salah akibat cedera ke posisi normal </p><p class="mb-0 text-center mt-5 text-gray">Pilih Gender Terapis</p><div class="d-flex align-items-center justify-content-center mt-1"><a href="#totokwajah_3_pria" class="btn btn-success open-modal mr-3">Pria</a><a href="#totokwajah_3_wanita" class="btn btn-success open-modal">Wanita</a></div></a></div><div id="totokwajah_2_pria" class="modal custome_modal styledModal"><h1 class="text-center font-20">Pilih Gender Terapis</h1><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="#totokwajah_3_pria" class="btn btn-success open-modal w-100 ">Pria</a><a href="#totokwajah_3_pria" class="btn btn-success open-modal w-100 mt-2">Wanita</a></div></a></div><div id="totokwajah_3_pria" class="modal custome_modal styledModal"><h3 class="text-center font-20">Waktu dan harga</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652cc211d0e15" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652cc2a115167" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cd21963426" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div><div id="totokwajah_2_wanita" class="modal custome_modal styledModal"><h3 class="text-center font-20">Pilih Gender Terapis</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="#totokwajah_3_wanita" class="btn btn-success open-modal w-100 ">Pria</a><a href="#totokwajah_3_wanita" class="btn btn-success open-modal w-100 mt-2">Wanita</a></div></a></div><div id="totokwajah_3_wanita" class="modal custome_modal styledModal"><h1 class="text-center font-20">Waktu dan harga</h1><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652cd32bb55ff" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652cd3d33d814" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cd46f90f64" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div><div id="refleksi_1" class="modal custome_modal styledModal"><h3 class="text-center font-20">Pijat Penanganan Cedera</h3><p class="info_ font-14 mt-4"> Layanan pijat khusus atlet dan olahragawan dalam menjalani rawatan penanaganan otot akibat over aktifitas dan cedera olahraga </p><p class="mb-0 text-center mt-5 text-gray">Pilih Gender Terapis</p><div class="d-flex align-items-center justify-content-center mt-1"><a href="#refleksi_3_pria" class="btn btn-success open-modal mr-3">Pria</a><a href="#refleksi_3_wanita" class="btn btn-success open-modal">Wanita</a></div></a></div><div id="refleksi_3_pria" class="modal custome_modal styledModal"><h3 class="text-center font-20">Waktu dan harga</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652cc47822561" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652cc5584f3af" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cd7c9b0a99" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div><div id="refleksi_2_wanita" class="modal custome_modal styledModal"><h3 class="text-center font-20">Pilih Gender Terapis</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="#refleksi_3_wanita" class="btn btn-success open-modal w-100 ">Pria</a><a href="#refleksi_3_wanita" class="btn btn-success open-modal w-100 mt-2">Wanita</a></div></a></div><div id="refleksi_3_wanita" class="modal custome_modal styledModal"><h3 class="text-center font-20">Waktu dan harga</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652cc6984d023" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652cc81d0348c" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cdc31a13bf" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div><div id="lulur_1" class="modal custome_modal styledModal"><h3 class="text-center font-20">Pijat Saraf</h3><p class="info_ font-14 mt-4"> Layanan khusus penanaganan nyeri saraf, lemah lunglai kaku pada tangan dan kaki </p><p class="mb-0 text-center mt-5 text-gray">Pilih Gender Terapis</p><div class="d-flex align-items-center justify-content-center mt-1"><a href="#lulur_3_pria" class="btn btn-success open-modal mr-3">Pria</a><a href="#lulur_3_wanita" class="btn btn-success open-modal">Wanita</a></div></a></div><div id="lulur_3_pria" class="modal custome_modal styledModal"><h3 class="text-center font-20">Waktu dan harga</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652cca6d71a8c" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652cccc8171b3" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cdafc52179" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div><div id="lulur_2_wanita" class="modal custome_modal styledModal"><h3 class="text-center font-20">Pilih Gender Terapis</h3><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="#lulur_3_wanita" class="btn btn-success open-modal w-100 ">Pria</a><a href="#lulur_3_wanita" class="btn btn-success open-modal w-100 mt-2">Wanita</a></div></a></div><div id="lulur_3_wanita" class="modal custome_modal styledModal"><h1 class="text-center font-20">Waktu dan harga</h1><div class="d-flex flex-column align-items-center justify-content-center mt-5"><a href="action://p/652ccd4734775" class="btn btn-success w-100 font-12 mt-2">60 MENIT - RP 200.000</a><a href="action://p/652ccdc0a5846" class="btn btn-success w-100 font-12 mt-2">90 MENIT - RP 250.000</a><a href="action://p/652cdcf9d9695" class="btn btn-success w-100 font-12 mt-2">120 MENIT - RP 300.000</a></div></div>
+               
+
+               
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const agreeTermsCheckbox = document.getElementById("agreeTerms"); const proceedBtn = document.getElementById("proceedBtn"); const errorMsg = document.getElementById("errorMsg"); let selectedURL = ''; function openSyaratKetentuanModal(url) { selectedURL = url; console.log("URL yang dipilih:", selectedURL); $('#modalSyaratKetentuan').modal('show') }
+                        function handleProceedClick(event) { console.log("Checkbox status:", agreeTermsCheckbox.checked); if (agreeTermsCheckbox.checked) { errorMsg.style.display = "none"; if (selectedURL) { console.log("Redirecting to:", selectedURL); window.location.href = selectedURL } else { console.error("URL tujuan tidak ditemukan.") } } else { errorMsg.style.display = "block"; event.preventDefault() } }
+                        proceedBtn.addEventListener("click", handleProceedClick); document.querySelectorAll(".btn-success").forEach(function (button) { button.addEventListener("click", function (event) { event.preventDefault(); const url = this.getAttribute("href"); if (url) { openSyaratKetentuanModal(url) } else { console.error("URL tidak ditemukan untuk tombol ini.") } }) }); $('#modalSyaratKetentuan').on('show.bs.modal', function () { agreeTermsCheckbox.checked = !1; errorMsg.style.display = "none" })
+                    }); $(document).ready(function () {
+                        $("a.open-modal").click(function () {
+                            $(this).modal({ fadeDuration: 200, showClose: !1 })
+                            return !1
+                        })
+                        $(".contact_form .contact_input_").on("focusin", ".form_input", function () {
+                            $(this).parent(".contact_input_").children("p").addClass("pushedUp").css("color", "rgba(0,0,0,.5)")
+                            let inputValue = $(this).val(); if (inputValue.length <= 0) { $(this).parent(".contact_input_").children("p").css("color", "rgba(0,0,0,.5)") }
+                        })
+                        $(".contact_form .contact_input_").on("focusout", ".form_input", function () { let inputValue = $(this).val(); if (inputValue.length <= 0) { $(this).parent(".contact_input_").children("p").removeClass("pushedUp").css("color", "red") } })
+                        $(".info_item_, .forgot_password").click(function () { $(".form_input").val(""); $(".contact_input_").children("p").removeClass("pushedUp").css("color", "rgba(0,0,0,.5)") })
+                    })
+                    const allTabMenu = document.querySelectorAll('.tab1-menu li'); const line = document.querySelector('.tab1-menu .line123'); const allContent = document.querySelectorAll('.content123'); let width = allTabMenu[0].offsetWidth; let left = allTabMenu[0].offsetLeft; line.style.width = width + 'px'; line.style.left = left + 'px'; allTabMenu.forEach(item => {
+                        if (!item.classList.contains('dropdown-toggle')) {
+                            item.addEventListener('click', function () {
+                                allTabMenu.forEach(i => { i.classList.remove('active123') })
+                                if (this.parentElement.classList.contains('dropdown')) { width = this.parentElement.parentElement.offsetWidth; left = this.parentElement.parentElement.offsetLeft; this.parentElement.parentElement.classList.add('active123'); this.classList.add('active123') } else { width = this.offsetWidth; left = this.offsetLeft; this.classList.add('active123') }
+                                line.style.width = width + 'px'; line.style.left = left + 'px'; allContent.forEach(content => { if (this.dataset.target === content.id) { content.classList.add('active123') } else { content.classList.remove('active123') } })
+                            })
+                        }
+                    })
+                </script>
+                <script>
+                    const YOUTUBE_URL="https://jgjk.mobi/m/68f9ffb55f6bc";const DRIVER_APP_ACTION="action://act/driver";const infoDriverDiv=document.getElementById('infoDriverDiv');const infoDriverButton=document.getElementById('infoDriver');const loadingOverlay=document.getElementById('loadingOverlay');const contentWrapper=infoDriverDiv?infoDriverDiv.querySelector('.content-wrapper'):null;async function checkAndRedirectDriver(useSpinner){const username="{username}";const urlEndpoint='https://cekuser.rtsindonesia.biz.id/check-access';if(useSpinner&&loadingOverlay&&contentWrapper){loadingOverlay.style.display='flex';contentWrapper.style.opacity='0.5'}
+try{const response=await fetch(urlEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});const data=await response.json();if(!data.success){console.error("Server check-access error:",data);window.location.href=DRIVER_APP_ACTION;return}
+const statusDriver=data.statusDriver;if(statusDriver==="Diterima"){console.log("Status Diterima. Redirecting to YouTube.");window.location.href=YOUTUBE_URL}else{console.log(`Status NOT Accepted. Redirecting to: ${DRIVER_APP_ACTION}`);window.location.href=DRIVER_APP_ACTION}}catch(error){console.error("Gagal menghubungi server atau terjadi kesalahan jaringan.",error);window.location.href=DRIVER_APP_ACTION}finally{if(useSpinner&&loadingOverlay&&contentWrapper){loadingOverlay.style.display='none';contentWrapper.style.opacity='1'}}}
+document.addEventListener("DOMContentLoaded",()=>{if(infoDriverDiv){infoDriverDiv.addEventListener('click',()=>{checkAndRedirectDriver(!0)})}else{console.warn("Elemen div#infoDriverDiv (Gambar Berita) tidak ditemukan.")}
+if(infoDriverButton){infoDriverButton.addEventListener('click',()=>{checkAndRedirectDriver(!1)})}else{console.warn("Elemen div#infoDriver (Ikon Mitra) tidak ditemukan.")}})
+                </script>
+</body>
+
+</html>

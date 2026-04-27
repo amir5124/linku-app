@@ -180,11 +180,12 @@
                     </button>
                 </div>
 
-                <div class="flex bg-white border-b border-slate-200 sticky top-[52px] z-40 shadow-sm">
+                <div
+                    class="flex bg-white border-b border-slate-200 sticky top-[52px] z-40 shadow-sm overflow-x-auto no-scrollbar">
                     <template x-for="date in availableDates" :key="date">
-                        <button @click="search.departDate = date"
+                        <button @click="search.departDate = date; getSchedules()"
                             :class="search.departDate === date ? 'border-[#24b3ae] text-[#24b3ae] bg-cyan-50/30' : 'border-transparent text-slate-400 hover:text-slate-600'"
-                            class="flex-1 py-3 text-center border-b-2 transition-all duration-200 flex flex-col items-center">
+                            class="flex-1 min-w-[80px] py-3 text-center border-b-2 transition-all duration-200 flex flex-col items-center">
                             <span class="text-[10px] font-bold uppercase" x-text="formatDateShort(date)"></span>
                         </button>
                     </template>
@@ -193,7 +194,8 @@
                 <div class="p-4 space-y-6 pb-32">
                     <template x-for="item in scheduleList.filter(s => s.departDateTime.startsWith(search.departDate))"
                         :key="item.shipNumber + item.departDateTime">
-                        <div class="space-y-4 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+
+                        <div class="space-y-0 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                             <div class="p-4 relative">
                                 <div class="absolute top-0 left-0 w-1 h-full bg-[#24b3ae]"></div>
 
@@ -310,6 +312,23 @@
                     <p class="text-3xl font-black" x-text="formatCurrency(bookingResponse.totalPrice || 0)"></p>
                 </div>
 
+                <div class="bg-white border border-[#24b3ae] rounded-3xl p-5 mb-6 shadow-sm">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="contact" class="w-5 h-5 text-[#24b3ae]"></i>
+                        Data Kontak Pemesan (Untuk Kirim Tiket)
+                    </h3>
+                    <div class="space-y-4">
+                        <input type="text" x-model="bookingResponse.bookerData.name" placeholder="NAMA PEMESAN"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold uppercase">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="email" x-model="bookingResponse.bookerData.email" placeholder="EMAIL"
+                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold">
+                            <input type="tel" x-model="bookingResponse.bookerData.phone" placeholder="NO. WHATSAPP"
+                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="space-y-4" x-show="passengerDetails.length > 0">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2 px-1">
                         <i data-lucide="users" class="w-5 h-5 text-[#24b3ae]"></i>
@@ -378,14 +397,14 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
+                                    <!-- <div>
                                         <label
                                             class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Email
                                             Aktif</label>
                                         <input type="email" x-model="pax.email"
                                             class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
                                             placeholder="contoh@email.com">
-                                    </div>
+                                    </div> -->
                                     <div>
                                         <label
                                             class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">No.
@@ -396,13 +415,13 @@
                                     </div>
                                 </div>
 
-                                <div>
+                                <!-- <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Kota
                                         Asal / Alamat</label>
                                     <input type="text" x-model="pax.city"
                                         class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] uppercase"
                                         placeholder="CONTOH: JAKARTA">
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </template>
@@ -676,7 +695,7 @@
 
                     generateDateTabs(startDate) {
                         const dates = [];
-                        for (let i = 0; i < 3; i++) {
+                        for (let i = 0; i < 6; i++) { // 6 iterasi = Hari ini + 5 hari ke depan
                             const d = new Date(startDate);
                             d.setDate(d.getDate() + i);
                             dates.push(d.toISOString().split('T')[0]);
@@ -1000,16 +1019,17 @@
 
                         this.loading = true;
                         this.loadingText = 'Mencari Jadwal...';
+
+                        // Jangan reset availableDates di sini agar tab tidak hilang saat diklik
                         this.scheduleList = [];
-                        this.availableDates = [];
 
                         try {
+                            // Tentukan range pencarian (H+0 sampai H+5)
                             const start = new Date(this.search.departDate);
                             const end = new Date(this.search.departDate);
-                            end.setDate(start.getDate() + 2);
+                            end.setDate(start.getDate() + 5);
 
-                            // LOGIKA FIX: Hanya kirim vehicle '0' jika ticketType ADALAH '1' (Penumpang Saja)
-                            // Jika ticketType adalah '0' (Penumpang & Kendaraan) atau '2' (Kendaraan), gunakan vehicleID pilihan user
+                            // Logika Vehicle ID
                             let finalVehicleID = this.search.vehicleID || '0';
                             if (this.search.ticketTypeID === '1') {
                                 finalVehicleID = '0';
@@ -1026,7 +1046,7 @@
                                 roomClass: this.search.roomClassID || "0"
                             };
 
-                            console.log("📤 Payload Fix Terkirim:", JSON.stringify(payload, null, 2));
+                            console.log("📤 Payload Terkirim:", JSON.stringify(payload, null, 2));
 
                             const res = await fetch('https://darma.siappgo.id/api/shipdlu/schedule', {
                                 method: 'POST',
@@ -1036,25 +1056,29 @@
 
                             if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
                             const data = await res.json();
-                            console.log("📥 Response dari API:", data);
 
                             if (data.status === "SUCCESS") {
                                 this.scheduleList = data.schedules || [];
 
-                                // Generate Array Tanggal untuk Tab
-                                const dateArray = [];
-                                for (let i = 0; i <= 2; i++) {
-                                    const tempDate = new Date(this.search.departDate);
-                                    tempDate.setDate(tempDate.getDate() + i);
-                                    dateArray.push(tempDate.toISOString().split('T')[0]);
+                                // LOGIKA TAB: Hanya update availableDates jika saat ini masih kosong 
+                                // atau jika user melakukan pencarian baru (bukan sekedar klik tab)
+                                if (this.availableDates.length === 0 || this.stage === 'search') {
+                                    const dateArray = [];
+                                    for (let i = 0; i <= 5; i++) {
+                                        const tempDate = new Date(this.search.departDate);
+                                        tempDate.setDate(tempDate.getDate() + i);
+                                        dateArray.push(tempDate.toISOString().split('T')[0]);
+                                    }
+                                    this.availableDates = dateArray;
                                 }
-                                this.availableDates = dateArray;
 
-                                // Mapping Nama Pelabuhan
-                                const origin = this.routes.origins.find(o => o.originPort === this.search.originPort);
-                                const dest = this.routes.destinations.find(d => d.destinationPort === this.search.destinationPort);
-                                this.originName = origin ? origin.originName : this.search.originPort;
-                                this.destinationName = dest ? dest.destinationName : this.search.destinationPort;
+                                // Mapping Nama Pelabuhan (Hanya jika belum ada)
+                                if (!this.originName || this.stage === 'search') {
+                                    const origin = this.routes.origins.find(o => o.originPort === this.search.originPort);
+                                    const dest = this.routes.destinations.find(d => d.destinationPort === this.search.destinationPort);
+                                    this.originName = origin ? origin.originName : this.search.originPort;
+                                    this.destinationName = dest ? dest.destinationName : this.search.destinationPort;
+                                }
 
                                 this.stage = 'results';
                             } else {
@@ -1071,7 +1095,6 @@
                             });
                         }
                     },
-
 
                     async confirmBookingAndIssued() {
                         this.loading = true;
@@ -1090,6 +1113,13 @@
                                 return str.split('T')[0] + "T00:00:00";
                             };
 
+                            // 1. Ambil data Booker (Data kontak utama untuk e-tiket)
+                            const booker = this.bookingResponse.bookerData || {};
+
+                            // 2. Filter Penumpang Reguler
+                            const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
+
+                            // 3. Susun Payload Utama
                             let finalPayload = {
                                 userID: userID,
                                 accessToken: accessToken,
@@ -1098,27 +1128,44 @@
                                 destinationPort: String(this.selectedShip.destCode || this.search.destinationPort),
                                 departDate: getCleanDate(this.selectedShip.departDateTime),
                                 fares: this.bookingResponse.fares,
-                                listPax: [],
-                                listRoom: [],
-                                listVehicle: [] // UBAH: Inisialisasi sebagai array kosong, bukan null
-                            };
 
-                            // --- A. Mapping Penyakit (Reguler) ---
-                            const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
-                            finalPayload.listPax = regularPaxes.map(p => ({
-                                name: (p.name || "PENUMPANG").toUpperCase().trim(),
-                                gender: p.gender === "P" ? "P" : "L",
-                                dob: getCleanDate(p.dob),
-                                id: String(p.id || "1234567890"),
-                                city: (p.city || 'BALIKPAPAN').toUpperCase().trim(),
-                                paxGroup: String(p.paxGroup || "1"),
-                                paxType: String(p.paxType || "1"),
-                                paxClass: String(p.paxClass || "1"),
-                                paxInfo: p.paxInfo || "",
-                                note: p.note || "",
-                                price: Number(p.price || 0),
-                                admin: Number(p.admin || 0)
-                            }));
+                                // Sinkronisasi data kontak di level root payload
+                                name: (booker.name || regularPaxes[0]?.name || "GUEST").toUpperCase().trim(),
+                                gender: booker.gender || "L",
+                                id: String(booker.id || "1234567890"),
+                                email: booker.email || "guest@mail.com",
+                                phone: booker.phone || "08123456789",
+                                city: (booker.city || "BALIKPAPAN").toUpperCase().trim(),
+
+                                // Booker Data Object
+                                bookerData: {
+                                    name: (booker.name || regularPaxes[0]?.name || "GUEST").toUpperCase().trim(),
+                                    gender: booker.gender || "L",
+                                    id: String(booker.id || "1234567890"),
+                                    email: booker.email || "guest@mail.com",
+                                    phone: booker.phone || "08123456789",
+                                    city: (booker.city || "BALIKPAPAN").toUpperCase().trim()
+                                },
+
+                                // --- A. Mapping Penumpang (Hanya Identitas, Tanpa Email/Phone) ---
+                                listPax: regularPaxes.map(p => ({
+                                    name: (p.name || "PENUMPANG").toUpperCase().trim(),
+                                    gender: p.gender === "P" ? "P" : "L",
+                                    dob: getCleanDate(p.dob),
+                                    id: String(p.id || "1234567890"),
+                                    city: (p.city || booker.city || 'BALIKPAPAN').toUpperCase().trim(),
+                                    paxGroup: String(p.paxGroup || "1"),
+                                    paxType: String(p.paxType || "1"),
+                                    paxClass: String(p.paxClass || "1"),
+                                    paxInfo: p.paxInfo || "",
+                                    note: p.note || "",
+                                    price: Number(p.price || 0),
+                                    admin: Number(p.admin || 0)
+                                })),
+
+                                listRoom: [],
+                                listVehicle: []
+                            };
 
                             // --- B. Mapping Kamar (Room) ---
                             if (this.bookingResponse.listRoom && this.bookingResponse.listRoom.length > 0) {
@@ -1134,7 +1181,7 @@
                                             gender: p.gender === "P" ? "P" : "L",
                                             dob: getCleanDate(p.dob),
                                             id: String(p.id || "1234567890"),
-                                            city: (p.city || 'BALIKPAPAN').toUpperCase().trim(),
+                                            city: (p.city || booker.city || 'BALIKPAPAN').toUpperCase().trim(),
                                             paxGroup: "1",
                                             paxType: "1",
                                             note: ""
@@ -1142,15 +1189,13 @@
                                 }));
                             }
 
-                            // --- C. FIX: Mapping Kendaraan (Vehicle) ---
-                            // Jika di bookingResponse ada listVehicle, kita masukkan ke payload
+                            // --- C. Mapping Kendaraan (Vehicle) ---
                             if (this.bookingResponse.listVehicle && this.bookingResponse.listVehicle.length > 0) {
                                 finalPayload.listVehicle = this.bookingResponse.listVehicle.map(v => ({
-                                    // Jika form input kendaraan tidak muncul, gunakan nilai default/booker
                                     ownerName: (v.ownerName || "PEMILIK").toUpperCase().trim(),
-                                    regNo: (v.regNo || "B1234ABC").toUpperCase().trim(), // Wajib diisi
+                                    regNo: (v.regNo || "B1234ABC").toUpperCase().trim(),
                                     note: v.note || "",
-                                    city: (v.city || "BALIKPAPAN").toUpperCase().trim(),
+                                    city: (v.city || booker.city || "BALIKPAPAN").toUpperCase().trim(),
                                     price: Number(v.price || 0),
                                     admin: Number(v.admin || 0),
                                     vehicleType: String(v.vehicleType),
@@ -1160,18 +1205,7 @@
                                 }));
                             }
 
-                            // --- D. Booker Data ---
-                            const booker = this.bookingResponse.bookerData || {};
-                            finalPayload.bookerData = {
-                                name: (booker.name || regularPaxes[0]?.name || "PEMESAN").toUpperCase().trim(),
-                                gender: booker.gender || "L",
-                                id: String(booker.id || "1234567890"),
-                                email: booker.email || "guest@mail.com",
-                                phone: booker.phone || "08123456789",
-                                city: (booker.city || "BALIKPAPAN").toUpperCase().trim()
-                            };
-
-                            // 6. --- STEP 1: VALIDASI HARGA ---
+                            // 4. --- STEP 1: VALIDASI HARGA ---
                             const resPrice = await fetch('https://darma.siappgo.id/api/shipdlu/price', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -1183,11 +1217,13 @@
                                 throw new Error(dataPrice.respMessage || "Gagal verifikasi harga.");
                             }
 
+                            // Update harga real-time dari vendor
                             finalPayload.totalPrice = dataPrice.totalPrice;
                             finalPayload.salesPrice = dataPrice.salesPrice;
 
-                            // 7. --- STEP 2: PROSES ISSUED ---
+                            // 5. --- STEP 2: PROSES ISSUED ---
                             this.loadingText = 'Menerbitkan Tiket...';
+                            // Generate unique code untuk transaksi ini
                             finalPayload.numCode = "AGNT-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
 
                             const resIssued = await fetch('https://darma.siappgo.id/api/shipdlu/issued', {
