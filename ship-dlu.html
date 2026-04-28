@@ -303,7 +303,7 @@
             <div class="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                 <div
-                    class="bg-gradient-to-br from-[#24b3ae] to-[#1d9692] p-6 rounded-3xl text-white shadow-xl shadow-cyan-100">
+                    class="bg-gradient-to-br from-[#24b3ae] to-[#1d9692] p-6 rounded-[15px] text-white shadow-xl shadow-cyan-100">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Total
                             Pembayaran</span>
@@ -312,19 +312,28 @@
                     <p class="text-3xl font-black" x-text="formatCurrency(bookingResponse.totalPrice || 0)"></p>
                 </div>
 
-                <div class="bg-white border border-[#24b3ae] rounded-3xl p-5 mb-6 shadow-sm">
+                <div class="bg-white border border-[#24b3ae] rounded-[15px] p-5 mb-6 shadow-sm">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
                         <i data-lucide="contact" class="w-5 h-5 text-[#24b3ae]"></i>
                         Data Kontak Pemesan (Untuk Kirim Tiket)
                     </h3>
                     <div class="space-y-4">
                         <input type="text" x-model="bookingResponse.bookerData.name" placeholder="NAMA PEMESAN"
-                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold uppercase">
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold uppercase">
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" x-model="bookingResponse.bookerData.id" placeholder="NO. IDENTITAS / KTP"
+                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
+
+                            <input type="text" x-model="bookingResponse.bookerData.city" placeholder="KOTA / KABUPATEN"
+                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold uppercase">
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4">
                             <input type="email" x-model="bookingResponse.bookerData.email" placeholder="EMAIL"
-                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold">
+                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
                             <input type="tel" x-model="bookingResponse.bookerData.phone" placeholder="NO. WHATSAPP"
-                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold">
+                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
                         </div>
                     </div>
                 </div>
@@ -337,7 +346,7 @@
 
                     <template x-for="(pax, index) in passengerDetails" :key="index">
                         <div
-                            class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:border-[#24b3ae] transition-all">
+                            class="bg-white border border-slate-200 rounded-[15px] overflow-hidden shadow-sm hover:border-[#24b3ae] transition-all">
 
                             <div
                                 class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
@@ -347,24 +356,39 @@
                                     <span class="text-[10px] font-bold text-slate-400"
                                         x-text="'Penumpang ' + (index + 1)"></span>
                                 </div>
-
-                                <template x-if="pax.sourceType === 'VEHICLE'">
-                                    <span
-                                        class="bg-orange-100 text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Driver</span>
-                                </template>
-                                <template x-if="pax.sourceType === 'ROOM'">
-                                    <span
-                                        class="bg-purple-100 text-purple-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Fasilitas
-                                        Kamar</span>
-                                </template>
+                                <div class="flex gap-2">
+                                    <template x-if="pax.sourceType === 'VEHICLE'">
+                                        <span
+                                            class="bg-orange-100 text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Driver</span>
+                                    </template>
+                                    <template x-if="pax.sourceType === 'ROOM'">
+                                        <span
+                                            class="bg-purple-100 text-purple-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Fasilitas
+                                            Kamar</span>
+                                    </template>
+                                </div>
                             </div>
 
                             <div class="p-5 space-y-5">
                                 <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Gol.
+                                        Penumpang</label>
+                                    <select x-model="pax.paxGroup"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]">
+                                        <option value="1">Dewasa</option>
+                                        <option value="2">Anak</option>
+                                        <option value="3">Bayi</option>
+                                        <template x-if="pax.sourceType === 'ROOM'">
+                                            <option value="1">Dewasa - Kamar</option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Nama
                                         Lengkap (Sesuai KTP)</label>
                                     <input type="text" x-model="pax.name"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] focus:bg-white transition-all uppercase"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae] uppercase"
                                         placeholder="NAMA LENGKAP">
                                 </div>
 
@@ -373,7 +397,7 @@
                                         <label
                                             class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">L/P</label>
                                         <select x-model="pax.gender"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] appearance-none">
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none appearance-none">
                                             <option value="L">Laki-laki (L)</option>
                                             <option value="P">Perempuan (P)</option>
                                         </select>
@@ -383,45 +407,46 @@
                                             class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Tgl
                                             Lahir</label>
                                         <input type="date" x-model="pax.dob"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]">
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none">
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">NIK
-                                        (Nomor Induk Kependudukan)</label>
-                                    <input type="number" x-model="pax.id"
-                                        oninput="if(this.value.length > 16) this.value = this.value.slice(0, 16)"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
-                                        placeholder="16 DIGIT NIK">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">NIK
+                                            (No. Identitas)</label>
+                                        <input type="text" x-model="pax.id"
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none placeholder="
+                                            16 DIGIT NIK">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Kota
+                                            / Kab</label>
+                                        <input type="text" x-model="pax.city"
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase"
+                                            placeholder="SURABAYA">
+                                    </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <!-- <div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
                                         <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Email
-                                            Aktif</label>
-                                        <input type="email" x-model="pax.email"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
-                                            placeholder="contoh@email.com">
-                                    </div> -->
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Keterangan</label>
+                                        <input type="text" x-model="pax.note"
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase"
+                                            placeholder="CATATAN">
+                                    </div>
                                     <div>
                                         <label
                                             class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">No.
                                             WhatsApp</label>
                                         <input type="tel" x-model="pax.phone"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae]"
-                                            placeholder="08123456789">
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none"
+                                            placeholder="081234xxx">
                                     </div>
                                 </div>
-
-                                <!-- <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Kota
-                                        Asal / Alamat</label>
-                                    <input type="text" x-model="pax.city"
-                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-[#24b3ae] uppercase"
-                                        placeholder="CONTOH: JAKARTA">
-                                </div> -->
                             </div>
                         </div>
                     </template>
@@ -435,27 +460,27 @@
                         </h3>
 
                         <template x-for="(vhc, vIdx) in bookingResponse.listVehicle" :key="'v-'+vIdx">
-                            <div class="bg-orange-50 border border-orange-200 rounded-3xl p-5 space-y-5">
+                            <div class="bg-orange-50 border border-orange-200 rounded-[15px] p-5 space-y-5">
                                 <div class="flex items-center gap-2 border-b border-orange-200 pb-3">
                                     <span class="text-xs font-black text-orange-700 uppercase"
                                         x-text="vhc.vehicleInfo"></span>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label
-                                            class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nomor
-                                            Polisi (Plat)</label>
+                                            class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">No.
+                                            Polisi</label>
                                         <input type="text" x-model="vhc.regNo"
-                                            class="w-full p-4 bg-white border border-orange-200 rounded-2xl text-sm font-bold outline-none focus:border-orange-500 uppercase"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase"
                                             placeholder="KH 1234 ABC">
                                     </div>
                                     <div>
                                         <label
                                             class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nama
-                                            Pemilik (STNK)</label>
+                                            Pemilik</label>
                                         <input type="text" x-model="vhc.ownerName"
-                                            class="w-full p-4 bg-white border border-orange-200 rounded-2xl text-sm font-bold outline-none focus:border-orange-500 uppercase"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase"
                                             placeholder="SESUAI STNK">
                                     </div>
                                 </div>
@@ -466,7 +491,7 @@
 
                 <div class="flex flex-col gap-3 pt-4">
                     <button @click="confirmBookingAndIssued()"
-                        class="w-full bg-[#24b3ae] text-white py-5 rounded-2xl font-black uppercase text-sm shadow-lg shadow-cyan-100 transform active:scale-95 transition-all flex justify-center items-center gap-2">
+                        class="w-full bg-[#24b3ae] text-white py-5 rounded-[15px] font-black uppercase text-sm shadow-lg shadow-cyan-100 transform active:scale-95 transition-all flex justify-center items-center gap-2">
                         <span>Lanjutkan ke Pembayaran</span>
                         <i data-lucide="chevron-right" class="w-4 h-4"></i>
                     </button>
@@ -877,23 +902,20 @@
 
                     // --- FUNGSI 2: Helper Pembuat Object (Konsistensi Data) ---
                     createNewPaxObject(pax, source, pIdx, parentIdx = 0, label = null) {
-                        const today = new Date().toISOString().split('T')[0];
                         return {
                             sourceType: source,
                             parentIndex: parentIdx,
                             paxIndex: pIdx,
                             paxInfo: label || pax.paxInfo || 'Penumpang',
-
-                            // Input User (Kosong untuk diisi di form)
                             name: '',
                             gender: 'L',
                             dob: '1990-01-01',
                             id: '',
                             city: 'BALIKPAPAN',
                             email: '',
-                            phone: '',
+                            phone: '', // Pastikan ini ada
+                            note: '',  // Tambahkan note untuk menampung input tambahan jika perlu
 
-                            // Metadata untuk Validasi & API
                             paxGroup: String(pax.paxGroup || "1"),
                             paxType: String(pax.paxType || "1"),
                             paxClass: String(pax.paxClass || "1"),
@@ -1110,16 +1132,21 @@
 
                             const getCleanDate = (str) => {
                                 if (!str || str.startsWith('0001')) return "1990-01-01T00:00:00";
-                                return str.split('T')[0] + "T00:00:00";
+                                // Ambil tanggalnya saja (YYYY-MM-DD) lalu tambahkan jam standar
+                                const datePart = str.includes('T') ? str.split('T')[0] : str;
+                                return datePart + "T00:00:00";
                             };
 
-                            // 1. Ambil data Booker (Data kontak utama untuk e-tiket)
+                            // 1. Ambil data Booker (Kontak Utama)
                             const booker = this.bookingResponse.bookerData || {};
-
-                            // 2. Filter Penumpang Reguler
+                            // Jika nama pemesan kosong, ambil dari penumpang pertama
+                            if (!booker.name && regularPaxes.length > 0) {
+                                booker.name = regularPaxes[0].name;
+                                booker.phone = regularPaxes[0].phone;
+                            }
                             const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
 
-                            // 3. Susun Payload Utama
+                            // 2. Susun Payload (Sesuai Skema Request API Price & Issued)
                             let finalPayload = {
                                 userID: userID,
                                 accessToken: accessToken,
@@ -1129,36 +1156,35 @@
                                 departDate: getCleanDate(this.selectedShip.departDateTime),
                                 fares: this.bookingResponse.fares,
 
-                                // Sinkronisasi data kontak di level root payload
-                                name: (booker.name || regularPaxes[0]?.name || "GUEST").toUpperCase().trim(),
+                                // Data Booker (Root Level & Object)
+                                name: (booker.name || "").toUpperCase().trim(),
                                 gender: booker.gender || "L",
-                                id: String(booker.id || "1234567890"),
-                                email: booker.email || "guest@mail.com",
-                                phone: booker.phone || "08123456789",
-                                city: (booker.city || "BALIKPAPAN").toUpperCase().trim(),
-
-                                // Booker Data Object
+                                id: String(booker.id || ""),
+                                email: booker.email || "",
+                                phone: booker.phone || "",
+                                city: (booker.city || "SURABAYA").toUpperCase().trim(),
                                 bookerData: {
-                                    name: (booker.name || regularPaxes[0]?.name || "GUEST").toUpperCase().trim(),
+                                    name: (booker.name || "").toUpperCase().trim(),
                                     gender: booker.gender || "L",
-                                    id: String(booker.id || "1234567890"),
-                                    email: booker.email || "guest@mail.com",
-                                    phone: booker.phone || "08123456789",
-                                    city: (booker.city || "BALIKPAPAN").toUpperCase().trim()
+                                    id: String(booker.id || ""),
+                                    email: booker.email || "",
+                                    phone: booker.phone || "",
+                                    city: (booker.city || "SURABAYA").toUpperCase().trim()
                                 },
 
-                                // --- A. Mapping Penumpang (Hanya Identitas, Tanpa Email/Phone) ---
+                                // --- A. Mapping Penumpang Reguler ---
                                 listPax: regularPaxes.map(p => ({
-                                    name: (p.name || "PENUMPANG").toUpperCase().trim(),
+                                    name: (p.name || "").toUpperCase().trim(),
                                     gender: p.gender === "P" ? "P" : "L",
                                     dob: getCleanDate(p.dob),
-                                    id: String(p.id || "1234567890"),
-                                    city: (p.city || booker.city || 'BALIKPAPAN').toUpperCase().trim(),
+                                    id: String(p.id || ""),
+                                    city: (p.city || booker.city || "SURABAYA").toUpperCase().trim(),
+                                    note: (p.note || "").toUpperCase().trim(),
+                                    phone: p.phone || booker.phone || "", // Kirim phone agar tidak NULL
                                     paxGroup: String(p.paxGroup || "1"),
                                     paxType: String(p.paxType || "1"),
                                     paxClass: String(p.paxClass || "1"),
                                     paxInfo: p.paxInfo || "",
-                                    note: p.note || "",
                                     price: Number(p.price || 0),
                                     admin: Number(p.admin || 0)
                                 })),
@@ -1167,45 +1193,57 @@
                                 listVehicle: []
                             };
 
-                            // --- B. Mapping Kamar (Room) ---
+                            // --- B. Mapping Kamar (Room) + Penumpang Kamar ---
                             if (this.bookingResponse.listRoom && this.bookingResponse.listRoom.length > 0) {
                                 finalPayload.listRoom = this.bookingResponse.listRoom.map((room, rIdx) => ({
                                     info: room.info,
                                     roomClass: room.roomClass,
-                                    price: room.price,
-                                    admin: room.admin,
+                                    price: Number(room.price || 0),
+                                    admin: Number(room.admin || 0),
                                     paxes: this.passengerDetails
                                         .filter(p => p.sourceType === 'ROOM' && p.parentIndex === rIdx)
                                         .map(p => ({
-                                            name: (p.name || "PENUMPANG").toUpperCase().trim(),
+                                            name: (p.name || "").toUpperCase().trim(),
                                             gender: p.gender === "P" ? "P" : "L",
                                             dob: getCleanDate(p.dob),
-                                            id: String(p.id || "1234567890"),
-                                            city: (p.city || booker.city || 'BALIKPAPAN').toUpperCase().trim(),
-                                            paxGroup: "1",
-                                            paxType: "1",
-                                            note: ""
+                                            id: String(p.id || ""),
+                                            city: (p.city || booker.city || "SURABAYA").toUpperCase().trim(),
+                                            note: (p.note || "").toUpperCase().trim(),
+                                            phone: p.phone || booker.phone || "", // Kirim phone di kamar
+                                            paxGroup: String(p.paxGroup || "1"),
+                                            admin: Number(p.admin || 0)
                                         }))
                                 }));
                             }
 
                             // --- C. Mapping Kendaraan (Vehicle) ---
                             if (this.bookingResponse.listVehicle && this.bookingResponse.listVehicle.length > 0) {
-                                finalPayload.listVehicle = this.bookingResponse.listVehicle.map(v => ({
-                                    ownerName: (v.ownerName || "PEMILIK").toUpperCase().trim(),
-                                    regNo: (v.regNo || "B1234ABC").toUpperCase().trim(),
-                                    note: v.note || "",
-                                    city: (v.city || booker.city || "BALIKPAPAN").toUpperCase().trim(),
-                                    price: Number(v.price || 0),
-                                    admin: Number(v.admin || 0),
-                                    vehicleType: String(v.vehicleType),
-                                    vehicleFare: Number(v.vehicleFare),
-                                    vehicleTax: Number(v.vehicleTax),
-                                    vehicleInfo: v.vehicleInfo
-                                }));
+                                finalPayload.listVehicle = this.bookingResponse.listVehicle.map((v, vIdx) => {
+                                    const driver = this.passengerDetails.find(p => p.sourceType === 'VEHICLE' && p.parentIndex === vIdx);
+
+                                    return {
+                                        ownerName: (v.ownerName || "").toUpperCase().trim(),
+                                        regNo: (v.regNo || "").toUpperCase().trim(),
+                                        city: (v.city || booker.city || "SURABAYA").toUpperCase().trim(),
+                                        note: (v.note || "").toUpperCase().trim(),
+                                        price: Number(v.price || 0),
+                                        admin: Number(v.admin || 0),
+                                        vehicleTax: Number(v.vehicleTax || 0),
+                                        vehicleFare: Number(v.vehicleFare || 0),
+                                        vehicleType: String(v.vehicleType),
+                                        vehicleInfo: v.vehicleInfo,
+                                        // Sesuai requirement API DLU biasanya butuh detail driver di dalam objek vehicle
+                                        driverName: driver ? (driver.name || "").toUpperCase().trim() : "",
+                                        driverId: driver ? String(driver.id || "") : "",
+                                        driverPhone: driver ? (driver.phone || booker.phone) : booker.phone,
+                                        driverGender: driver ? driver.gender : "L",
+                                        driverBirthDate: driver ? getCleanDate(driver.dob) : "1990-01-01T00:00:00"
+                                    };
+                                });
                             }
 
-                            // 4. --- STEP 1: VALIDASI HARGA ---
+                            // 3. --- STEP 1: HIT API PRICE (VALIDASI) ---
+                            this.loadingText = 'Memvalidasi Harga...';
                             const resPrice = await fetch('https://darma.siappgo.id/api/shipdlu/price', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -1214,16 +1252,17 @@
 
                             const dataPrice = await resPrice.json();
                             if (dataPrice.status !== "SUCCESS") {
-                                throw new Error(dataPrice.respMessage || "Gagal verifikasi harga.");
+                                throw new Error(dataPrice.respMessage || "Gagal verifikasi harga terbaru.");
                             }
 
-                            // Update harga real-time dari vendor
+                            // Update harga fix hasil kalkulasi server sebelum Issued
                             finalPayload.totalPrice = dataPrice.totalPrice;
                             finalPayload.salesPrice = dataPrice.salesPrice;
 
-                            // 5. --- STEP 2: PROSES ISSUED ---
+                            // 4. --- STEP 2: HIT API ISSUED (CETAK TIKET) ---
                             this.loadingText = 'Menerbitkan Tiket...';
-                            // Generate unique code untuk transaksi ini
+
+                            // Tambahkan numCode unik untuk Issued
                             finalPayload.numCode = "AGNT-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
 
                             const resIssued = await fetch('https://darma.siappgo.id/api/shipdlu/issued', {
@@ -1237,7 +1276,7 @@
                             if (dataIssued.status === "SUCCESS") {
                                 this.issuedResponse = dataIssued;
                                 this.stage = 'issued_success';
-                                this.showToast("Booking & Issued Berhasil!", "success");
+                                this.showToast("Tiket Berhasil Diterbitkan!", "success");
                                 window.scrollTo(0, 0);
                             } else {
                                 throw new Error(dataIssued.respMessage || "Proses Issued gagal.");
