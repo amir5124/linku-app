@@ -342,20 +342,17 @@
                         <input type="text" x-model="bookingResponse.bookerData.name" placeholder="NAMA PEMESAN"
                             class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold uppercase">
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" x-model="bookingResponse.bookerData.id" placeholder="NO. IDENTITAS / KTP"
-                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
+                        <input type="text" x-model="bookingResponse.bookerData.id" placeholder="NO. IDENTITAS / KTP"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
 
-                            <input type="text" x-model="bookingResponse.bookerData.city" placeholder="KOTA / KABUPATEN"
-                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold uppercase">
-                        </div>
+                        <input type="text" x-model="bookingResponse.bookerData.city" placeholder="KOTA / KABUPATEN"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold uppercase">
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="email" x-model="bookingResponse.bookerData.email" placeholder="EMAIL"
-                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
-                            <input type="tel" x-model="bookingResponse.bookerData.phone" placeholder="NO. WHATSAPP"
-                                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
-                        </div>
+                        <input type="email" x-model="bookingResponse.bookerData.email" placeholder="EMAIL"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
+
+                        <input type="number" x-model="bookingResponse.bookerData.phone" placeholder="NO. WHATSAPP"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
                     </div>
                 </div>
 
@@ -368,7 +365,6 @@
                     <template x-for="(pax, index) in passengerDetails" :key="index">
                         <div
                             class="bg-white border border-slate-200 rounded-[15px] overflow-hidden shadow-sm hover:border-[#24b3ae] transition-all">
-
                             <div
                                 class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
                                 <div class="flex flex-col">
@@ -438,8 +434,8 @@
                                             class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">NIK
                                             (No. Identitas)</label>
                                         <input type="text" x-model="pax.id"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none placeholder="
-                                            16 DIGIT NIK">
+                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none"
+                                            placeholder="16 DIGIT NIK">
                                     </div>
                                     <div>
                                         <label
@@ -463,7 +459,7 @@
                                         <label
                                             class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">No.
                                             WhatsApp</label>
-                                        <input type="tel" x-model="pax.phone"
+                                        <input type="number" x-model="pax.phone"
                                             class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none"
                                             placeholder="081234xxx">
                                     </div>
@@ -617,7 +613,8 @@
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pembayaran
                             </p>
                             <p class="text-lg font-black text-white"
-                                x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(issuedResponse.ticketPrice)"></p>
+                                x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(Number(issuedResponse.ticketPrice) + Number(serviceFee))">
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -1296,7 +1293,7 @@
                             this.loadingText = 'Menerbitkan Tiket...';
 
                             // Tambahkan numCode unik untuk Issued
-                           finalPayload.numCode = "LINKU-" + Date.now().toString().slice(-6) + Math.random().toString(36).substring(2, 5).toUpperCase();
+                            finalPayload.numCode = "LINKU-" + Date.now().toString().slice(-6) + Math.random().toString(36).substring(2, 5).toUpperCase();
 
                             const resIssued = await fetch('https://darma.siappgo.id/api/shipdlu/issued', {
                                 method: 'POST',
@@ -1316,7 +1313,8 @@
                                         body: JSON.stringify({
                                             resData: dataIssued,
                                             bookerData: finalPayload.bookerData,
-                                            serviceFee: this.serviceFee
+                                            serviceFee: this.serviceFee,
+                                            username: 'amir' // <--- Menambahkan field username dengan nilai 'amir'
                                         })
                                     });
                                 } catch (dbErr) {
