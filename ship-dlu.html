@@ -302,14 +302,35 @@
         <template x-if="stage === 'passenger_form'">
             <div class="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                <div
-                    class="bg-gradient-to-br from-[#24b3ae] to-[#1d9692] p-6 rounded-[15px] text-white shadow-xl shadow-cyan-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Total
-                            Pembayaran</span>
-                        <i data-lucide="credit-card" class="w-5 h-5 opacity-80"></i>
+                <div class="space-y-4">
+                    <div
+                        class="bg-gradient-to-br from-[#24b3ae] to-[#1d9692] p-6 rounded-[15px] text-white shadow-xl shadow-cyan-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Total Pembayaran
+                                Akhir</span>
+                            <i data-lucide="credit-card" class="w-5 h-5 opacity-80"></i>
+                        </div>
+                        <p class="text-3xl font-black" x-text="formatCurrency(totalFinal)"></p>
+                        <div class="mt-2 text-[10px] opacity-70 italic" x-show="serviceFee > 0">
+                            *Termasuk biaya layanan <span x-text="formatCurrency(serviceFee)"></span>
+                        </div>
                     </div>
-                    <p class="text-3xl font-black" x-text="formatCurrency(bookingResponse.totalPrice || 0)"></p>
+
+                    <div class="bg-white border border-slate-200 rounded-[15px] p-5 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm">
+                            <i data-lucide="plus-circle" class="w-4 h-4 text-[#24b3ae]"></i>
+                            Biaya Layanan / Admin (Opsional)
+                        </h3>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">Rp</span>
+                            <input type="number" x-model="serviceFee" placeholder="0"
+                                class="w-full p-4 pl-12 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold focus:border-[#24b3ae] outline-none transition-all"
+                                @input="serviceFee = $event.target.value < 0 ? 0 : $event.target.value">
+                        </div>
+                        <p class="text-[9px] text-slate-400 mt-2 px-1">*Biaya ini akan ditambahkan ke total tagihan dan
+                            disimpan ke sistem.</p>
+                    </div>
                 </div>
 
                 <div class="bg-white border border-[#24b3ae] rounded-[15px] p-5 mb-6 shadow-sm">
@@ -717,6 +738,7 @@
                     searchCityQuery: '',
                     availableDates: [],
                     scheduleList: [],
+                    serviceFee: 0,
 
                     generateDateTabs(startDate) {
                         const dates = [];
@@ -1118,6 +1140,14 @@
                         }
                     },
 
+                    // --- Fungsi Helper untuk tampilan UI ---
+                    get totalFinal() {
+                        // Menghitung total harga tiket + biaya admin tambahan dari user
+                        const basePrice = this.bookingResponse ? (this.bookingResponse.totalPrice || 0) : 0;
+                        return basePrice + Number(this.serviceFee || 0);
+                    },
+
+                    // --- Fungsi Utama Proses Booking & Issued ---
                     async confirmBookingAndIssued() {
                         this.loading = true;
                         this.loadingText = 'Memproses Pesanan...';
@@ -1130,23 +1160,24 @@
                                 throw new Error("Sesi tidak valid. Silakan ulangi pencarian.");
                             }
 
+                            // Helper membersihkan format tanggal untuk API DLU
                             const getCleanDate = (str) => {
                                 if (!str || str.startsWith('0001')) return "1990-01-01T00:00:00";
-                                // Ambil tanggalnya saja (YYYY-MM-DD) lalu tambahkan jam standar
                                 const datePart = str.includes('T') ? str.split('T')[0] : str;
                                 return datePart + "T00:00:00";
                             };
 
-                            // 1. Ambil data Booker (Kontak Utama)
+                            // Deklarasikan regularPaxes terlebih dahulu sebelum digunakan oleh objek booker
+                            const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
                             const booker = this.bookingResponse.bookerData || {};
+
                             // Jika nama pemesan kosong, ambil dari penumpang pertama
                             if (!booker.name && regularPaxes.length > 0) {
                                 booker.name = regularPaxes[0].name;
                                 booker.phone = regularPaxes[0].phone;
                             }
-                            const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
 
-                            // 2. Susun Payload (Sesuai Skema Request API Price & Issued)
+                            // 1. Susun Payload (Menyertakan serviceFee untuk dikelola backend)
                             let finalPayload = {
                                 userID: userID,
                                 accessToken: accessToken,
@@ -1156,7 +1187,10 @@
                                 departDate: getCleanDate(this.selectedShip.departDateTime),
                                 fares: this.bookingResponse.fares,
 
-                                // Data Booker (Root Level & Object)
+                                // TAMBAHKAN INI: Nilai admin dari input user (x-model="serviceFee")
+                                service_fee: Number(this.serviceFee || 0),
+
+                                // Data Booker (Root Level)
                                 name: (booker.name || "").toUpperCase().trim(),
                                 gender: booker.gender || "L",
                                 id: String(booker.id || ""),
@@ -1180,7 +1214,7 @@
                                     id: String(p.id || ""),
                                     city: (p.city || booker.city || "SURABAYA").toUpperCase().trim(),
                                     note: (p.note || "").toUpperCase().trim(),
-                                    phone: p.phone || booker.phone || "", // Kirim phone agar tidak NULL
+                                    phone: p.phone || booker.phone || "",
                                     paxGroup: String(p.paxGroup || "1"),
                                     paxType: String(p.paxType || "1"),
                                     paxClass: String(p.paxClass || "1"),
@@ -1193,7 +1227,7 @@
                                 listVehicle: []
                             };
 
-                            // --- B. Mapping Kamar (Room) + Penumpang Kamar ---
+                            // --- B. Mapping Kamar (Room) ---
                             if (this.bookingResponse.listRoom && this.bookingResponse.listRoom.length > 0) {
                                 finalPayload.listRoom = this.bookingResponse.listRoom.map((room, rIdx) => ({
                                     info: room.info,
@@ -1209,7 +1243,7 @@
                                             id: String(p.id || ""),
                                             city: (p.city || booker.city || "SURABAYA").toUpperCase().trim(),
                                             note: (p.note || "").toUpperCase().trim(),
-                                            phone: p.phone || booker.phone || "", // Kirim phone di kamar
+                                            phone: p.phone || booker.phone || "",
                                             paxGroup: String(p.paxGroup || "1"),
                                             admin: Number(p.admin || 0)
                                         }))
@@ -1232,7 +1266,6 @@
                                         vehicleFare: Number(v.vehicleFare || 0),
                                         vehicleType: String(v.vehicleType),
                                         vehicleInfo: v.vehicleInfo,
-                                        // Sesuai requirement API DLU biasanya butuh detail driver di dalam objek vehicle
                                         driverName: driver ? (driver.name || "").toUpperCase().trim() : "",
                                         driverId: driver ? String(driver.id || "") : "",
                                         driverPhone: driver ? (driver.phone || booker.phone) : booker.phone,
@@ -1242,7 +1275,7 @@
                                 });
                             }
 
-                            // 3. --- STEP 1: HIT API PRICE (VALIDASI) ---
+                            // 2. --- STEP 1: HIT API PRICE (VALIDASI) ---
                             this.loadingText = 'Memvalidasi Harga...';
                             const resPrice = await fetch('https://darma.siappgo.id/api/shipdlu/price', {
                                 method: 'POST',
@@ -1255,15 +1288,15 @@
                                 throw new Error(dataPrice.respMessage || "Gagal verifikasi harga terbaru.");
                             }
 
-                            // Update harga fix hasil kalkulasi server sebelum Issued
-                            finalPayload.totalPrice = dataPrice.totalPrice;
-                            finalPayload.salesPrice = dataPrice.salesPrice;
+                            // Update harga total (Harga Tiket + Admin User)
+                            finalPayload.totalPrice = Number(dataPrice.totalPrice) + Number(this.serviceFee || 0);
+                            finalPayload.salesPrice = Number(dataPrice.salesPrice) + Number(this.serviceFee || 0);
 
-                            // 4. --- STEP 2: HIT API ISSUED (CETAK TIKET) ---
+                            // 3. --- STEP 2: HIT API ISSUED (CETAK TIKET) ---
                             this.loadingText = 'Menerbitkan Tiket...';
 
                             // Tambahkan numCode unik untuk Issued
-                            finalPayload.numCode = "AGNT-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+                           finalPayload.numCode = "LINKU-" + Date.now().toString().slice(-6) + Math.random().toString(36).substring(2, 5).toUpperCase();
 
                             const resIssued = await fetch('https://darma.siappgo.id/api/shipdlu/issued', {
                                 method: 'POST',
@@ -1274,6 +1307,23 @@
                             const dataIssued = await resIssued.json();
 
                             if (dataIssued.status === "SUCCESS") {
+                                // --- BARU: STEP 3: HIT DATABASE LOCAL UNTUK INSERT ---
+                                try {
+                                    this.loadingText = 'Menyimpan Riwayat...';
+                                    await fetch('https://darma.siappgo.id/api/shipdlu/save-booking', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            resData: dataIssued,
+                                            bookerData: finalPayload.bookerData,
+                                            serviceFee: this.serviceFee
+                                        })
+                                    });
+                                } catch (dbErr) {
+                                    // Jika DB gagal, jangan hentikan proses sukses tiket
+                                    console.error("⚠️ Database Error:", dbErr);
+                                }
+
                                 this.issuedResponse = dataIssued;
                                 this.stage = 'issued_success';
                                 this.showToast("Tiket Berhasil Diterbitkan!", "success");
@@ -1284,7 +1334,7 @@
 
                         } catch (e) {
                             console.error("⛔ System Error:", e);
-                            this.showToast(e.message || "Terjadi gangguan sistem");
+                            this.showToast(e.message || "Terjadi gangguan sistem", "error");
                         } finally {
                             this.loading = false;
                         }

@@ -860,25 +860,25 @@ padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
 
 
     <div id="loadingIndicator" style="display:none; text-align:center;">Loading...</div>
- <script>
-    // Gunakan nama yang berbeda, misalnya 'jagelUser'
-    const jagelUser = '{username}'; 
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // Logika pemilihan username
-    const usernameDitemukan = urlParams.get('username') || 
-                              (jagelUser !== '{' + 'username' + '}' ? jagelUser : null) || 
-                              window.dataJagel?.username || 
-                              'herry1';
+    <script>
+        // Gunakan nama yang berbeda, misalnya 'jagelUser'
+        const jagelUser = '{username}';
+        const urlParams = new URLSearchParams(window.location.search);
 
-    // Simpan ke Global - INI YANG PALING PENTING
-    window.topupUser = usernameDitemukan; 
-    
-    console.log("Username global disiapkan:", window.topupUser);
-</script>
+        // Logika pemilihan username
+        const usernameDitemukan = urlParams.get('username') ||
+            (jagelUser !== '{' + 'username' + '}' ? jagelUser : null) ||
+            window.dataJagel?.username ||
+            'herry1';
 
-<script src="https://rtsindonesia.biz.id/app-topup.js"></script>
+        // Simpan ke Global - INI YANG PALING PENTING
+        window.topupUser = usernameDitemukan;
 
-<script src="https://rtsindonesia.biz.id/app-topup.js"></script>
-    </body>
-    </html>
+        console.log("Username global disiapkan:", window.topupUser);
+    </script>
+
+    <script src="https://rtsindonesia.biz.id/app-topup.js"></script>
+
+</body>
+
+</html>
