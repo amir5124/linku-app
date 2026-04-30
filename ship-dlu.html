@@ -302,6 +302,7 @@
         <template x-if="stage === 'passenger_form'">
             <div class="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
+                <!-- Ringkasan Pembayaran -->
                 <div class="space-y-4">
                     <div
                         class="bg-gradient-to-br from-[#24b3ae] to-[#1d9692] p-6 rounded-[15px] text-white shadow-xl shadow-cyan-100">
@@ -316,6 +317,7 @@
                         </div>
                     </div>
 
+                    <!-- Input Service Fee -->
                     <div class="bg-white border border-slate-200 rounded-[15px] p-5 shadow-sm">
                         <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm">
                             <i data-lucide="plus-circle" class="w-4 h-4 text-[#24b3ae]"></i>
@@ -333,6 +335,7 @@
                     </div>
                 </div>
 
+                <!-- Data Kontak Pemesan -->
                 <div class="bg-white border border-[#24b3ae] rounded-[15px] p-5 mb-6 shadow-sm">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
                         <i data-lucide="contact" class="w-5 h-5 text-[#24b3ae]"></i>
@@ -356,6 +359,7 @@
                     </div>
                 </div>
 
+                <!-- Data Penumpang -->
                 <div class="space-y-4" x-show="passengerDetails.length > 0">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2 px-1">
                         <i data-lucide="users" class="w-5 h-5 text-[#24b3ae]"></i>
@@ -374,6 +378,37 @@
                                         x-text="'Penumpang ' + (index + 1)"></span>
                                 </div>
                                 <div class="flex gap-2">
+                                    <!-- Toggle Sama dengan Pemesan (Hanya Penumpang Pertama) -->
+                                    <template x-if="index === 0">
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <span
+                                                class="text-[9px] font-bold text-slate-500 group-hover:text-[#24b3ae] transition-colors">SAMA
+                                                DENGAN PEMESAN</span>
+                                            <div class="relative">
+                                                <input type="checkbox" class="sr-only" @change="if($event.target.checked) { 
+                                                pax.name = bookingResponse.bookerData.name; 
+                                                pax.id = bookingResponse.bookerData.id; 
+                                                pax.city = bookingResponse.bookerData.city;
+                                                pax.phone = bookingResponse.bookerData.phone;
+                                            }">
+                                                <div class="w-8 h-4 bg-slate-300 rounded-full shadow-inner"></div>
+                                                <div
+                                                    class="dot absolute w-2 h-2 bg-white rounded-full left-1 top-1 transition-all">
+                                                </div>
+                                            </div>
+                                            <style>
+                                                input:checked~.dot {
+                                                    transform: translateX(100%);
+                                                    background-color: #24b3ae;
+                                                }
+
+                                                input:checked~div:first-of-type {
+                                                    background-color: #ccf0ee;
+                                                }
+                                            </style>
+                                        </label>
+                                    </template>
+
                                     <template x-if="pax.sourceType === 'VEHICLE'">
                                         <span
                                             class="bg-orange-100 text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Driver</span>
@@ -387,6 +422,7 @@
                             </div>
 
                             <div class="p-5 space-y-5">
+                                <!-- Kolom Golongan -->
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Gol.
                                         Penumpang</label>
@@ -401,6 +437,7 @@
                                     </select>
                                 </div>
 
+                                <!-- Kolom Nama -->
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Nama
                                         Lengkap (Sesuai KTP)</label>
@@ -409,66 +446,72 @@
                                         placeholder="NAMA LENGKAP">
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">L/P</label>
-                                        <select x-model="pax.gender"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none appearance-none">
-                                            <option value="L">Laki-laki (L)</option>
-                                            <option value="P">Perempuan (P)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Tgl
-                                            Lahir</label>
-                                        <input type="date" x-model="pax.dob"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none">
-                                    </div>
+                                <!-- Kolom Gender -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Jenis Kelamin
+                                    </label>
+                                    <select x-model="pax.gender"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none appearance-none focus:border-[#24b3ae]">
+                                        <option value="L">Laki-laki (L)</option>
+                                        <option value="P">Perempuan (P)</option>
+                                    </select>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">NIK
-                                            (No. Identitas)</label>
-                                        <input type="text" x-model="pax.id"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none"
-                                            placeholder="16 DIGIT NIK">
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Kota
-                                            / Kab</label>
-                                        <input type="text" x-model="pax.city"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase"
-                                            placeholder="SURABAYA">
-                                    </div>
+                                <!-- Kolom Tgl Lahir -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Tgl Lahir
+                                    </label>
+                                    <input type="date" x-model="pax.dob"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]">
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Keterangan</label>
-                                        <input type="text" x-model="pax.note"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase"
-                                            placeholder="CATATAN">
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">No.
-                                            WhatsApp</label>
-                                        <input type="number" x-model="pax.phone"
-                                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none"
-                                            placeholder="081234xxx">
-                                    </div>
+                                <!-- Kolom NIK -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        NIK (No. Identitas)
+                                    </label>
+                                    <input type="text" x-model="pax.id"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]"
+                                        placeholder="16 DIGIT NIK">
+                                </div>
+
+                                <!-- Kolom Kota -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Kota / Kab
+                                    </label>
+                                    <input type="text" x-model="pax.city"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase focus:border-[#24b3ae]"
+                                        placeholder="SURABAYA">
+                                </div>
+
+                                <!-- Kolom Catatan -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Keterangan / Catatan
+                                    </label>
+                                    <input type="text" x-model="pax.note"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase focus:border-[#24b3ae]"
+                                        placeholder="CATATAN">
+                                </div>
+
+                                <!-- Kolom WA -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        No. WhatsApp
+                                    </label>
+                                    <input type="number" x-model="pax.phone"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]"
+                                        placeholder="081234xxx">
                                 </div>
                             </div>
                         </div>
                     </template>
                 </div>
 
+                <!-- Detail Kendaraan -->
                 <template x-if="bookingResponse.listVehicle && bookingResponse.listVehicle.length > 0">
                     <div class="space-y-4">
                         <h3 class="font-bold text-slate-800 flex items-center gap-2 px-1">
@@ -489,7 +532,7 @@
                                             class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">No.
                                             Polisi</label>
                                         <input type="text" x-model="vhc.regNo"
-                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase focus:border-orange-500 outline-none"
                                             placeholder="KH 1234 ABC">
                                     </div>
                                     <div>
@@ -497,7 +540,7 @@
                                             class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nama
                                             Pemilik</label>
                                         <input type="text" x-model="vhc.ownerName"
-                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase focus:border-orange-500 outline-none"
                                             placeholder="SESUAI STNK">
                                     </div>
                                 </div>
@@ -506,6 +549,7 @@
                     </div>
                 </template>
 
+                <!-- Action Buttons -->
                 <div class="flex flex-col gap-3 pt-4">
                     <button @click="confirmBookingAndIssued()"
                         class="w-full bg-[#24b3ae] text-white py-5 rounded-[15px] font-black uppercase text-sm shadow-lg shadow-cyan-100 transform active:scale-95 transition-all flex justify-center items-center gap-2">
@@ -1314,7 +1358,8 @@
                                             resData: dataIssued,
                                             bookerData: finalPayload.bookerData,
                                             serviceFee: this.serviceFee,
-                                            username: 'amir' // <--- Menambahkan field username dengan nilai 'amir'
+                                            username: 'amir',
+                                            rawPaxes: finalPayload.listPax
                                         })
                                     });
                                 } catch (dbErr) {
