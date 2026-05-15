@@ -1,0 +1,1225 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Paket Umrah</title>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url(https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap);
+
+        body {
+            font-family: "Baloo 2", sans-serif
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 1.25rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, rgb(99 102 241 / .15), rgb(59 130 246 / .08));
+            border-radius: 2px
+        }
+
+        .video-slider-btn:active,
+        .video-slider-btn:focus {
+            outline: none
+        }
+
+        .br-10 {
+            border-radius: 5px
+        }
+
+        input[type=number] {
+            width: 100%;
+            margin: 0 0;
+            outline: none;
+            padding: 8px;
+            height: 40px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            background-color: #fff;
+            border: none;
+            position: relative;
+            box-shadow: 0 0 3px rgb(0 0 0 / .2)
+        }
+
+        input[type=number]::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #000;
+            transform: scaleX(0);
+            transition: transform 0.3s ease
+        }
+
+        input[type=number]:focus::after {
+            transform: scaleX(1)
+        }
+
+        .video-slider-btn:active,
+        .video-slider-btn:focus {
+            outline: none
+        }
+
+        .br-10 {
+            border-radius: 5px
+        }
+
+        button[type="submit"] {
+            background-color: #24b3ae;
+            color: #fff;
+            border: none;
+            width: 100%;
+            border-radius: 4px;
+            padding: 10px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer
+        }
+
+        button[type="submit"]:hover {
+            background-color: #24b3ae;
+            width: 100%
+        }
+
+        button {
+            border: none !important
+        }
+
+        .text-14 {
+            font-size: 14px
+        }
+
+        .radios label {
+            display: inline-block;
+            background-color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            color: gray;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #fff;
+            position: relative;
+            box-shadow: 0 0 3px rgb(0 0 0 / .2)
+        }
+
+        .radios input[type="radio"] {
+            display: none
+        }
+
+        .radios input[type="radio"]:checked+label {
+            background-color: #24b3ae;
+            color: #fff;
+            border: 1px solid #24b3ae
+        }
+
+        .radioso {
+            background-color: #fff;
+            box-shadow: 0 0 3px rgb(0 0 0 / .2);
+            width: 100%;
+            height: 70px;
+            border-radius: 5px;
+            padding: 5px
+        }
+
+        .method {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: border 0.3s ease
+        }
+
+        .method:hover {
+            border-color: #24b3ae
+        }
+
+        .method label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin: 0
+        }
+
+        .method img {
+            width: 40px;
+            height: auto
+        }
+
+        .admin-fee {
+            font-size: 14px;
+            color: #e91e63;
+            margin-top: -5px;
+            margin-left: 5px;
+            margin-bottom: 20px
+        }
+
+        h6 {
+            font-weight: 700;
+            margin-top: 16px
+        }
+
+        .payment-container {
+            background-color: #fff;
+            top: 0;
+            height: 100%;
+            box-shadow: 0 4px 10px rgb(0 0 0 / .1)
+        }
+
+        .bank-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6
+        }
+
+        .bank-logo img {
+            width: 100%;
+            height: 20px;
+            object-fit: contain
+        }
+
+        .bank-details {
+            flex-grow: 1;
+            margin-left: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center
+        }
+
+        .bank-details p {
+            font-size: 20px;
+            color: #24B3AE
+        }
+
+        .bank-details span {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1;
+            color: #6c757d
+        }
+
+        .clipboard-icon {
+            font-size: 20px;
+            color: #007bff;
+            cursor: pointer;
+            margin-left: 10px
+        }
+
+        .summary {
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .summary p {
+            margin: 5px 0;
+            font-size: 16px
+        }
+
+        .total-payment {
+            font-size: 20px;
+            font-weight: 700;
+            color: #24b3ae
+        }
+
+        .notice {
+            background-color: #fff3cd;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            text-align: justify;
+            margin: 0 0
+        }
+
+        .bg-pembayaran {
+            background-color: #24b3ae;
+            height: 50px;
+            font-size: 14px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2
+        }
+
+        .bg-va {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 8px;
+            box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 2px 2px rgb(0 0 0 / .12), 2px 0 2px rgb(0 0 0 / .1), -2px 0 2px rgb(0 0 0 / .1)
+        }
+
+        .custom-hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin-top: 10px
+        }
+
+        .bg-copy {
+            background-color: #24B3AE;
+            height: 25px;
+            width: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0
+            }
+
+            100% {
+                background-position: 200% 0
+            }
+        }
+
+        #downloadQR {
+            background-color: #24B3AE;
+            color: #fff;
+            border: none;
+            padding: 5px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease
+        }
+
+        #downloadQR:hover {
+            background-color: #24B3AE
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 antialiased">
+    <main id="utamaHal" class="max-w-4xl mx-auto lg:p-12">
+        <article class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <header class="p-6 sm:p-8 border-b">
+                <div class="flex items-start gap-4">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-semibold text-slate-800">
+                            ✨ Paket Umroh Awal Musim 1448 Juli 2026
+                        </h1>
+
+                        <div class="relative max-w-2xl mx-auto mt-6">
+                            <div class="overflow-hidden rounded-xl">
+                                <div class="slide transition-transform duration-500 ease-in-out">
+                                    <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1778810360/WhatsApp_Image_2026-05-15_at_08.39.23_twxj0i.jpg"
+                                        alt="Makkah" class="w-full h-auto block mx-auto">
+                                </div>
+                            </div>
+
+                            <button
+                                class="prev absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg hover:bg-opacity-70">
+                                &#10094;
+                            </button>
+                            <button
+                                class="next absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg hover:bg-opacity-70">
+                                &#10095;
+                            </button>
+                        </div>
+
+                        <p class="mt-4 text-slate-600 leading-relaxed">
+                            Wujudkan niat suci ke Baitullah dengan perjalanan nyaman, aman, dan penuh keberkahan.
+                            Didampingi Mutawwif berpengalaman dengan fasilitas terbaik dari <strong>PT Banua Mubarok
+                                Group</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
+                    <div class="flex items-center gap-2">
+                        <iconify-icon icon="mdi:clock-outline" class="text-teal-500"></iconify-icon>
+                        <span>Durasi: 12 Hari</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <iconify-icon icon="mdi:airplane-takeoff" class="text-teal-500"></iconify-icon>
+                        <span>Rute: Start From Balikpapan</span>
+                    </div>
+
+                </div>
+            </header>
+
+            <section class="p-6 sm:p-8 bg-slate-50">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800">
+                    <iconify-icon icon="mdi:calendar-star" width="25" height="25" class="text-teal-600"></iconify-icon>
+                    Promo Spesial Keberangkatan 2026
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                    <div
+                        class="bg-white p-4 rounded-xl border border-orange-100 shadow-sm ring-2 ring-orange-400 relative">
+                        <span
+                            class="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] px-2 py-1 rounded-full">POPULER</span>
+                        <div class="text-orange-600 font-bold">Umroh Awal Musim 1448 Juli 2026</div>
+                        <div class="text-xs text-slate-500 mb-2">Super Promo</div>
+                        <div class="text-lg font-extrabold text-slate-800 tracking-tight">Rp 36.500.000</div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="p-6 sm:p-8 border-t">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-slate-800">
+                            <iconify-icon icon="mdi:check-circle" width="25" height="25"
+                                class="text-teal-600"></iconify-icon>
+                            Fasilitas Termasuk
+                        </h2>
+                        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+                            <li class="flex items-center gap-2">✨ Hotel bintang 3/setaraf</li>
+                            <li class="flex items-center gap-2">✈️ Tiket Pesawat PP (BPN-MED/JED)</li>
+                            <li class="flex items-center gap-2">🍽️ Makan 3x Sehari (Menu Indonesia)</li>
+                            <li class="flex items-center gap-2">🎒 Perlengkapan & Manasik Lengkap</li>
+                            <li class="flex items-center gap-2">🕌 Kajian Khusus & City Tour</li>
+                            <li class="flex items-center gap-2">🛂 Gratis Biaya Paspor</li>
+                            <li class="flex items-center gap-2">📸 Dokumentasi Selama Perjalanan</li>
+                            <li class="flex items-center gap-2">💧 Gratis Air Zam-zam</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-teal-50 p-6 rounded-2xl border border-teal-100">
+                        <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-teal-800">
+                            <iconify-icon icon="mdi:credit-card-check" width="25" height="25"></iconify-icon>
+                            Pembayaran Praktis
+                        </h2>
+                        <p class="text-sm text-teal-700 mb-4">Nikmati kemudahan transaksi Umroh Anda dengan fitur:</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-center gap-2 text-sm font-semibold text-teal-900">
+                                <iconify-icon icon="mdi:checkbox-marked-circle"></iconify-icon> Bayar Langsung / Cash
+                            </li>
+                            <li class="flex items-center gap-2 text-sm font-semibold text-teal-900">
+                                <iconify-icon icon="mdi:checkbox-marked-circle"></iconify-icon> Program Cicilan Ringan
+                            </li>
+                            <li class="flex items-center gap-2 text-sm font-semibold text-teal-900">
+                                <iconify-icon icon="mdi:checkbox-marked-circle"></iconify-icon> Saldo Digital
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-5 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+
+                            <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-bold text-blue-900 uppercase tracking-wider">
+                                Syarat & Ketentuan:
+                            </h3>
+                            <ul class="mt-2 text-sm text-blue-800 space-y-1 list-disc list-inside">
+                                <li>DP minimal <span class="font-bold">Rp 6.525.000</span> / orang</li>
+                                <li>Fotokopi <span class="font-bold">KTP & KK</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800">
+                    📌 <strong>Kuota Terbatas!</strong> Segera amankan seat terbaik Anda untuk keberangkatan awal tahun
+                    2026. Info: 081347423737
+                </div>
+
+                <br><br><br>
+
+                <div
+                    class="fixed bottom-0 left-0 right-0 bg-white p-4 flex items-center justify-between gap-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] border-t z-50">
+                    <div>
+                        <div class="text-xs text-slate-500 leading-none">Harga DP / Orang</div>
+                        <div class="text-teal-600 font-bold text-xl">Rp 6.525.000</div>
+                    </div>
+                    <button id="orderBtn"
+                        class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg">
+                        Daftar Sekarang
+                    </button>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
+        <div class="bg-white rounded-xl max-w-lg w-full shadow-xl overflow-hidden">
+            <div class="p-5 border-b flex items-center justify-between">
+                <h3 class="font-semibold text-slate-800">Formulir Pemesanan - PAKET UMROH AWAL TAHUN 2026</h3>
+                <button id="closeModal" class="text-slate-500 hover:text-slate-700">✕</button>
+            </div>
+            <form id="orderForm" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-600">Nama</label>
+                    <input name="name" required
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200" />
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-600">No. HP / WA</label>
+                    <input name="phone" required placeholder="0812..."
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm text-slate-600">Tanggal Keberangkatan</label>
+                        <input name="date" id="bookingDate" type="date" required
+                            class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 cursor-pointer" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-600">Jumlah Peserta</label>
+                        <div class="flex items-center mt-1 border rounded-md overflow-hidden w-full">
+                            <button type="button" id="minusBtn"
+                                class="px-3 py-2 bg-slate-50 hover:bg-slate-100 border-r text-slate-600 font-bold">-</button>
+                            <input name="pax" id="paxInput" type="number" min="1" max="100" value="1" readonly
+                                class="w-full text-center text-sm focus:outline-none bg-white" />
+                            <button type="button" id="plusBtn"
+                                class="px-3 py-2 bg-slate-50 hover:bg-slate-100 border-l text-slate-600 font-bold">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-600">Pesan / Permintaan Khusus</label>
+                    <textarea name="note" rows="3"
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200"></textarea>
+                </div>
+                <div class="flex items-center justify-end gap-3">
+                    <button type="button" id="cancelBtn"
+                        class="px-4 py-2 rounded-md border text-sm hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="submit"
+                        class="px-4 py-2 rounded-md bg-teal-600 text-white text-sm hover:bg-teal-700 transition-colors shadow-sm">
+                        Pesan Paket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div id="paymentMethodsContainer" class="m-3" style="display: none;">
+        <p style="font-size:16px; font-weight: bold; text-align: center; margin-top: 12px;">Pilih Metode Pembayaran
+        </p>
+        <h6>Scan QR</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="qris" data-method="qris">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684336/Logo_QRIS.svg_szprhw.png"
+                    alt="QRIS" height="30">
+                QRIS
+            </label>
+        </div>
+
+        <h6>Virtual Account</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="002" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png" alt="BRI"
+                    height="30">
+                Bank BRI
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="008" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png"
+                    alt="Mandiri" height="30">
+                Bank Mandiri
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="009" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png"
+                    alt="BNI" height="30">
+                Bank BNI
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="451" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png" alt="BSI"
+                    height="30">
+                Bank BSI
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="022" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png"
+                    alt="CIMB" height="30">
+                Bank CIMB
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="011" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png"
+                    alt="DANAMON" height="30">
+                Bank Danamon
+            </label>
+        </div>
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="013" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg"
+                    alt="Permata" height="30">
+                Bank Permata
+            </label>
+        </div>
+
+
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="028" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png" alt="Danamon"
+                    height="30">
+                Bank OCBC
+            </label>
+        </div>
+
+        <br>
+        <br>
+
+        <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);">
+            <button onclick="createPayment()" type="submit" style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #24b3ae; color: white;
+            padding: 12px; border: none; border-radius: 5px; z-index: 999; outline: none;">
+                LANJUTKAN
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div id="vaPage" class="hidden payment-container">
+        <!-- Header -->
+        <div class="bg-pembayaran">
+            <div class="flex items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-arrow-left text-white text-lg ml-2 cursor-pointer" onclick="goBackToInputs()"></i>
+                    <p class="text-lg ml-5 mb-0 text-white">Pembayaran</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4 mt-3">
+            <!-- Jumlah Bayar -->
+            <p class="text-sm font-bold text-gray-700 mt-16">Jumlah yang harus dibayar</p>
+            <p class="total-payment mt-3 text-base font-semibold"></p>
+
+            <!-- Total Harga -->
+            <div class="flex items-center justify-between mt-3">
+                <p class="text-sm font-bold text-gray-700">Total Harga</p>
+                <p class="text-sm">
+                    <span class="inline-block w-8">Rp</span>
+                    <span class="total-harga inline-block min-w-[70px] text-right"></span>
+                </p>
+            </div>
+
+            <!-- Metode Pembayaran -->
+            <p class="text-sm font-bold text-gray-700 mt-16">Metode Pembayaran</p>
+
+            <div class="bg-va mt-5">
+                <div class="flex items-center">
+                    <div class="bank-logo">
+                        <img src="" alt="bank" class="ml-3">
+                    </div>
+                    <p class="bank-name ml-3"></p>
+                </div>
+
+                <hr class="my-2 border-gray-300">
+                <p class="text-xs font-medium text-gray-700 ml-3 mt-2">Nomor Virtual Account</p>
+                <div class="flex items-center justify-between mt-2">
+                    <div class="bank-details">
+                        <p id="vaDana" class="font-semibold"></p>
+                    </div>
+                    <div class="bg-copy mt-2 p-1 bg-teal-500 rounded cursor-pointer" onclick="copyVaCode()">
+                        <iconify-icon icon="ion:copy" class="w-4 h-4 text-white"
+                            title="Salin Nomor Rekening"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panduan-pembayaran-va"></div>
+
+            <!-- Tombol Tutup -->
+            <button onclick="goBackToInputs()" class="absolute top-2 right-2">
+                <iconify-icon icon="mingcute:close-fill" class="w-15 h-15"></iconify-icon>
+            </button>
+        </div>
+
+        <center>
+            <div id="countdown"
+                class="text-center text-lg font-bold bg-tael-100 text-tael-700 px-4 py-2 rounded-lg shadow-md w-fit mx-auto mt-5">
+            </div>
+        </center>
+
+        <!-- Tombol Cek Status -->
+        <div class="fixed bottom-0 left-0 w-full bg-white p-2 z-[998] shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
+            <button id="cekBtn" onclick="handleManualCheck()" type="button"
+                class="w-[calc(100%-20px)] mx-auto block bg-teal-500 text-white py-3 rounded-md">
+                Cek Status Pembayaran
+            </button>
+        </div>
+
+    </div>
+
+
+    <div id="qrisPage" style="display: none;" class="payment-container px-3">
+        <div class="bg-pembayaran">
+            <div class="d-flex align-items-center">
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-arrow-left"
+                        style="font-size: 18px; color: white; margin-left: 10px; cursor: pointer;"
+                        onclick="goBackToInputs()"></i>
+
+
+                    <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+                </div>
+
+            </div>
+        </div>
+        <p class="text-white">Silakan scan QRIS berikut untuk melakukan pembayaran:</p>
+        <div id="qrShimmer" style="width: 250px; height: 250px; margin: 0 auto; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+     background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;">
+        </div>
+        <div style="display: flex; justify-content: center; margin: 20px 0;">
+            <img id="qrisImage" src="" alt="" width="250" height="250" style="display: none;">
+        </div>
+
+        <center>
+            <button id="downloadQR" class="btn btn-primary" style="display: none;">
+                <i class="bi bi-download"></i> Unduh QR
+            </button>
+        </center>
+
+
+        <div class="summary">
+            <p style="font-size:18px;">Total Pembayaran:</p>
+            <p class="total-payment"></p>
+
+        </div>
+
+        <div id="panduan-pembayaran-qris"></div>
+
+        <center>
+            <div id="countdown-qris"
+                class="text-center text-lg font-bold bg-tael-100 text-tael-700 px-4 py-2 rounded-lg shadow-md w-fit mx-auto mt-5">
+            </div>
+        </center>
+        <br>
+        <br>
+        <br>
+        <!-- Tombol Cek Status -->
+        <div class="fixed bottom-0 left-0 w-full bg-white p-2 z-[998] shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
+            <button id="cekBtn" onclick="handleManualCheck()" type="button"
+                class="w-[calc(100%-20px)] mx-auto block bg-teal-500 text-white py-3 rounded-md">
+                Cek Status Pembayaran
+            </button>
+        </div>
+    </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999] hidden">
+        <div class="flex flex-col items-center">
+            <svg class="animate-spin h-10 w-10 text-white mb-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="text-white text-lg font-medium">Memproses pembayaran...</p>
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+
+        // Konfigurasi Firebase kamu
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8P9au26mC8xx8UcjNsm-NMW5JUgTHUBU",
+            authDomain: "linku-3ca65.firebaseapp.com",
+            databaseURL: "https://linku-3ca65-default-rtdb.firebaseio.com",
+            projectId: "linku-3ca65",
+            storageBucket: "linku-3ca65.appspot.com",
+            messagingSenderId: "759194220603",
+            appId: "1:759194220603:web:33e2327dfa94af2552841e"
+        };
+
+        // Inisialisasi Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+        const orderBtn = document.getElementById('orderBtn');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const toggleBtn = document.getElementById('toggleRundown');
+        const extraRundown = document.getElementById('extraRundown');
+        let expanded = false;
+
+        function openModal() { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        function hideModal() { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+
+        orderBtn.addEventListener('click', openModal);
+        closeModal.addEventListener('click', hideModal);
+        cancelBtn.addEventListener('click', hideModal);
+
+        const dateInput = document.getElementById('bookingDate');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+
+        // 2. Logika Counter Peserta (+ / -)
+        const paxInput = document.getElementById('paxInput');
+        const plusBtn = document.getElementById('plusBtn');
+        const minusBtn = document.getElementById('minusBtn');
+
+        // Default value (bisa dari server atau API)
+        const orderForm = document.getElementById('orderForm');
+        const utamaHal = document.getElementById('utamaHal');
+        const utamaMod = document.getElementById('modal');
+        const paymentMethodsContainer = document.getElementById('paymentMethodsContainer');
+
+        // Default value (bisa dari server atau API)
+        const defaultNama = "{nama}";
+        const defaultHP = "{hp}";
+
+        // Isi nilai default
+        orderForm.name.value = defaultNama;
+        orderForm.phone.value = defaultHP;
+
+        // Saat tombol "Pesan Paket" diklik (submit form)
+        orderForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // Jangan langsung submit
+
+            // Sembunyikan form order dan halaman utama
+            utamaMod.style.display = 'none';
+            utamaHal.style.display = 'none';
+
+            // Tampilkan metode pembayaran
+            paymentMethodsContainer.style.display = 'block';
+            paymentMethodsContainer.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // --- LOGIKA PLUS MINUS ---
+        plusBtn.addEventListener('click', () => {
+            let val = parseInt(paxInput.value);
+            if (val < 100) {
+                paxInput.value = val + 1;
+                if (typeof updateTotal === 'function') updateTotal(); // Pastikan harga update jika ada fungsinya
+            }
+        });
+
+        minusBtn.addEventListener('click', () => {
+            let val = parseInt(paxInput.value);
+            if (val > 1) {
+                paxInput.value = val - 1;
+                if (typeof updateTotal === 'function') updateTotal();
+            }
+        });
+
+        document.getElementById('orderForm').addEventListener('reset', () => {
+            paxInput.value = 1;
+        });
+
+        let activePartnerReff = "";
+        let pollingInterval = null;
+
+        function startPolling(partnerReff) {
+            if (!partnerReff) return;
+            activePartnerReff = partnerReff;
+
+            // Gunakan try-catch agar jika localStorage error, polling tetap jalan
+            try {
+                localStorage.setItem('last_partner_reff', partnerReff);
+            } catch (e) {
+                console.warn("LocalStorage tidak aktif atau penuh:", e);
+            }
+
+            stopPolling();
+            console.log("🚀 Auto polling dimulai untuk:", partnerReff);
+
+            pollingInterval = setInterval(async () => {
+                console.log("🔍 Mengecek status untuk:", activePartnerReff);
+                await cekStatusPembayaranOtomatis(activePartnerReff);
+            }, 5000);
+
+            setTimeout(() => stopPolling(), 15 * 60 * 1000);
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                console.log("🛑 Polling dihentikan.");
+            }
+        }
+
+        async function handleManualCheck() {
+            const btn = document.getElementById("cekBtn");
+            const originalText = btn.innerHTML;
+
+            let partnerReff = activePartnerReff;
+
+            // Gunakan try-catch atau pengecekan manual untuk localStorage
+            if (!partnerReff) {
+                try {
+                    partnerReff = localStorage.getItem('last_partner_reff');
+                } catch (e) {
+                    console.error("Gagal akses localStorage:", e);
+                }
+            }
+
+            if (!partnerReff) {
+                swal("Peringatan", "Data transaksi tidak ditemukan, silakan pesan ulang.", "warning");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = "⏳ Mengecek...";
+
+            try {
+                await cekStatusPembayaranOtomatis(partnerReff);
+            } catch (err) {
+                console.error("Error saat cek status:", err);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+
+        async function cekStatusPembayaranOtomatis(partnerReff) {
+            try {
+                const response = await fetch(`https://wisata.siappgo.id/check-status/${partnerReff}`);
+
+                if (!response.ok) return;
+
+                const resData = await response.json();
+                console.log("🔍 Polling Status Terdeteksi:", resData);
+
+                // --- LOGIKA SESUAI DATA KONSOL KAMU ---
+                // rc === '00' artinya API berhasil merespon
+                // resData.data.status_trx === 'success' artinya pembayaran berhasil
+                const isPaid = resData.rc === '00' &&
+                    resData.data &&
+                    (resData.data.status_trx === 'success' || resData.data.status_paid === 'paid');
+
+                if (isPaid) {
+                    console.log("✅ Pembayaran terverifikasi! Menampilkan Swal...");
+                    stopPolling(); // Hentikan polling agar swal tidak muncul berkali-kali
+
+                    // Sembunyikan semua UI Pembayaran
+                    if (document.getElementById("qrisPage")) document.getElementById("qrisPage").style.display = "none";
+                    if (document.getElementById("vaPage")) document.getElementById("vaPage").style.display = "none";
+                    if (document.getElementById("paymentMethodsContainer")) document.getElementById("paymentMethodsContainer").style.display = "none";
+
+                    // Munculkan kembali halaman utama
+                    document.getElementById("utamaHal").style.display = "block";
+
+                    // Tampilkan SweetAlert
+                    swal({
+                        title: "Pembayaran Berhasil!",
+                        text: "Terima kasih, saldo dan pesanan Anda telah diproses otomatis.",
+                        icon: "success",
+                        button: "Selesai",
+                        closeOnClickOutside: false
+                    }).then(() => {
+                        // Opsional: Jika ingin refresh halaman setelah klik OK
+                        // location.reload();
+                    });
+                } else {
+                    console.log("⏳ Pembayaran belum masuk atau status masih:", resData.data ? resData.data.status_trx : 'unknown');
+                }
+            } catch (err) {
+                console.error("❌ Error Polling:", err);
+            }
+        }
+        // --- FUNGSI PEMBAYARAN (FIXED) ---
+        async function createPayment() {
+            const selectedRadio = document.querySelector('input[name="payment"]:checked');
+            if (!selectedRadio) {
+                swal("Warning!", "Silahkan pilih metode pembayaran terlebih dahulu", "warning");
+                return;
+            }
+
+            const formData = new FormData(orderForm);
+            const formValues = Object.fromEntries(formData.entries());
+            const method = selectedRadio.dataset.method;
+            const bankCode = selectedRadio.value;
+
+            const paxCount = parseInt(paxInput.value) || 1;
+            const pricePerPax = 6525000; // Harga asli 5jt
+            const totalAmount = paxCount * pricePerPax;
+
+            let endpoint = "";
+            let payload = {
+                amount: totalAmount,
+                date: formValues.date,
+                name: "PAKET UMROH AWAL TAHUN 2026",
+                note: formValues.note || "",
+                pax: paxCount.toString(),
+                phone: formValues.phone,
+                customer_id: "{userid}",
+                customer_name: "{username}",
+                customer_email: "bocahangon64@gmail.com",
+                customer_phone: formValues.phone
+            };
+
+            if (method === "va") {
+                endpoint = "https://wisata.siappgo.id/create-va";
+                payload.metode_pembayaran = "VA";
+                payload.bank_code = bankCode;
+            } else {
+                endpoint = "https://wisata.siappgo.id/create-qris";
+                payload.metode_pembayaran = "QRIS";
+            }
+
+            document.getElementById("loadingOverlay").classList.remove("hidden");
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                // 1. Pastikan menggunakan nama variabel 'res' secara konsisten
+                const res = await response.json();
+                console.log("✅ Response:", res);
+
+                if (res.partner_reff) {
+                    // Mulai polling otomatis
+                    startPolling(res.partner_reff);
+
+                    // --- LOGIKA UNTUK METODE VA ---
+                    if (method === "va" && res.response_code === "00") {
+                        document.getElementById("utamaHal").style.display = "none";
+                        document.getElementById("paymentMethodsContainer").style.display = "none";
+
+                        const vaPage = document.getElementById("vaPage");
+                        vaPage.style.display = "block";
+
+                        // Update Nominal
+                        document.querySelector(".total-payment").textContent =
+                            "Rp " + Number(res.amount).toLocaleString("id-ID");
+                        document.querySelector(".total-harga").textContent =
+                            Number(res.amount).toLocaleString("id-ID");
+
+                        const bankLogoMap = {
+                            "BANK BRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png",
+                            "BANK MANDIRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png",
+                            "BANK BNI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png",
+                            "BANK BSI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png",
+                            "BANK CIMB NIAGA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png",
+                            "DANAMON": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png",
+                            "BANK PERMATA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg",
+                            "BANK OCBC": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png"
+                        };
+
+                        const mobileBankingSteps = {
+                            "BANK BRI": ["Login ke aplikasi BRImo.", "Pilih menu BRIVA.", "Masukkan nomor Virtual Account.", "Masukkan nominal jika diperlukan.", "Konfirmasi dan selesaikan pembayaran."],
+                            "BANK MANDIRI": ["Login ke aplikasi Livin' by Mandiri.", "Pilih menu Bayar.", "Pilih Multi Payment.", "Pilih penyedia jasa dan masukkan nomor Virtual Account.", "Konfirmasi dan bayar."],
+                            "DANAMON": ["Login ke aplikasi D-Bank PRO.", "Pilih Transfer > Virtual Account.", "Masukkan nomor VA dan jumlah pembayaran.", "Konfirmasi detail dan selesaikan pembayaran."],
+                            "BANK PERMATA": ["Login ke PermataMobile X.", "Pilih menu Bayar > Virtual Account.", "Masukkan nomor Virtual Account.", "Cek detail pembayaran lalu konfirmasi dan bayar."],
+                            "BANK BNI": ["Login ke aplikasi BNI Mobile Banking.", "Pilih menu Transfer.", "Pilih Virtual Account Billing.", "Masukkan nomor VA dan pilih Lanjut.", "Periksa informasi dan konfirmasi pembayaran."],
+                            "BANK BSI": ["Login ke aplikasi BSI Mobile.", "Pilih menu Bayar.", "Pilih Virtual Account.", "Masukkan nomor VA dan pilih Sumber Dana.", "Periksa detail pembayaran dan konfirmasi."]
+                        };
+
+                        // Set logo & nama bank
+                        const bankLogo = vaPage.querySelector(".bank-logo img");
+                        const bankName = vaPage.querySelector(".bank-name");
+                        if (bankLogo) bankLogo.src = bankLogoMap[res.bank_name] || "https://via.placeholder.com/80x40?text=Bank";
+                        if (bankName) bankName.textContent = res.bank_name;
+
+                        // Set nomor VA
+                        document.getElementById("vaDana").textContent = res.virtual_account;
+
+                        // Tampilkan panduan pembayaran
+                        const panduanContainer = document.getElementById("panduan-pembayaran-va");
+                        if (panduanContainer) {
+                            panduanContainer.innerHTML = "";
+                            if (mobileBankingSteps[res.bank_name]) {
+                                let steps = mobileBankingSteps[res.bank_name]
+                                    .map((step) => `<li class="mb-1">${step}</li>`)
+                                    .join("");
+
+                                panduanContainer.innerHTML = `
+                                    <div class="mt-4 p-4 bg-slate-50 rounded-lg">
+                                        <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran ${res.bank_name}</h3>
+                                        <ol class="list-decimal pl-5 text-sm text-gray-700">${steps}</ol>
+                                    </div>`;
+                            }
+                        }
+                        if (typeof startCountdown === "function") startCountdown(15);
+                    }
+
+                    // --- LOGIKA UNTUK METODE QRIS ---
+                    if (method === "qris" && res.response_code === "00") {
+                        document.getElementById("utamaHal").style.display = "none";
+                        document.getElementById("paymentMethodsContainer").style.display = "none";
+
+                        const qrisPage = document.getElementById("qrisPage");
+                        qrisPage.style.display = "block";
+
+                        qrisPage.querySelector(".total-payment").textContent =
+                            "Rp " + Number(res.amount).toLocaleString("id-ID");
+
+                        const qrImage = document.getElementById("qrisImage");
+                        qrImage.src = res.imageqris;
+                        qrImage.style.display = "block";
+                        document.getElementById("qrShimmer").style.display = "none";
+
+                        const downloadBtn = document.getElementById("downloadQR");
+                        downloadBtn.style.display = "block";
+                        downloadBtn.onclick = () => {
+                            const link = document.createElement('a');
+                            link.href = `https://wisata.siappgo.id/download-qr/${res.partner_reff}`;
+                            link.target = "_blank"; // Membuka di tab baru untuk trigger download server
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+
+                        const panduanQrisContainer = document.getElementById("panduan-pembayaran-qris");
+                        if (panduanQrisContainer) {
+                            panduanQrisContainer.innerHTML = `
+                                <div class="mt-2 p-4 bg-slate-50 rounded-lg">
+                                    <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran QRIS</h3>
+                                    <ol class="list-decimal pl-5 text-sm text-gray-700 space-y-1">
+                                        <li>Buka aplikasi e-Wallet atau Mobile Banking Anda.</li>
+                                        <li>Pilih menu <strong>Scan / Bayar</strong>.</li>
+                                        <li>Scan kode QR di atas atau gunakan hasil download.</li>
+                                        <li>Periksa nominal dan selesaikan pembayaran.</li>
+                                    </ol>
+                                </div>`;
+                        }
+                        if (typeof startCountdownQris === "function") startCountdownQris(15);
+                    }
+                } else {
+                    // Jika partner_reff tidak ada, anggap gagal
+                    swal("Gagal", res.response_desc || "Gagal membuat pembayaran", "error");
+                }
+
+            } catch (error) {
+                console.error("❌ Gagal membuat pembayaran:", error);
+                swal("Error", "Terjadi kesalahan jaringan atau server.", "error");
+            } finally {
+                document.getElementById("loadingOverlay").classList.add("hidden");
+            }
+        } // Penutup fungsi createPayment
+
+
+        function copyVaCode() {
+            const promoCode = document.getElementById('vaDana')?.innerText; if (!promoCode || promoCode.trim() === "") { swal("Gagal", "Nomor Rekening tidak ditemukan", "error"); return }
+            const tempInput = document.createElement('input'); document.body.appendChild(tempInput); tempInput.value = promoCode; tempInput.select(); document.execCommand('copy'); document.body.removeChild(tempInput); swal({ title: 'Berhasil Disalin !', text: 'Nomor Rekening telah disalin.', icon: 'success', confirmButtonText: 'OK', })
+        }
+
+
+        function startCountdown(minutes) {
+            let time = minutes * 60;
+            const countdownEl = document.getElementById('countdown');
+
+            const timer = setInterval(() => {
+                let minutesLeft = Math.floor(time / 60);
+                let secondsLeft = time % 60;
+
+                minutesLeft = minutesLeft < 10 ? '0' + minutesLeft : minutesLeft;
+                secondsLeft = secondsLeft < 10 ? '0' + secondsLeft : secondsLeft;
+
+                countdownEl.textContent = `⏳ Berakhir dalam ${minutesLeft}:${secondsLeft}`;
+
+                if (time <= 0) {
+                    clearInterval(timer);
+                    countdownEl.textContent = "❌ Waktu Berakhir";
+                    countdownEl.classList.remove("bg-blue-100", "text-blue-700");
+                    countdownEl.classList.add("bg-red-100", "text-red-700");
+                }
+
+                time--;
+            }, 1000);
+        }
+
+        function startCountdownQris(minutes) {
+            let time = minutes * 60;
+            const countdownEl = document.getElementById('countdown-qris');
+
+            const timer = setInterval(() => {
+                let minutesLeft = Math.floor(time / 60);
+                let secondsLeft = time % 60;
+
+                minutesLeft = minutesLeft < 10 ? '0' + minutesLeft : minutesLeft;
+                secondsLeft = secondsLeft < 10 ? '0' + secondsLeft : secondsLeft;
+
+                countdownEl.textContent = `⏳ Berakhir dalam ${minutesLeft}:${secondsLeft}`;
+
+                if (time <= 0) {
+                    clearInterval(timer);
+                    countdownEl.textContent = "❌ Waktu Berakhir";
+                    countdownEl.classList.remove("bg-blue-100", "text-blue-700");
+                    countdownEl.classList.add("bg-red-100", "text-red-700");
+                }
+
+                time--;
+            }, 1000);
+        }
+    </script>
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showSlide(index) {
+            slides.forEach((s, i) => {
+                s.classList.toggle('hidden', i !== index);
+            });
+        }
+
+        document.querySelector('.prev').onclick = () => {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        };
+
+        document.querySelector('.next').onclick = () => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        };
+
+        // Tampilkan slide pertama
+        showSlide(currentSlide);
+    </script>
+
+</body>
+
+</html>
