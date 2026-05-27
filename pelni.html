@@ -2,1402 +2,1579 @@
 <html lang="en">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pencarian Jadwal Kapal</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<style>
-.scrollbar-hide::-webkit-scrollbar {
-display: none;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencarian Jadwal Kapal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
 
-.scrollbar-hide {
--ms-overflow-style: none;
-scrollbar-width: none;
-}
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
-[x-cloak] {
-display: none !important;
-}
-</style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="bg-slate-50 font-sans antialiased">
 
-<div class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
-<div x-data="shipApp()" x-init="init()" class="relative">
-
-<template x-if="stage === 'search_form'">
-<div class="bg-[#f5f6f8] min-h-screen">
-<div
-class="bg-white text-slate-800 h-16 z-50 shadow-sm max-w-md mx-auto flex items-center px-4 gap-4">
-<button @click="/* handle back */" class="p-1">
-<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-</svg>
-</button>
-<h1 class="text-xl font-semibold text-gray-700">PELNI</h1>
-</div>
-
-<div class="pt-6 px-4 space-y-6 max-w-md mx-auto">
-<div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-<div class="space-y-6">
-
-<div class="flex items-start gap-4 cursor-pointer"
-@click="portModalType = 'origin'; showPortModal = true; searchQuery = ''">
-<div class="mt-1 text-gray-400">
-<i data-lucide="map-pin"></i>
-</div>
-<div class="flex-1 border-b border-gray-200 pb-2">
-<label class="block text-sm font-medium text-gray-400">Dari</label>
-<div class="text-gray-800 font-semibold"
-x-text="search.originPort ? originPortList.find(p => p.code === search.originPort)?.name : 'Pilih Kota Asal'">
-</div>
-</div>
-</div>
-
-<div class="flex items-start gap-4 cursor-pointer mt-6"
-@click="portModalType = 'destination'; showPortModal = true; searchQuery = ''">
-<div class="mt-1 text-gray-400">
-<i data-lucide="map-pin"></i>
-</div>
-<div class="flex-1 border-b border-gray-200 pb-2">
-<label class="block text-sm font-medium text-gray-400">Ke</label>
-<div class="text-gray-800 font-semibold"
-x-text="search.destinationPort ? destinationPortList.find(p => p.code === search.destinationPort)?.name : 'Pilih Kota Tujuan'">
-</div>
-</div>
-</div>
-
-<div class="flex items-start gap-4">
-<div class="mt-1 text-gray-400">
-<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-viewBox="0 0 24 24" stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-</svg>
-</div>
-<div class="flex-1 border-b border-gray-200 pb-2">
-<label class="block text-sm font-medium text-gray-400">Tanggal Berangkat</label>
-<input type="date" x-model="search.departDate" :min="minDate"
-@change="updateDepartDateLabel()"
-class="w-full bg-transparent text-gray-800 font-semibold focus:outline-none">
-</div>
-</div>
-
-<div class="flex items-start gap-4 cursor-pointer" @click="showPaxModal = true">
-<div class="mt-1 text-gray-400">
-<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-viewBox="0 0 24 24" stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-</svg>
-</div>
-<div class="flex-1 border-b border-gray-200 pb-2">
-<label class="block text-sm font-medium text-gray-400">Penumpang</label>
-<div class="text-gray-800 font-semibold"
-x-text="`${parseInt(search.adultsMale) + parseInt(search.adultsFemale)} Laki-Laki` + (search.infants > 0 ? `, ${search.infants} Bayi` : '')">
-</div>
-</div>
-</div>
-</div>
-
-<button @click="performSearch()" :disabled="loading"
-class="w-full bg-[#009ff9] text-white py-4 rounded-xl font-bold text-lg shadow-md active:scale-[0.98] transition-all mt-8">
-<span x-show="!loading">Cari Kapal Laut</span>
-<span x-show="loading">Mencari...</span>
-</button>
-</div>
-
-<div class="mt-4">
-<h2 class="text-lg font-bold text-gray-700 mb-3">Promo Tiket kapal laut</h2>
-<div class="rounded-xl overflow-hidden shadow-sm">
-<img src="https://placehold.co/600x200?text=Promo+Pelni" class="w-full" alt="Promo">
-</div>
-</div>
-</div>
-</div>
-</template>
-
-<div x-show="showPortModal" x-transition:enter="transition ease-out duration-300"
-x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
-x-transition:leave-end="opacity-0"
-class="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 backdrop-blur-sm">
-
-<div @click.away="showPortModal = false" x-show="showPortModal"
-x-transition:enter="transition ease-out duration-300 transform"
-x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
-x-transition:leave="transition ease-in duration-200 transform"
-x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
-class="bg-white w-full max-w-md rounded-t-3xl h-[85vh] flex flex-col overflow-hidden">
-
-<div class="w-full flex justify-center py-3">
-<div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
-</div>
-
-<div class="px-6 pb-4 border-b border-gray-100">
-<h3 class="text-lg font-bold text-gray-800"
-x-text="portModalType === 'origin' ? 'Pilih Pelabuhan Asal' : 'Pilih Pelabuhan Tujuan'">
-</h3>
-
-<div class="mt-4 relative">
-<input type="text" x-model="searchQuery" placeholder="Cari pelabuhan atau kota..."
-class="w-full bg-gray-100 border-none rounded-xl py-3 pl-11 pr-4 focus:ring-2 focus:ring-[#009ff9] text-sm">
-<div class="absolute left-4 top-3.5 text-gray-400">
-<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-</svg>
-</div>
-</div>
-</div>
-
-<div class="flex-1 overflow-y-auto p-4">
-<div class="space-y-1">
-<template
-x-for="port in (portModalType === 'origin' ? originPortList : destinationPortList).filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))"
-:key="port.code">
-<button
-@click="if(portModalType === 'origin') { search.originPort = port.code } else { search.destinationPort = port.code }; showPortModal = false"
-class="w-full text-left px-4 py-4 hover:bg-blue-50 rounded-xl transition-colors flex items-center justify-between group">
-<div>
-<div class="font-bold text-gray-800" x-text="port.name"></div>
-<div class="text-xs text-gray-400" x-text="port.code"></div>
-</div>
-<i class="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
-<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-viewBox="0 0 24 24" stroke="currentColor">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-d="M9 5l7 7-7 7" />
-</svg>
-</i>
-</button>
-</template>
-
-<div x-show="(portModalType === 'origin' ? originPortList : destinationPortList).filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0"
-class="py-10 text-center text-gray-400">
-Pelabuhan tidak ditemukan.
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<template x-if="stage === 'search_results'">
-<div class="bg-[#f5f6f8] min-h-screen pb-40">
-<div class="fixed top-0 inset-x-0 bg-white z-50 shadow-sm max-w-md mx-auto">
-<div class="flex items-center gap-3 p-4">
-<button @click="stage = 'search_form'; selectedSchedule = null" class="p-1">
-<i data-lucide="arrow-left" class="w-6 h-6"></i>
-</button>
-<div class="flex-1">
-<h2 class="font-bold text-sm text-slate-700 uppercase"
-x-text="search.originPortName + ' - ' + search.destinationPortName"></h2>
-<p class="text-xs text-gray-500" x-text="search.departDateLabel"></p>
-</div>
-</div>
-
-<div class="flex gap-2 p-3 overflow-x-auto scrollbar-hide bg-white border-t border-gray-50">
-<button @click="filterClass = 'ALL'; selectedSchedule = null"
-:class="filterClass === 'ALL' ? 'border-[#0194f3] text-[#0194f3] bg-blue-50' : 'border-gray-200 text-gray-500'"
-class="flex-shrink-0 px-4 py-1.5 border rounded-full text-sm font-medium">Semua</button>
-<template x-for="cls in ['EK1', 'EK2', 'EKO', '1A', '2A']">
-<button @click="filterClass = cls; selectedSchedule = null"
-:class="filterClass === cls ? 'border-[#0194f3] text-[#0194f3] bg-blue-50' : 'border-gray-200 text-gray-500'"
-class="flex-shrink-0 px-4 py-1.5 border rounded-full text-sm font-medium"
-x-text="cls"></button>
-</template>
-</div>
-</div>
-
-<div class="pt-36 px-4 space-y-3">
-<template x-for="ship in filteredSchedules" :key="ship.shipNumber + ship.departDateTime">
-<div @click="selectedSchedule = ship"
-:class="selectedSchedule === ship ? 'border-[#0194f3] ring-1 ring-[#0194f3]' : 'border-transparent'"
-class="bg-white rounded-xl p-5 shadow-sm border transition-all cursor-pointer">
-
-<div class="mb-4">
-<h3 class="font-bold text-slate-700 text-sm uppercase" x-text="ship.shipName"></h3>
-<div class="text-[11px] text-gray-400 flex gap-2 font-medium">
-<span x-text="ship.shipNumber"></span>
-<span>•</span>
-<span class="text-[#0194f3] font-bold"
-x-text="getDisplayFare(ship).class"></span>
-</div>
-</div>
-
-<div class="flex items-center justify-between mb-2">
-<div class="text-left w-20">
-<div class="text-lg font-bold text-slate-800"
-x-text="formatTime(ship.departDateTime)"></div>
-<div class="text-[10px] font-bold text-gray-400 uppercase"
-x-text="search.originPort"></div>
-</div>
-
-<div class="flex-1 px-4 flex flex-col items-center">
-<span
-class="text-[10px] text-[#0194f3] font-bold mb-1 bg-blue-50 px-2 py-0.5 rounded"
-x-text="calculateDuration(ship.departDateTime, ship.arrivalDateTime)"></span>
-
-<div
-class="w-full h-[1px] bg-gray-200 relative flex items-center justify-between">
-<div class="w-1.5 h-1.5 rounded-full border border-gray-300 bg-white -ml-1">
-</div>
-<div class="w-1.5 h-1.5 rounded-full border border-gray-300 bg-white -mr-1">
-</div>
-</div>
-</div>
-
-<div class="text-right w-20">
-<div class="text-lg font-bold text-slate-800"
-x-text="formatTime(ship.arrivalDateTime)"></div>
-<div class="text-[10px] font-bold text-gray-400 uppercase"
-x-text="search.destinationPort"></div>
-</div>
-</div>
-
-<div class="flex justify-between text-[9px] text-gray-400 mb-4">
-<span x-text="formatDate(ship.departDateTime)"></span>
-<span x-text="formatDate(ship.arrivalDateTime)"></span>
-</div>
-
-<div class="flex justify-between items-end border-t border-dashed border-gray-100 pt-3">
-<span class="text-[10px] font-bold text-green-500 flex items-center gap-1">
-<div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> Tersedia
-</span>
-<div class="text-right">
-<div class="flex items-baseline justify-end gap-1">
-<span class="text-[#0194f3] font-bold text-lg"
-x-text="formatCurrency(getDisplayFare(ship).adultFare)"></span>
-<span class="text-[10px] text-gray-400">/org</span>
-</div>
-</div>
-</div>
-</div>
-</template>
-</div>
-
-<div
-class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 p-4 z-50 max-w-md mx-auto shadow-2xl">
-<div class="flex justify-between items-center mb-4">
-<div>
-<span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Total
-Pembayaran</span>
-<span class="text-[#0194f3] font-bold text-xl"
-x-text="selectedSchedule ? formatCurrency(getDisplayFare(selectedSchedule).adultFare) : 'Rp 0'"></span>
-</div>
-<button :disabled="!selectedSchedule" @click="selectSchedule(selectedSchedule)"
-class="bg-[#0194f3] disabled:bg-gray-200 text-white px-8 py-3 rounded-xl font-bold active:scale-95 transition-all shadow-lg shadow-blue-100">
-Lanjutkan
-</button>
-</div>
-</div>
-</div>
-</template>
-
-
-
-<template x-if="stage === 'booking_confirmation'">
-<div class="bg-slate-50 min-h-screen">
-<div
-class="fixed top-0 inset-x-0 bg-white text-slate-800 p-4 z-50 shadow-sm flex items-center gap-4 max-w-md mx-auto">
-<button @click="stage = 'search_results'" class="p-1">
-<i data-lucide="arrow-left" class="w-6 h-6"></i>
-</button>
-<h2 class="font-bold text-lg">Data Pemesan</h2>
-</div>
-
-<div class="pt-20 px-4 pb-10 space-y-4 max-w-md mx-auto">
-<div class="bg-white rounded-xl p-4 shadow-sm space-y-4">
-<div class="space-y-4">
-<div class="group">
-<label class="hidden">Nama</label>
-<input type="text" x-model="buyer.name" placeholder="Nama"
-class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20">
-</div>
-<div class="group">
-<label class="hidden">Email</label>
-<input type="email" x-model="buyer.email" placeholder="Email"
-class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20">
-</div>
-<div class="group">
-<label class="hidden">Telepon</label>
-<input type="tel" x-model="buyer.phone" placeholder="Telepon"
-class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20">
-</div>
-<div class="group">
-<label class="hidden">Alamat</label>
-<textarea x-model="buyer.address" placeholder="Alamat" rows="3"
-class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
-</div>
-</div>
-
-<button @click="getRoomAndProceed()"
-class="w-full bg-[#0194f3] text-white py-4 rounded-xl font-bold text-base shadow-md active:scale-[0.98] transition-all">
-Lanjutkan
-</button>
-</div>
-
-<div class="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
-<p class="text-sm text-slate-700 leading-relaxed">
-Informasi data pemesan digunakan untuk mengonfirmasi pesanan dan pengiriman e-tiket.
-</p>
-</div>
-</div>
-</div>
-</template>
-
-<template x-if="stage === 'passenger_form'">
-<div class="bg-slate-50 min-h-screen pb-32">
-<div
-class="fixed top-0 inset-x-0 bg-white text-slate-800 p-4 z-50 shadow-sm flex items-center gap-4 max-w-md mx-auto">
-<button @click="stage = 'booking_confirmation'" class="p-1">
-<i data-lucide="arrow-left" class="w-6 h-6"></i>
-</button>
-<h2 class="font-bold text-lg">Data Penumpang</h2>
-</div>
-
-<div class="pt-20 px-4 space-y-4 max-w-md mx-auto">
-<div class="bg-white rounded-lg p-4 shadow-sm border border-slate-100 space-y-3">
-<div>
-<p class="text-xs text-slate-400">Pelabuhan Tujuan</p>
-<p class="text-sm font-bold text-slate-700 uppercase"
-x-text="availabilityData.destinationName || 'PELABUHAN TUJUAN'"></p>
-</div>
-
-<hr class="border-slate-50">
-
-<div class="flex justify-between items-start">
-<div class="space-y-1">
-<p class="text-xs font-medium text-slate-600">
-<span x-text="formatDate(availabilityData.departDateTime)"></span> •
-<span x-text="availabilityData.shipNumber"></span>
-</p>
-<p class="text-[10px] font-bold text-blue-500 uppercase"
-x-text="availabilityData.shipName"></p>
-</div>
-<span class="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-500"
-x-text="availabilityData.selectedClass || 'EKO'"></span>
-</div>
-
-<hr class="border-slate-50">
-
-<div>
-<p class="text-xs text-slate-400 mb-1">Rute Perjalanan</p>
-<p class="text-[11px] leading-tight text-slate-600 uppercase font-semibold"
-x-text="availabilityData.routeInfo || (availabilityData.originName + ' - ' + availabilityData.destinationName)">
-</p>
-</div>
-</div>
-
-<div class="space-y-2">
-<h3 class="font-bold text-slate-800 text-sm ml-1 uppercase tracking-wide">Data pemesan</h3>
-<div class="bg-white rounded-lg p-5 shadow-sm border border-slate-100">
-<p class="font-bold text-slate-800 text-base" x-text="availabilityData.ticketBuyerName">
-</p>
-<p class="text-sm text-slate-500 font-medium"
-x-text="availabilityData.ticketBuyerPhone"></p>
-</div>
-</div>
-
-<div class="space-y-3">
-<div class="flex justify-between items-center ml-1">
-<div class="space-y-0.5">
-<h3 class="font-bold text-slate-800 text-sm uppercase tracking-wide">Data penumpang
-</h3>
-<p class="text-[10px] text-slate-400">Sama dengan pemesan</p>
-</div>
-<input type="checkbox" class="toggle toggle-primary toggle-sm shadow-sm"
-@change="$event.target.checked ? fillPaxWithBuyer() : null" />
-</div>
-
-<template x-for="(pax, index) in passengers" :key="index">
-<div
-class="bg-white rounded-lg p-4 shadow-sm border border-slate-100 flex justify-between items-center">
-<div class="flex-1">
-<p class="text-sm font-semibold text-slate-500"
-x-text="pax.firstName ? (pax.firstName + ' ' + (pax.lastName || '')) : (pax.paxType == 0 ? 'Dewasa (Laki-Laki)' : 'Bayi')">
-</p>
-</div>
-<button @click="editPassenger(index)"
-class="bg-[#0194f3] text-white text-xs font-bold px-4 py-1.5 rounded-lg active:scale-95 transition-all">
-Pilih
-</button>
-</div>
-</template>
-</div>
-
-<!-- Bagian Biaya Layanan (Opsional) -->
-<div class="space-y-2 mt-4">
-<h3 class="font-bold text-slate-800 text-sm ml-1 uppercase tracking-wide">Biaya Layanan
-(Opsional)</h3>
-<div
-class="bg-white rounded-lg p-3 shadow-sm border border-slate-100 flex items-center gap-3">
-<span class="text-slate-400 font-bold text-sm">Rp</span>
-<input type="number" x-model.number="availabilityData.serviceFee"
-placeholder="Contoh: 5000"
-class="w-full focus:outline-none text-sm font-semibold text-slate-700"
-@input="if(availabilityData.serviceFee < 0) availabilityData.serviceFee = 0">
-</div>
-</div>
-</div>
-
-<div class="fixed bottom-0 inset-x-0 bg-white p-4 border-t border-slate-100 max-w-md mx-auto z-40">
-<div class="flex justify-between items-center mb-4 px-1">
-<span class="text-sm text-slate-500">Total Pembayaran</span>
-<div class="flex items-center gap-1">
-<!-- Penjumlahan Otomatis: Tiket + Biaya Layanan -->
-<span class="text-[#0194f3] font-bold text-lg"
-x-text="formatCurrency(parseInt(availabilityData.ticketPrice) + (parseInt(availabilityData.serviceFee) || 0))"></span>
-<button
-class="text-[10px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded font-bold border border-blue-100">Detail</button>
-</div>
-</div>
-<button @click="performBooking()"
-class="w-full bg-[#0194f3] text-white py-3.5 rounded-lg font-bold text-base active:scale-95 transition-all shadow-md shadow-blue-100">
-Booking
-</button>
-</div>
-
-<div x-show="showPassengerModal"
-class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-x-transition:enter="transition ease-out duration-300"
-x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
-
-<div @click.away="showPassengerModal = false"
-class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
-
-<div class="flex justify-between items-center p-4 border-b border-slate-100">
-<h3 class="font-bold text-slate-700"
-x-text="'Penumpang ' + (selectedPaxIndex + 1) + ' : Laki-Laki'"></h3>
-<button @click="showPassengerModal = false" class="text-slate-400">
-<i data-lucide="more-vertical" class="w-5 h-5"></i>
-</button>
-</div>
-
-<div class="p-5 space-y-5">
-<div class="bg-slate-100/50 p-4 rounded-xl">
-<p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Deck /
-Cabin-Bed</p>
-<p class="text-xl font-bold text-slate-700 mt-1"
-x-text="availabilityData.rooms[0].deck + ' / ' + availabilityData.rooms[0].cabin + '-' + availabilityData.rooms[0].bed">
-</p>
-</div>
-
-<div class="space-y-2">
-<label class="text-sm font-bold text-slate-700">Jenis Kelamin</label>
-<div class="flex">
-<button
-class="bg-[#0194f3] text-white px-6 py-2.5 rounded-lg font-bold text-sm">Pria</button>
-</div>
-</div>
-
-<div class="space-y-4">
-<div
-class="bg-slate-50 p-3 rounded-xl border border-slate-100 focus-within:border-blue-400 transition-colors">
-<label class="text-[10px] text-blue-500 font-bold block uppercase">Nama
-Penumpang</label>
-<input type="text" x-model="tempPax.firstName"
-class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1"
-placeholder="Masukkan nama penumpang">
-</div>
-<div
-class="bg-slate-50 p-3 rounded-xl border border-slate-100 focus-within:border-blue-400 transition-colors">
-<label class="text-[10px] text-blue-500 font-bold block uppercase">Tanggal
-Lahir</label>
-<input type="date" x-model="tempPax.birthDate"
-class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1 uppercase">
-</div>
-<div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-<label class="text-[10px] text-blue-500 font-bold block uppercase">No
-Identitas</label>
-<input type="tel" x-model="tempPax.ID"
-class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1"
-placeholder="Nomor KTP">
-</div>
-<div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-<label
-class="text-[10px] text-blue-500 font-bold block uppercase tracking-tight">Telepon</label>
-<input type="tel" x-model="tempPax.phone"
-class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1"
-placeholder="08xxx">
-</div>
-</div>
-
-<button @click="savePassengerData()"
-class="w-full bg-[#0194f3] text-white py-3.5 rounded-lg font-bold text-base active:scale-95 transition-all shadow-md shadow-blue-100 mt-2">
-Simpan
-</button>
-</div>
-</div>
-</div>
-</div>
-</template>
-
-<template x-if="stage === 'booking_success'">
-<div class="min-h-screen bg-[#f8fafc] pt-20 px-4 pb-10">
-<div
-class="fixed top-0 inset-x-0 bg-[#0194f3] text-white p-4 z-50 shadow-sm flex items-center justify-center max-w-md mx-auto">
-<h2 class="font-bold text-xs uppercase tracking-widest">Konfirmasi Reservasi</h2>
-</div>
-
-<div
-class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden max-w-md mx-auto">
-<div class="bg-green-500 p-6 text-white text-center">
-
-<h3 class="text-lg font-bold uppercase tracking-tight">Booking Berhasil</h3>
-<p class="text-[10px] opacity-90 font-medium">Nomor reservasi telah diterbitkan</p>
-</div>
-
-<div class="p-6 space-y-6">
-<div class="grid grid-cols-2 gap-4">
-<div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-<p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Kode Bayar / ID</p>
-<p class="text-lg font-black text-slate-800" x-text="bookingData.numCode"></p>
-</div>
-<div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-<p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Total Tagihan</p>
-<p class="text-lg font-black text-orange-600"
-x-text="formatCurrency(parseInt(bookingData.ticketPrice) + (parseInt(serviceFee) || 0))">
-</p>
-</div>
-</div>
-
-<div class="bg-blue-50 p-4 rounded-xl flex items-start gap-3 border border-blue-100">
-<i data-lucide="info" class="w-5 h-5 text-[#0194f3] shrink-0"></i>
-<p class="text-[11px] text-blue-700 leading-relaxed font-medium">
-Silakan selesaikan pembayaran sebelum batas waktu yang ditentukan untuk menghindari
-pembatalan otomatis.
-</p>
-</div>
-
-<div class="space-y-3 pt-2">
-<button @click="performIssued()"
-class="w-full bg-[#0194f3] text-white py-4 rounded-xl font-bold uppercase text-xs shadow-md active:bg-blue-700 transition-all">
-Issued / Terbitkan Tiket
-</button>
-<button @click="stage = 'search_form'"
-class="w-full bg-white border border-slate-200 text-slate-600 py-4 rounded-xl font-bold uppercase text-xs active:bg-slate-50 transition-all">
-Kembali ke Beranda
-</button>
-</div>
-</div>
-</div>
-</div>
-</template>
-
-<template x-if="stage === 'issued_success'">
-<div class="min-h-screen bg-slate-100 pt-20 px-4 pb-10">
-<div
-class="fixed top-0 inset-x-0 bg-white border-b border-slate-200 p-4 z-50 flex items-center gap-4 max-w-md mx-auto">
-<button @click="stage = 'search_form'; location.reload()" class="text-slate-800">
-<i data-lucide="arrow-left" class="w-6 h-6"></i>
-</button>
-<span class="font-bold text-sm text-slate-700 uppercase">E-Ticket Berhasil</span>
-</div>
-
-<div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden max-w-md mx-auto">
-<div class="bg-slate-800 p-5 text-white flex justify-between items-center">
-<div class="flex items-center gap-2">
-<i data-lucide="ticket" class="w-5 h-5 text-[#0194f3]"></i>
-<span class="text-[10px] font-black tracking-widest uppercase">E-Ticket Resmi</span>
-</div>
-<span
-class="text-[9px] font-bold bg-green-500 px-2 py-1 rounded text-white uppercase">Issued</span>
-</div>
-
-<div class="p-6 space-y-6">
-<div class="text-center border-b border-slate-100 pb-6">
-<p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">PNR /
-Kode Booking</p>
-<p class="text-4xl font-black text-slate-800 tracking-wider"
-x-text="issuedData.bookingNumber"></p>
-</div>
-
-<div class="grid grid-cols-2 gap-y-4">
-<div>
-<p class="text-[9px] font-bold text-slate-400 uppercase">Kapal</p>
-<p class="text-xs font-bold text-slate-700" x-text="issuedData.shipNumber"></p>
-</div>
-<div class="text-right">
-<p class="text-[9px] font-bold text-slate-400 uppercase">Status</p>
-<p class="text-xs font-bold text-green-600 uppercase"
-x-text="issuedData.bookingStatus"></p>
-</div>
-<div>
-<p class="text-[9px] font-bold text-slate-400 uppercase">Waktu Berangkat</p>
-<p class="text-xs font-bold text-slate-700"
-x-text="formatDate(issuedData.departDate)"></p>
-</div>
-<div class="text-right">
-<p class="text-[9px] font-bold text-slate-400 uppercase">Jam</p>
-<p class="text-xs font-bold text-slate-700"
-x-text="formatTime(issuedData.departDate)"></p>
-</div>
-</div>
-
-<div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
-<div
-class="flex justify-between items-center text-[11px] font-black text-slate-700 uppercase">
-<span x-text="search.originPortName"></span>
-<i data-lucide="move-right" class="w-4 h-4 text-blue-500"></i>
-<span x-text="search.destinationPortName"></span>
-</div>
-</div>
-
-<div class="flex gap-2">
-<button @click="window.print()"
-class="flex-1 bg-slate-800 text-white py-3 rounded-lg font-bold text-[11px] uppercase flex items-center justify-center gap-2">
-<i data-lucide="printer" class="w-4 h-4"></i> Cetak Tiket
-</button>
-<button @click="stage = 'view_detail'"
-class="flex-1 border border-slate-800 text-slate-800 py-3 rounded-lg font-bold text-[11px] uppercase">
-Detail Penumpang
-</button>
-</div>
-</div>
-</div>
-</div>
-</template>
-
-<template x-if="stage === 'view_detail'">
-<div class="min-h-screen bg-[#f8fafc] pt-20 px-4 pb-10">
-<div
-class="fixed top-0 inset-x-0 bg-white border-b border-slate-200 p-4 z-50 flex items-center gap-4 max-w-md mx-auto">
-<button @click="stage = 'issued_success'" class="text-slate-800">
-<i data-lucide="chevron-left" class="w-6 h-6"></i>
-</button>
-<h2 class="font-bold text-xs uppercase tracking-widest text-slate-700">Informasi Penumpang</h2>
-</div>
-
-<div class="max-w-md mx-auto space-y-3">
-<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-<div class="bg-blue-50 p-3 rounded-lg">
-<i data-lucide="ship" class="w-6 h-6 text-[#0194f3]"></i>
-</div>
-<div>
-<p class="text-[9px] font-bold text-slate-400 uppercase">Nama Kapal</p>
-<p class="text-sm font-black text-slate-800 uppercase"
-x-text="bookingDetailData.shipName"></p>
-</div>
-</div>
-
-<template x-for="(pax, index) in bookingDetailData.paxBookingDetails" :key="index">
-<div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-<div class="flex justify-between items-start border-b border-slate-50 pb-3">
-<p class="text-sm font-black text-slate-800 uppercase" x-text="pax.paxName"></p>
-<span
-class="text-[8px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase">Verified</span>
-</div>
-
-<div class="grid grid-cols-3 gap-4">
-<div class="text-center">
-<p class="text-[8px] font-bold text-slate-400 uppercase mb-1">Deck</p>
-<p class="text-sm font-black text-[#0194f3]" x-text="pax.deck"></p>
-</div>
-<div class="text-center border-x border-slate-100">
-<p class="text-[8px] font-bold text-slate-400 uppercase mb-1">Kabin</p>
-<p class="text-sm font-black text-[#0194f3]" x-text="pax.cabin"></p>
-</div>
-<div class="text-center">
-<p class="text-[8px] font-bold text-slate-400 uppercase mb-1">Bed</p>
-<p class="text-sm font-black text-[#0194f3]" x-text="pax.bed"></p>
-</div>
-</div>
-</div>
-</template>
-</div>
-</div>
-</template>
-
-<!-- <button @click="location.reload()"
-class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs italic active:scale-95">
-Selesai & Keluar
-</button> -->
-</div>
-</template>
-
-<div x-show="loading"
-class="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-[150]" x-cloak>
-<div class="text-center relative">
-<div
-class="w-20 h-20 border-4 border-slate-100 border-t-[#0194f3] rounded-full animate-spin-slow mx-auto">
-</div>
-<div class="absolute inset-0 flex items-center justify-center top-[-10px]">
-<i data-lucide="ship" class="w-8 h-8 text-[#0194f3] animate-bounce"></i>
-</div>
-<p class="text-slate-800 font-black uppercase tracking-widest text-[10px] mt-4" x-text="loadingText">
-</p>
-</div>
-</div>
-
-<div x-show="toast.show" x-transition x-cloak
-class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest px-6 py-3 rounded-full shadow-2xl z-[200]">
-<span x-text="toast.message"></span>
-</div>
-
-</div>
-</div>
-
-<script>
-document.addEventListener('alpine:init', () => {
-Alpine.data('shipApp', () => ({
-stage: 'search_form',
-loading: false,
-loadingText: 'Memuat...',
-toast: { show: false, message: '', timeout: null },
-showPaxModal: false,
-search: {
-originPort: '', destinationPort: '', departDate: '',
-originPortName: '', destinationPortName: '', departDateLabel: '',
-adultsMale: 1, adultsFemale: 0, infants: 0, family: false, numCode: ''
-},
-buyer: { name: '', email: '', phone: '', address: '' },
-originPortList: [],
-destinationPortList: [],
-scheduleList: [],
-availabilityData: null,
-passengers: [],
-bookingData: null,
-issuedData: null,
-roomList: [],
-bookingDetailData: null,
-popularDests: [
-{ name: 'Surabaya', code: '563' }, { name: 'Jakarta', code: '431' },
-{ name: 'Belawan', code: '144' }, { name: 'Semarang', code: '494' }
-],
-searchQuery: '',
-showPortModal: false,
-portModalType: 'origin',
-// Di dalam x-data
-filterClass: 'ALL',
-selectedSchedule: null,
-showPassengerModal: false,
-selectedPaxIndex: null,
-tempPax: {},
-serviceFee: 0,
-
-get filteredSchedules() {
-if (this.filterClass === 'ALL') return this.scheduleList;
-
-// Hanya tampilkan kapal yang memiliki kelas tersebut
-return this.scheduleList.filter(ship =>
-ship.scheduleFares.some(fare => fare.class === this.filterClass)
-);
-},
-
-getDisplayFare(ship) {
-if (!ship || !ship.scheduleFares || ship.scheduleFares.length === 0) {
-return { adultFare: 0, class: '-' };
-}
-
-if (this.filterClass === 'ALL') return ship.scheduleFares[0];
-
-const fare = ship.scheduleFares.find(f => f.class === this.filterClass);
-return fare || ship.scheduleFares[0];
-},
-
-async init() {
-this.loading = true;
-
-// 1. Set batas minimum tanggal (Hari ini)
-// Format YYYY-MM-DD
-this.minDate = new Date().toISOString().split('T')[0];
-
-// 2. Ambil data pelabuhan dari API
-await this.getPorts();
-
-// 3. Set tanggal default (Besok)
-this.setDefaultDepartDate();
-
-// 4. Inisialisasi library ikon (jika menggunakan Lucide)
-this.refreshIcons();
-
-// 5. Watcher untuk menyinkronkan Kode Port ke Nama Port (Asal)
-this.$watch('search.originPort', (val) => {
-const p = this.originPortList.find(x => x.code === val);
-this.search.originPortName = p ? p.name : '';
-});
-
-// 6. Watcher untuk menyinkronkan Kode Port ke Nama Port (Tujuan)
-this.$watch('search.destinationPort', (val) => {
-const p = this.destinationPortList.find(x => x.code === val);
-this.search.destinationPortName = p ? p.name : '';
-});
-
-this.loading = false;
-},
-
-// --- Fungsi Pendukung ---
-// Contoh saat menerima respons API
-handleApiResponse(response) {
-const rootOrigin = response.originName; // "Belawan"
-const rootDestination = response.destinationName; // "Tanjung Balai Karimun"
-
-// Misal pengguna memilih schedule pertama (index 0)
-const selectedSchedule = response.schedules[0];
-
-// Gabungkan data agar properti Name tersedia di dalam availabilityData
-this.availabilityData = {
-...selectedSchedule,
-originName: rootOrigin,
-destinationName: rootDestination,
-// Jika perlu menyimpan kelas yang dipilih
-selectedClass: selectedSchedule.scheduleFares[0].class
-};
-},
-
-// Di dalam x-data Alpine.js
-calculateDuration(depart, arrival) {
-const start = new Date(depart);
-const end = new Date(arrival);
-const diffMs = end - start; // Selisih dalam milidetik
-
-const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-const diffHrs = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-let duration = "";
-if (diffDays > 0) duration += `${diffDays}h `;
-if (diffHrs > 0) duration += `${diffHrs}j `;
-if (diffMins > 0) duration += `${diffMins}m`;
-
-return duration || "0m";
-},
-
-setDefaultDepartDate() {
-const t = new Date();
-// Set ke besok hari
-t.setDate(t.getDate() + 1);
-this.search.departDate = t.toISOString().split('T')[0];
-this.updateDepartDateLabel();
-},
-
-updateDepartDateLabel() {
-if (this.search.departDate) {
-// Proteksi jika user memasukkan tanggal manual yang lebih kecil dari minDate
-if (this.search.departDate < this.minDate) {
-this.setDefaultDepartDate();
-return;
-}
-
-const d = new Date(this.search.departDate);
-this.search.departDateLabel = d.toLocaleDateString('id-ID', {
-day: 'numeric',
-month: 'short',
-year: 'numeric'
-});
-}
-},
-
-refreshIcons() {
-// Jika Anda menggunakan Lucide icons
-if (window.lucide) {
-window.lucide.createIcons();
-}
-},
-
-async getPorts() {
-try {
-// Sesuai dengan respons yang Anda berikan
-const res = await fetch('https://darma.siappgo.id/api/ship/routes', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' }
-});
-const data = await res.json();
-
-if (data.status === "SUCCESS") {
-// Mapping data origins ke list internal
-this.originPortList = data.origins.map(p => ({
-code: p.originPort,
-name: p.originName
-}));
-
-// Mapping data destinations ke list internal
-this.destinationPortList = data.destinations.map(p => ({
-code: p.destinationPort,
-name: p.destinationName
-}));
-} else {
-this.showToast('Gagal mengambil data rute');
-}
-} catch (e) {
-console.error(e);
-this.showToast('Gagal memuat rute (Server Error)');
-} finally {
-this.loading = false;
-}
-},
-
-// --- Logika Helper & Bisnis (Dipertahankan) ---
-refreshIcons() { this.$nextTick(() => { if (window.lucide) lucide.createIcons(); }); },
-
-showToast(msg) {
-this.toast.message = msg; this.toast.show = true;
-if (this.toast.timeout) clearTimeout(this.toast.timeout);
-this.toast.timeout = setTimeout(() => { this.toast.show = false; }, 3000);
-},
-
-changePax(type, delta) {
-let newVal = parseInt(this.search[type]) + delta;
-if (newVal < 0) return;
-if (type === 'infants') {
-let totalAdults = parseInt(this.search.adultsMale) + parseInt(this.search.adultsFemale);
-if (newVal > totalAdults) { this.showToast('Jumlah bayi tidak boleh melebihi dewasa'); return; }
-}
-this.search[type] = newVal;
-},
-
-async performSearch() {
-if (!this.search.originPort || !this.search.destinationPort) {
-this.showToast('Pilih Asal & Tujuan!');
-return;
-}
-this.loading = true;
-this.loadingText = 'Mencari Jadwal...';
-try {
-const startDate = new Date(this.search.departDate);
-const endDate = new Date(this.search.departDate);
-endDate.setDate(startDate.getDate() + 3);
-
-const payload = {
-originPort: this.search.originPort,
-destinationPort: this.search.destinationPort,
-departStartDate: startDate.toISOString().split('T')[0] + 'T00:00:00Z',
-departEndDate: endDate.toISOString().split('T')[0] + 'T23:59:59Z'
-};
-
-const res = await fetch('https://darma.siappgo.id/api/ship/schedule', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-const data = await res.json();
-
-if (data.status === "SUCCESS") {
-this.scheduleList = data.schedules || [];
-this.stage = 'search_results';
-} else {
-this.showToast(data.respMessage);
-}
-} finally {
-this.loading = false;
-this.refreshIcons();
-}
-},
-
-// Buat fungsi helper untuk menyusun array pax agar konsisten di semua tahap
-generatePaxPayload() {
-const paxData = [];
-if (parseInt(this.search.adultsMale) > 0) {
-paxData.push({ paxType: 0, paxGender: 0, paxTotal: parseInt(this.search.adultsMale) });
-}
-if (parseInt(this.search.adultsFemale) > 0) {
-paxData.push({ paxType: 0, paxGender: 1, paxTotal: parseInt(this.search.adultsFemale) });
-}
-if (parseInt(this.search.infants) > 0) {
-paxData.push({ paxType: 2, paxGender: 0, paxTotal: parseInt(this.search.infants) });
-}
-return paxData;
-},
-
-async selectSchedule(ship) {
-this.loading = true;
-this.loadingText = 'Mengecek ketersediaan...';
-try {
-const payload = {
-originPort: this.search.originPort,
-originCall: ship.originCall,
-destinationPort: this.search.destinationPort,
-destinationCall: ship.destCall,
-shipNumber: ship.shipNumber,
-departDate: ship.departDateTime + 'Z',
-subClass: ship.scheduleFares[0].subClass,
-pax: this.generatePaxPayload()
-};
-
-const res = await fetch('https://darma.siappgo.id/api/ship/availability', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-
-const data = await res.json();
-
-if (data.status === "SUCCESS") {
-// MAPPING KRUSIAL DISINI
-this.availabilityData = {
-...data, // Data dari availability (harga, dll)
-...ship, // Data dari schedule (nama kapal, dll)
-// Pastikan nama properti tanggal seragam
-departDate: data.departDate || ship.departDateTime,
-originName: this.search.originPortName,
-destinationName: this.search.destinationPortName,
-// Ambil routeInfo agar nama pelabuhan muncul lengkap
-routeInfo: ship.routeInfo
-};
-this.stage = 'booking_confirmation';
-} else {
-this.showToast(data.respMessage);
-}
-} finally {
-this.loading = false;
-this.refreshIcons();
-}
-},
-
-async getRoomAndProceed() {
-if (!this.buyer.name || !this.buyer.phone || !this.buyer.email) {
-this.showToast('Lengkapi Data Pemesan (Nama, No HP, Email)!');
-return;
-}
-
-this.loading = true;
-this.loadingText = 'Mendapatkan Kamar...';
-
-try {
-const paxD = [];
-if (parseInt(this.search.adultsMale) > 0) paxD.push({ paxType: 0, paxGender: 0, paxTotal: parseInt(this.search.adultsMale) });
-if (parseInt(this.search.adultsFemale) > 0) paxD.push({ paxType: 0, paxGender: 1, paxTotal: parseInt(this.search.adultsFemale) });
-if (parseInt(this.search.infants) > 0) paxD.push({ paxType: 2, paxGender: 0, paxTotal: parseInt(this.search.infants) });
-
-const payload = {
-originPort: this.search.originPort,
-originCall: this.availabilityData.originCall,
-destinationPort: this.search.destinationPort,
-destinationCall: this.availabilityData.destinationCall,
-shipNumber: this.availabilityData.shipNumber,
-departDate: this.availabilityData.departDate,
-subClass: this.availabilityData.subClass,
-pax: paxD,
-ticketBuyerName: this.buyer.name,
-ticketBuyerEmail: this.buyer.email,
-ticketBuyerAddress: this.buyer.address || 'Indonesia',
-ticketBuyerPhone: this.buyer.phone,
-family: this.search.family
-};
-
-const res = await fetch('https://darma.siappgo.id/api/ship/get-room', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-
-const data = await res.json();
-
-if (data.status === "SUCCESS") {
-// CRITICAL: Jangan timpa total! Gabungkan data lama dengan data baru
-// Ini akan menjaga originName, destinationName, shipName tetap ada
-this.availabilityData = { ...this.availabilityData, ...data };
-
-this.search.numCode = data.numCode;
-this.roomList = data.rooms || [];
-this.preparePassengerForm();
-} else {
-this.showToast(data.respMessage);
-}
-} catch (error) {
-console.error("Terjadi kesalahan:", error);
-this.showToast("Gagal menghubungi server.");
-} finally {
-this.loading = false;
-}
-},
-preparePassengerForm() {
-this.passengers = [];
-let paxIdx = 0;
-
-const addPax = (type, gender) => {
-// Ambil data kamar berdasarkan index penumpang
-const room = this.roomList[paxIdx] || {};
-this.passengers.push({
-firstName: '',
-lastName: '',
-birthDate: '',
-ID: '',
-phone: '',
-paxType: type,
-paxGender: gender,
-// Simpan info kamar langsung ke objek penumpang agar modal bisa baca
-roomInfo: room.deck ? `${room.deck} / ${room.cabin}-${room.bed}` : 'Otomatis'
-});
-paxIdx++;
-};
-
-// Gunakan nilai dari search (pastikan berupa Number)
-for (let i = 0; i < parseInt(this.search.adultsMale); i++) addPax(0, 0);
-for (let i = 0; i < parseInt(this.search.adultsFemale); i++) addPax(0, 1);
-for (let i = 0; i < parseInt(this.search.infants); i++) addPax(2, 0);
-
-this.stage = 'passenger_form';
-// Gunakan timeout sedikit agar DOM ter-render dulu sebelum load ikon
-setTimeout(() => { this.refreshIcons(); }, 100);
-},
-
-// 2. Fungsi untuk membuka modal
-editPassenger(index) {
-this.selectedPaxIndex = index;
-// Menggunakan spread operator untuk clone object agar modal tidak merusak data asli sebelum di-save
-this.tempPax = { ...this.passengers[index] };
-this.showPassengerModal = true;
-this.refreshIcons();
-},
-
-savePassengerData() {
-// Validasi input di dalam modal
-if (!this.tempPax.firstName || !this.tempPax.ID || !this.tempPax.birthDate || !this.tempPax.phone) {
-this.showToast('Lengkapi Nama, NIK, Tgl Lahir, dan No HP!');
-return;
-}
-
-// UPDATE: Masukkan data dari tempPax ke array passengers berdasarkan index yang dipilih
-// Ini adalah kunci agar performBooking() mendeteksi data sudah terisi
-this.passengers[this.selectedPaxIndex] = { ...this.tempPax };
-
-this.showPassengerModal = false;
-this.showToast('Data berhasil disimpan');
-this.refreshIcons();
-},
-
-fillPaxWithBuyer() {
-if (this.passengers.length > 0) {
-// Penumpang pertama (index 0) otomatis mengambil data pemesan
-this.passengers[0].firstName = this.buyer.name;
-this.passengers[0].phone = this.buyer.phone;
-// Opsional: Jika ingin otomatis dianggap valid (isi dummy/default data lain)
-this.showToast('Data penumpang 1 disamakan dengan pemesan');
-}
-},
-
-async performBooking() {
-// 1. Validasi Input
-for (let [idx, p] of this.passengers.entries()) {
-if (!p.firstName || !p.ID || !p.phone || !p.birthDate) {
-this.showToast(`Data Penumpang ${idx + 1} masih ada yang kosong!`);
-return;
-}
-}
-
-// 2. Logika Perhitungan Saldo
-const ticketPrice = parseInt(this.availabilityData.ticketPrice);
-const serviceFee = parseInt(this.availabilityData.serviceFee) || 0;
-const totalPotongSaldoJagel = ticketPrice + serviceFee;
-
-// Log sesuai permintaan:
-console.log("--- LOG TRANSAKSI ---");
-console.log("Harga Tiket (Darmawisata):", ticketPrice);
-console.log("Biaya Layanan (User):", serviceFee);
-console.log("Total Potong Saldo Jagel:", totalPotongSaldoJagel);
-console.log("----------------------");
-
-this.loading = true;
-this.loadingText = 'Memproses reservasi...';
-
-try {
-const payload = {
-numCode: this.search.numCode,
-originPort: this.search.originPort,
-originCall: this.availabilityData.originCall,
-destinationPort: this.search.destinationPort,
-destinationCall: this.availabilityData.destinationCall,
-shipNumber: this.availabilityData.shipNumber,
-departDate: this.availabilityData.departDate,
-paxDetails: this.passengers.map(p => ({
-firstName: p.firstName,
-lastName: p.lastName || p.firstName,
-birthDate: p.birthDate + (p.birthDate.includes('T') ? '' : 'T00:00:00Z'),
-ID: p.ID,
-phone: p.phone,
-paxType: parseInt(p.paxType),
-paxGender: parseInt(p.paxGender)
-})),
-// Opsional: Jika API tujuan menerima info biaya tambahan
-additionalFee: serviceFee,
-totalPrice: totalPotongSaldoJagel
-};
-
-const res = await fetch('https://darma.siappgo.id/api/ship/booking', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-
-const data = await res.json();
-if (data.status === "SUCCESS") {
-this.bookingData = data;
-this.stage = 'booking_success';
-} else {
-this.showToast(data.respMessage);
-}
-} catch (error) {
-this.showToast("Gagal memproses booking.");
-} finally {
-this.loading = false;
-}
-},
-async saveBookingToDatabase(isTicketed = false) {
-try {
-const payload = {
-// Kumpulan response dari semua step API
-scheduleData: {
-originName: this.search.originPortName,
-destinationName: this.search.destinationPortName,
-},
-availabilityData: this.availabilityData || null,
-getRoomData: this.availabilityData || null, // availabilityData sudah di-merge dengan getRoomData
-bookingData: this.bookingData || null,
-issuedData: this.issuedData || null,
-bookingDetailData: this.bookingDetailData || null,
-
-// Data user/pemesan
-userEmail: this.buyer.email || '',
-userName: this.buyer.name || '',
-userId: this.buyer.userId || null, // jika ada session user ID
-
-// Biaya
-serviceFee: parseInt(this.availabilityData?.serviceFee) || 0,
-totalAmount: (parseInt(this.availabilityData?.ticketPrice) || 0)
-+ (parseInt(this.availabilityData?.serviceFee) || 0),
-};
-
-console.log('[DB] 📤 Menyimpan data ke database...', {
-numCode: payload.bookingDetailData?.numCode || payload.bookingData?.numCode,
-bookingNumber: payload.bookingDetailData?.bokingNumber,
-isTicketed,
-});
-
-const res = await fetch('https://darma.siappgo.id/api/ship/save-booking', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload),
-});
-
-const result = await res.json();
-
-if (result.success) {
-console.log(`[DB] ✅ Tersimpan. Booking ID: ${result.booking_id}, Status: ${result.ticket_status}`);
-} else {
-// Non-blocking — jangan tampilkan error ke user, cukup log
-console.warn('[DB] ⚠️ Gagal simpan ke DB:', result.message);
-}
-} catch (err) {
-// Non-blocking — gagal simpan tidak boleh ganggu flow user
-console.error('[DB] ❌ Exception saat simpan ke DB:', err.message);
-}
-},
-
-// ── GANTI fungsi performIssued yang lama dengan ini ───────────────
-async performIssued() {
-this.loading = true;
-this.loadingText = 'Mohon tunggu...';
-try {
-const payload = {
-numCode: this.bookingData.numCode,
-bookingDate: this.bookingData.bookingDateTime.split('+')[0] + 'Z'
-};
-
-const res = await fetch('https://darma.siappgo.id/api/ship/issued', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-
-const data = await res.json();
-
-if (data.status === "SUCCESS") {
-this.issuedData = data;
-
-// Panggil detail untuk dapatkan data lengkap (nomor tiket, kabin, dll)
-await this.getBookingDetail(
-data.bookingNumber,
-this.bookingData.numCode,
-data.bookingDateTime // ← gunakan bookingDateTime dari issued response
-);
-
-this.showToast('Tiket Berhasil Diterbitkan!');
-// Stage akan otomatis pindah ke 'view_detail' di dalam getBookingDetail
-} else {
-this.showToast(data.respMessage || 'Gagal Issued Tiket');
-}
-} catch (e) {
-this.showToast('Koneksi terputus saat proses Issued');
-} finally {
-this.loading = false;
-this.refreshIcons();
-}
-},
-
-// Tambahkan di dalam Alpine data Anda
-// Tambahkan di dalam Alpine.data('shipApp', ...
-bookingDetailData: null,
-
-async getBookingDetail(bokingNumber, numCode, bookingDate) {
-this.loading = true;
-this.loadingText = 'Mengambil Detail Tiket...';
-try {
-const payload = {
-bokingNumber: bokingNumber,
-numCode: numCode,
-bookingDate: bookingDate
-};
-
-const res = await fetch('https://darma.siappgo.id/api/ship/booking-detail', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify(payload)
-});
-
-const data = await res.json();
-
-if (data.status === "SUCCESS") {
-this.bookingDetailData = data;
-this.stage = 'view_detail';
-this.showToast('Detail Tiket Berhasil Dimuat');
-
-// ✅ TAMBAHAN: Simpan ke database setelah detail berhasil didapat
-// Non-blocking (tidak await) agar UI tidak tertahan
-this.saveBookingToDatabase(true);
-
-} else {
-this.showToast(data.respMessage || 'Gagal mengambil detail');
-}
-} catch (e) {
-this.showToast('Gangguan koneksi ke server');
-} finally {
-this.loading = false;
-this.refreshIcons();
-}
-},
-setDefaultDepartDate() {
-const t = new Date();
-t.setDate(t.getDate() + 1);
-this.search.departDate = t.toISOString().split('T')[0];
-this.updateDepartDateLabel();
-},
-
-updateDepartDateLabel() {
-if (this.search.departDate) {
-const d = new Date(this.search.departDate);
-this.search.departDateLabel = d.toLocaleDateString('id-ID', {
-day: 'numeric',
-month: 'short',
-year: 'numeric'
-});
-}
-},
-selectPopularDest(dest) { this.search.destinationPort = dest.code; this.showToast(`Tujuan: ${dest.name}`); },
-formatDate(iso) { return iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : ''; },
-formatTime(iso) { return iso ? new Date(iso).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : ''; },
-formatCurrency(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); }
-}));
-});
-</script>
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+        <div x-data="shipApp()" x-init="init()" class="relative">
+
+            <template x-if="stage === 'search_form'">
+                <div class="bg-[#f5f6f8] min-h-screen">
+                    <div
+                        class="bg-white text-slate-800 h-16 z-50 shadow-sm max-w-md mx-auto flex items-center px-4 gap-4">
+                        <button @click="/* handle back */" class="p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-700">PELNI</h1>
+                    </div>
+
+                    <div class="pt-6 px-4 space-y-6 max-w-md mx-auto">
+                        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                            <div class="space-y-6">
+
+                                <div class="flex items-start gap-4 cursor-pointer"
+                                    @click="portModalType = 'origin'; showPortModal = true; searchQuery = ''">
+                                    <div class="mt-1 text-gray-400">
+                                        <i data-lucide="map-pin"></i>
+                                    </div>
+                                    <div class="flex-1 border-b border-gray-200 pb-2">
+                                        <label class="block text-sm font-medium text-gray-400">Dari</label>
+                                        <div class="text-gray-800 font-semibold"
+                                            x-text="search.originPort ? originPortList.find(p => p.code === search.originPort)?.name : 'Pilih Kota Asal'">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start gap-4 cursor-pointer mt-6"
+                                    @click="portModalType = 'destination'; showPortModal = true; searchQuery = ''">
+                                    <div class="mt-1 text-gray-400">
+                                        <i data-lucide="map-pin"></i>
+                                    </div>
+                                    <div class="flex-1 border-b border-gray-200 pb-2">
+                                        <label class="block text-sm font-medium text-gray-400">Ke</label>
+                                        <div class="text-gray-800 font-semibold"
+                                            x-text="search.destinationPort ? destinationPortList.find(p => p.code === search.destinationPort)?.name : 'Pilih Kota Tujuan'">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start gap-4">
+                                    <div class="mt-1 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 border-b border-gray-200 pb-2">
+                                        <label class="block text-sm font-medium text-gray-400">Tanggal Berangkat</label>
+                                        <input type="date" x-model="search.departDate" :min="minDate"
+                                            @change="updateDepartDateLabel()"
+                                            class="w-full bg-transparent text-gray-800 font-semibold focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start gap-4 cursor-pointer" @click="showPaxModal = true">
+                                    <div class="mt-1 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 border-b border-gray-200 pb-2">
+                                        <label class="block text-sm font-medium text-gray-400">Penumpang</label>
+                                        <div class="text-gray-800 font-semibold"
+                                            x-text="`${parseInt(search.adultsMale) + parseInt(search.adultsFemale)} Dewasa` + (search.infants > 0 ? `, ${search.infants} Bayi` : '')">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button @click="performSearch()" :disabled="loading"
+                                class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-bold text-lg shadow-md active:scale-[0.98] transition-all mt-8">
+                                <span x-show="!loading">Cari Kapal Laut</span>
+                                <span x-show="loading">Mencari...</span>
+                            </button>
+                        </div>
+
+                        <!-- <div class="mt-4">
+                            <h2 class="text-lg font-bold text-gray-700 mb-3">Promo Tiket kapal laut</h2>
+                            <div class="rounded-xl overflow-hidden shadow-sm">
+                                <img src="https://placehold.co/600x200?text=Promo+Pelni" class="w-full" alt="Promo">
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </template>
+
+            <!-- Modal Penumpang -->
+            <div x-show="showPaxModal" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 backdrop-blur-sm">
+
+                <div @click.away="showPaxModal = false" x-show="showPaxModal"
+                    x-transition:enter="transition ease-out duration-300 transform"
+                    x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+                    x-transition:leave="transition ease-in duration-200 transform"
+                    x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
+                    class="bg-white w-full max-w-md rounded-t-3xl p-6 flex flex-col overflow-hidden">
+
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">Jumlah penumpang</h3>
+                        <button @click="showPaxModal = false" class="text-gray-400">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+
+                    <!-- List Input Penumpang -->
+                    <div class="space-y-6">
+                        <!-- Laki-laki -->
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                            <div>
+                                <div class="text-blue-500 font-medium">Laki-Laki</div>
+                                <div class="text-sm text-gray-500">Di atas 2 tahun (dewasa)</div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <button @click="changePax('adultsMale', -1)"
+                                    class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold">-</button>
+                                <span class="w-4 text-center font-bold" x-text="search.adultsMale"></span>
+                                <button @click="changePax('adultsMale', 1)"
+                                    class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Perempuan -->
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                            <div>
+                                <div class="text-blue-500 font-medium">Perempuan</div>
+                                <div class="text-sm text-gray-500">Di atas 2 tahun (dewasa)</div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <button @click="changePax('adultsFemale', -1)"
+                                    class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold">-</button>
+                                <span class="w-4 text-center font-bold" x-text="search.adultsFemale"></span>
+                                <button @click="changePax('adultsFemale', 1)"
+                                    class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Bayi -->
+                        <div class="border-b border-gray-100 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-blue-500 font-medium">Bayi</div>
+                                    <div class="text-sm text-gray-500">Usia di bawah 2 tahun</div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <button @click="changePax('infants', -1)"
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold">-</button>
+                                    <span class="w-4 text-center font-bold" x-text="search.infants"></span>
+                                    <button @click="changePax('infants', 1)"
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold">+</button>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-1">Jumlah bayi tidak boleh melebihi penumpang
+                                dewasa</div>
+                        </div>
+
+                        <!-- Toggle Keluarga -->
+                        <div class="flex items-center justify-between py-2">
+                            <div>
+                                <div class="text-gray-700 font-medium">Keluarga</div>
+                                <div class="text-xs text-gray-400">Semua penumpang adalah satu keluarga</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="search.family" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Simpan -->
+                    <button @click="showPaxModal = false"
+                        class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-bold text-lg mt-6 shadow-md">
+                        Simpan
+                    </button>
+                </div>
+            </div>
+
+            <div x-show="showPortModal" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 backdrop-blur-sm">
+
+                <div @click.away="showPortModal = false" x-show="showPortModal"
+                    x-transition:enter="transition ease-out duration-300 transform"
+                    x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+                    x-transition:leave="transition ease-in duration-200 transform"
+                    x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
+                    class="bg-white w-full max-w-md rounded-t-3xl h-[85vh] flex flex-col overflow-hidden">
+
+                    <div class="w-full flex justify-center py-3">
+                        <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+                    </div>
+
+                    <div class="px-6 pb-4 border-b border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-800"
+                            x-text="portModalType === 'origin' ? 'Pilih Pelabuhan Asal' : 'Pilih Pelabuhan Tujuan'">
+                        </h3>
+
+                        <div class="mt-4 relative">
+                            <input type="text" x-model="searchQuery" placeholder="Cari pelabuhan atau kota..."
+                                class="w-full bg-gray-100 border-none rounded-xl py-3 pl-11 pr-4 focus:ring-2 focus:ring-[#009ff9] text-sm">
+                            <div class="absolute left-4 top-3.5 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-4">
+                        <div class="space-y-1">
+                            <template
+                                x-for="port in (portModalType === 'origin' ? originPortList : destinationPortList).filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))"
+                                :key="port.code">
+                                <button
+                                    @click="if(portModalType === 'origin') { search.originPort = port.code } else { search.destinationPort = port.code }; showPortModal = false"
+                                    class="w-full text-left px-4 py-4 hover:bg-blue-50 rounded-xl transition-colors flex items-center justify-between group">
+                                    <div>
+                                        <div class="font-bold text-gray-800" x-text="port.name"></div>
+
+                                    </div>
+                                    <i class="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </i>
+                                </button>
+                            </template>
+
+                            <div x-show="(portModalType === 'origin' ? originPortList : destinationPortList).filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0"
+                                class="py-10 text-center text-gray-400">
+                                Pelabuhan tidak ditemukan.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <template x-if="stage === 'search_results'">
+                <div class="bg-[#f5f6f8] min-h-screen pb-40">
+                    <div class="fixed top-0 inset-x-0 bg-white z-50 shadow-sm max-w-md mx-auto">
+                        <div class="flex items-center gap-3 p-4">
+                            <button @click="stage = 'search_form'; selectedSchedule = null" class="p-1">
+                                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                            </button>
+                            <div class="flex-1">
+                                <h2 class="font-bold text-sm text-slate-700 uppercase"
+                                    x-text="search.originPortName + ' - ' + search.destinationPortName"></h2>
+                                <p class="text-xs text-gray-500" x-text="search.departDateLabel"></p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 p-3 overflow-x-auto scrollbar-hide bg-white border-t border-gray-50">
+                            <button @click="filterClass = 'ALL'; selectedSchedule = null"
+                                :class="filterClass === 'ALL' ? 'border-[#0194f3] text-[#24b3ae] bg-blue-50' : 'border-gray-200 text-gray-500'"
+                                class="flex-shrink-0 px-4 py-1.5 border rounded-full text-sm font-medium">Semua</button>
+                            <template x-for="cls in ['EK1', 'EK2', 'EKO', '1A', '2A']">
+                                <button @click="filterClass = cls; selectedSchedule = null"
+                                    :class="filterClass === cls ? 'border-[#0194f3] text-[#24b3ae] bg-blue-50' : 'border-gray-200 text-gray-500'"
+                                    class="flex-shrink-0 px-4 py-1.5 border rounded-full text-sm font-medium"
+                                    x-text="cls"></button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="pt-36 px-4 space-y-3">
+                        <template x-for="ship in filteredSchedules" :key="ship.shipNumber + ship.departDateTime">
+                            <div @click="selectedSchedule = ship"
+                                :class="selectedSchedule === ship ? 'border-[#0194f3] ring-1 ring-[#0194f3]' : 'border-transparent'"
+                                class="bg-white rounded-xl p-5 shadow-sm border transition-all cursor-pointer">
+
+                                <div class="mb-4">
+                                    <h3 class="font-bold text-slate-700 text-sm uppercase" x-text="ship.shipName"></h3>
+                                    <div class="text-[11px] text-gray-400 flex gap-2 font-medium">
+                                        <span x-text="ship.shipNumber"></span>
+                                        <span>•</span>
+                                        <span class="text-[#24b3ae] font-bold"
+                                            x-text="getDisplayFare(ship).class"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="text-left w-20">
+                                        <div class="text-lg font-bold text-slate-800"
+                                            x-text="formatTime(ship.departDateTime)"></div>
+                                        <div class="text-[10px] font-bold text-gray-400 uppercase"
+                                            x-text="search.originPort"></div>
+                                    </div>
+
+                                    <div class="flex-1 px-4 flex flex-col items-center">
+                                        <span
+                                            class="text-[10px] text-[#24b3ae] font-bold mb-1 bg-blue-50 px-2 py-0.5 rounded"
+                                            x-text="calculateDuration(ship.departDateTime, ship.arrivalDateTime)"></span>
+
+                                        <div
+                                            class="w-full h-[1px] bg-gray-200 relative flex items-center justify-between">
+                                            <div class="w-1.5 h-1.5 rounded-full border border-gray-300 bg-white -ml-1">
+                                            </div>
+                                            <div class="w-1.5 h-1.5 rounded-full border border-gray-300 bg-white -mr-1">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-right w-20">
+                                        <div class="text-lg font-bold text-slate-800"
+                                            x-text="formatTime(ship.arrivalDateTime)"></div>
+                                        <div class="text-[10px] font-bold text-gray-400 uppercase"
+                                            x-text="search.destinationPort"></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between text-[9px] text-gray-400 mb-4">
+                                    <span x-text="formatDate(ship.departDateTime)"></span>
+                                    <span x-text="formatDate(ship.arrivalDateTime)"></span>
+                                </div>
+
+                                <div class="flex justify-between items-end border-t border-dashed border-gray-100 pt-3">
+                                    <span class="text-[10px] font-bold text-green-500 flex items-center gap-1">
+                                        <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> Tersedia
+                                    </span>
+                                    <div class="text-right">
+                                        <div class="flex items-baseline justify-end gap-1">
+                                            <span class="text-[#24b3ae] font-bold text-lg"
+                                                x-text="formatCurrency(getDisplayFare(ship).adultFare)"></span>
+                                            <span class="text-[10px] text-gray-400">/org</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div
+                        class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 p-4 z-50 max-w-md mx-auto shadow-2xl">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Total
+                                    Pembayaran</span>
+                                <span class="text-[#24b3ae] font-bold text-xl"
+                                    x-text="selectedSchedule ? formatCurrency(getDisplayFare(selectedSchedule).adultFare) : 'Rp 0'"></span>
+                            </div>
+                            <button :disabled="!selectedSchedule" @click="selectSchedule(selectedSchedule)"
+                                class="bg-[#24b3ae] disabled:bg-gray-200 text-white px-8 py-3 rounded-xl font-bold active:scale-95 transition-all shadow-lg shadow-blue-100">
+                                Lanjutkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+
+
+            <template x-if="stage === 'booking_confirmation'">
+                <div class="bg-slate-50 min-h-screen">
+                    <div
+                        class="fixed top-0 inset-x-0 bg-white text-slate-800 p-4 z-50 shadow-sm flex items-center gap-4 max-w-md mx-auto">
+                        <button @click="stage = 'search_results'" class="p-1">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <h2 class="font-bold text-lg">Data Pemesan</h2>
+                    </div>
+
+                    <div class="pt-20 px-4 pb-10 space-y-4 max-w-md mx-auto">
+                        <div class="bg-white rounded-xl p-4 shadow-sm space-y-4">
+                            <div class="space-y-4">
+                                <div class="group">
+                                    <label class="hidden">Nama</label>
+                                    <input type="text" x-model="buyer.name" placeholder="Nama"
+                                        class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20">
+                                </div>
+                                <div class="group">
+                                    <label class="hidden">Email</label>
+                                    <input type="email" x-model="buyer.email" placeholder="Email"
+                                        class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20">
+                                </div>
+                                <div class="group">
+                                    <label class="hidden">Telepon</label>
+                                    <input type="tel" x-model="buyer.phone" placeholder="Telepon"
+                                        class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20">
+                                </div>
+                                <div class="group">
+                                    <label class="hidden">Alamat</label>
+                                    <textarea x-model="buyer.address" placeholder="Alamat" rows="3"
+                                        class="w-full p-4 bg-slate-50 border-none rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+                                </div>
+                            </div>
+
+                            <button @click="getRoomAndProceed()"
+                                class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-bold text-base shadow-md active:scale-[0.98] transition-all">
+                                Lanjutkan
+                            </button>
+                        </div>
+
+                        <div class="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
+                            <p class="text-sm text-slate-700 leading-relaxed">
+                                Informasi data pemesan digunakan untuk mengonfirmasi pesanan dan pengiriman e-tiket.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="stage === 'passenger_form'">
+                <div class="bg-slate-50 min-h-screen pb-32">
+                    <div
+                        class="fixed top-0 inset-x-0 bg-white text-slate-800 p-4 z-50 shadow-sm flex items-center gap-4 max-w-md mx-auto">
+                        <button @click="stage = 'booking_confirmation'" class="p-1">
+                            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                        </button>
+                        <h2 class="font-bold text-lg">Data Penumpang</h2>
+                    </div>
+
+                    <div class="pt-20 px-4 space-y-4 max-w-md mx-auto">
+                        <!-- Info Tiket Tetap -->
+                        <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-100 space-y-3">
+                            <div>
+                                <p class="text-xs text-slate-400">Pelabuhan Tujuan</p>
+                                <p class="text-sm font-bold text-slate-700 uppercase"
+                                    x-text="availabilityData.destinationName || 'PELABUHAN TUJUAN'"></p>
+                            </div>
+                            <hr class="border-slate-50">
+                            <div class="flex justify-between items-start">
+                                <div class="space-y-1">
+                                    <p class="text-xs font-medium text-slate-600">
+                                        <span x-text="formatDate(availabilityData.departDateTime)"></span> •
+                                        <span x-text="availabilityData.shipNumber"></span>
+                                    </p>
+                                    <p class="text-[10px] font-bold text-blue-500 uppercase"
+                                        x-text="availabilityData.shipName"></p>
+                                </div>
+                                <span class="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-500"
+                                    x-text="availabilityData.selectedClass || 'EKO'"></span>
+                            </div>
+                            <hr class="border-slate-50">
+                            <div>
+                                <p class="text-xs text-slate-400 mb-1">Rute Perjalanan</p>
+                                <p class="text-[11px] leading-tight text-slate-600 uppercase font-semibold"
+                                    x-text="availabilityData.routeInfo || (availabilityData.originName + ' - ' + availabilityData.destinationName)">
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <h3 class="font-bold text-slate-800 text-sm ml-1 uppercase tracking-wide">Data pemesan</h3>
+                            <div class="bg-white rounded-lg p-5 shadow-sm border border-slate-100">
+                                <p class="font-bold text-slate-800 text-base" x-text="availabilityData.ticketBuyerName">
+                                </p>
+                                <p class="text-sm text-slate-500 font-medium"
+                                    x-text="availabilityData.ticketBuyerPhone"></p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center ml-1">
+                                <div class="space-y-0.5">
+                                    <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wide">Data penumpang
+                                    </h3>
+                                    <p class="text-[10px] text-slate-400">Sama dengan pemesan</p>
+                                </div>
+                                <input type="checkbox" class="toggle toggle-primary toggle-sm shadow-sm"
+                                    @change="$event.target.checked ? fillPaxWithBuyer() : null" />
+                            </div>
+
+                            <!-- LIST PENUMPANG DINAMIS -->
+                            <template x-for="(pax, index) in passengers" :key="index">
+                                <div
+                                    class="bg-white rounded-lg p-4 shadow-sm border border-slate-100 flex justify-between items-center">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-semibold text-slate-500"
+                                            x-text="pax.firstName ? (pax.firstName + ' ' + (pax.lastName || '')) : (pax.paxType == 0 ? (pax.paxGender == 0 ? 'Dewasa (Laki-Laki)' : 'Dewasa (Perempuan)') : 'Bayi')">
+                                        </p>
+                                    </div>
+                                    <button @click="editPassenger(index)"
+                                        class="bg-[#24b3ae] text-white text-xs font-bold px-4 py-1.5 rounded-lg active:scale-[0.98] transition-all">
+                                        Pilih
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Biaya Layanan Tetap -->
+                        <div class="space-y-2 mt-4">
+                            <h3 class="font-bold text-slate-800 text-sm ml-1 uppercase tracking-wide">Biaya Layanan
+                                (Opsional)</h3>
+                            <div
+                                class="bg-white rounded-lg p-3 shadow-sm border border-slate-100 flex items-center gap-3">
+                                <span class="text-slate-400 font-bold text-sm">Rp</span>
+                                <input type="number" x-model.number="availabilityData.serviceFee"
+                                    placeholder="Contoh: 5000"
+                                    class="w-full focus:outline-none text-sm font-semibold text-slate-700"
+                                    @input="if(availabilityData.serviceFee < 0) availabilityData.serviceFee = 0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Booking Tetap -->
+                    <div class="fixed bottom-0 inset-x-0 bg-white p-4 border-t border-slate-100 max-w-md mx-auto z-40">
+                        <div class="flex justify-between items-center mb-4 px-1">
+                            <span class="text-sm text-slate-500">Total Pembayaran</span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-[#24b3ae] font-bold text-lg"
+                                    x-text="formatCurrency(parseInt(availabilityData.ticketPrice) + (parseInt(availabilityData.serviceFee) || 0))"></span>
+                                <button
+                                    class="text-[10px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded font-bold border border-blue-100">Detail</button>
+                            </div>
+                        </div>
+                        <button @click="performBooking()"
+                            class="w-full bg-[#24b3ae] text-white py-3.5 rounded-lg font-bold text-base active:scale-95 transition-all shadow-md shadow-blue-100">
+                            Booking
+                        </button>
+                    </div>
+
+                    <!-- MODAL EDIT DINAMIS -->
+                    <div x-show="showPassengerModal"
+                        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                        <div @click.away="showPassengerModal = false"
+                            class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
+                            <div class="flex justify-between items-center p-4 border-b border-slate-100">
+                                <!-- Judul Dinamis -->
+                                <h3 class="font-bold text-slate-700"
+                                    x-text="'Penumpang ' + (selectedPaxIndex + 1) + ' : ' + (tempPax.paxType == 0 ? (tempPax.paxGender == 0 ? 'Laki-Laki' : 'Perempuan') : 'Bayi')">
+                                </h3>
+                                <button @click="showPassengerModal = false" class="text-slate-400"><i data-lucide="x"
+                                        class="w-5 h-5"></i></button>
+                            </div>
+
+                            <div class="p-5 space-y-5">
+                                <div class="bg-slate-100/50 p-4 rounded-xl">
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Deck /
+                                        Cabin-Bed</p>
+                                    <p class="text-xl font-bold text-slate-700 mt-1"
+                                        x-text="tempPax.roomInfo || 'Otomatis'"></p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-sm font-bold text-slate-700">Jenis Kelamin</label>
+                                    <div class="flex">
+                                        <!-- Tombol Gender Dinamis -->
+                                        <button class="bg-[#24b3ae] text-white px-6 py-2.5 rounded-lg font-bold text-sm"
+                                            x-text="tempPax.paxGender == 0 ? 'Pria' : 'Wanita'"></button>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <label class="text-[10px] text-blue-500 font-bold block uppercase">Nama
+                                            Penumpang</label>
+                                        <input type="text" x-model="tempPax.firstName"
+                                            class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1"
+                                            placeholder="Masukkan nama penumpang">
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <label class="text-[10px] text-blue-500 font-bold block uppercase">Tanggal
+                                            Lahir</label>
+                                        <input type="date" x-model="tempPax.birthDate"
+                                            class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1 uppercase">
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <label class="text-[10px] text-blue-500 font-bold block uppercase">No
+                                            Identitas</label>
+                                        <input type="tel" x-model="tempPax.ID"
+                                            class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1"
+                                            placeholder="Nomor KTP">
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <label
+                                            class="text-[10px] text-blue-500 font-bold block uppercase tracking-tight">Telepon</label>
+                                        <input type="tel" x-model="tempPax.phone"
+                                            class="w-full bg-transparent outline-none font-bold text-slate-700 pt-1"
+                                            placeholder="08xxx">
+                                    </div>
+                                </div>
+
+                                <button @click="savePassengerData()"
+                                    class="w-full bg-[#24b3ae] text-white py-3.5 rounded-lg font-bold text-base active:scale-95 transition-all shadow-md shadow-blue-100 mt-2">
+                                    Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="stage === 'booking_success'">
+                <div class="min-h-screen bg-[#f8fafc] pt-20 px-4 pb-10">
+                    <div
+                        class="fixed top-0 inset-x-0 bg-[#24b3ae] text-white p-4 z-50 shadow-sm flex items-center justify-center max-w-md mx-auto">
+                        <h2 class="font-bold text-xs uppercase tracking-widest">Konfirmasi Reservasi</h2>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden max-w-md mx-auto">
+                        <div class="bg-green-500 p-6 text-white text-center">
+
+                            <h3 class="text-lg font-bold uppercase tracking-tight">Booking Berhasil</h3>
+                            <p class="text-[10px] opacity-90 font-medium">Nomor reservasi telah diterbitkan</p>
+                        </div>
+
+                        <div class="p-6 space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Kode Bayar / ID</p>
+                                    <p class="text-lg font-black text-slate-800" x-text="bookingData.numCode"></p>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Total Tagihan</p>
+                                    <p class="text-lg font-black text-orange-600"
+                                        x-text="formatCurrency(parseInt(bookingData.ticketPrice) + (parseInt(serviceFee) || 0))">
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 p-4 rounded-xl flex items-start gap-3 border border-blue-100">
+                                <i data-lucide="info" class="w-5 h-5 text-[#24b3ae] shrink-0"></i>
+                                <p class="text-[11px] text-blue-700 leading-relaxed font-medium">
+                                    Silakan selesaikan pembayaran sebelum batas waktu yang ditentukan untuk menghindari
+                                    pembatalan otomatis.
+                                </p>
+                            </div>
+
+                            <div class="space-y-3 pt-2">
+                                <button @click="performIssued()"
+                                    class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-bold uppercase text-xs shadow-md active:bg-blue-700 transition-all">
+                                    Issued / Terbitkan Tiket
+                                </button>
+                                <button @click="stage = 'search_form'"
+                                    class="w-full bg-white border border-slate-200 text-slate-600 py-4 rounded-xl font-bold uppercase text-xs active:bg-slate-50 transition-all">
+                                    Kembali ke Beranda
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="stage === 'issued_success'">
+                <!-- Script helper untuk memproses waktu di dalam Alpine.js component jika belum ada -->
+                <div x-init="
+                    formatDate = (dateStr) => {
+                        const date = new Date(dateStr);
+                        return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+                    };
+                    formatTime = (dateStr) => {
+                        const date = new Date(dateStr);
+                        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
+                    };
+                ">
+                    <div class="min-h-screen bg-slate-100 pt-20 px-4 pb-10">
+                        <div
+                            class="fixed top-0 inset-x-0 bg-white border-b border-slate-200 p-4 z-50 flex items-center gap-4 max-w-md mx-auto">
+                            <button @click="stage = 'search_form'; location.reload()" class="text-slate-800">
+                                <i data-lucide="arrow-left" class="w-6 h-6"></i>
+                            </button>
+                            <span class="font-bold text-sm text-slate-700 uppercase">E-Ticket Berhasil</span>
+                        </div>
+
+                        <div
+                            class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden max-w-md mx-auto">
+                            <div class="bg-slate-800 p-5 text-white flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="ticket" class="w-5 h-5 text-[#24b3ae]"></i>
+                                    <span class="text-[10px] font-black tracking-widest uppercase">E-Ticket Resmi</span>
+                                </div>
+                                <span
+                                    class="text-[9px] font-bold bg-green-500 px-2 py-1 rounded text-white uppercase">Issued</span>
+                            </div>
+
+                            <div class="p-6 space-y-6">
+                                <div class="text-center border-b border-slate-100 pb-6">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">PNR
+                                        /
+                                        Kode Booking</p>
+                                    <p class="text-4xl font-black text-slate-800 tracking-wider"
+                                        x-text="issuedData.bookingNumber"></p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-y-4">
+                                    <div>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase">Kapal</p>
+                                        <p class="text-xs font-bold text-slate-700" x-text="issuedData.shipNumber"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase">Status</p>
+                                        <p class="text-xs font-bold text-green-600 uppercase"
+                                            x-text="issuedData.bookingStatus"></p>
+                                    </div>
+
+                                </div>
+
+                                <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                                    <div
+                                        class="flex justify-between items-center text-[11px] font-black text-slate-700 uppercase">
+                                        <span x-text="search.originPortName"></span>
+                                        <i data-lucide="move-right" class="w-4 h-4 text-blue-500"></i>
+                                        <span x-text="search.destinationPortName"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <button @click="window.print()"
+                                        class="flex-1 bg-slate-800 text-white py-3 rounded-lg font-bold text-[11px] uppercase flex items-center justify-center gap-2">
+                                        <i data-lucide="printer" class="w-4 h-4"></i> Cetak Tiket
+                                    </button>
+                                    <button @click="stage = 'view_detail'"
+                                        class="flex-1 border border-slate-800 text-slate-800 py-3 rounded-lg font-bold text-[11px] uppercase">
+                                        Detail Penumpang
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="stage === 'view_detail'">
+                <div class="min-h-screen bg-[#f8fafc] pt-20 px-4 pb-10">
+                    <!-- Header -->
+                    <div
+                        class="fixed top-0 inset-x-0 bg-white border-b border-slate-200 p-4 z-50 flex items-center gap-4 max-w-md mx-auto">
+                        <button @click="stage = 'issued_success'" class="text-slate-800">
+                            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                        </button>
+                        <h2 class="font-bold text-xs uppercase tracking-widest text-slate-700">Informasi Penumpang</h2>
+                    </div>
+
+                    <div class="max-w-md mx-auto space-y-3">
+                        <!-- Informasi Kapal & Jadwal Lengkap -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-blue-50 p-3 rounded-lg">
+                                    <i data-lucide="ship" class="w-6 h-6 text-[#24b3ae]"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase">Nama Kapal</p>
+                                    <p class="text-sm font-black text-slate-800 uppercase"
+                                        x-text="bookingDetailData.shipName"></p>
+                                </div>
+                            </div>
+
+                            <!-- Rute & Waktu -->
+                            <div class="pt-3 border-t border-slate-50 grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <p class="text-[8px] font-bold text-slate-400 uppercase">Keberangkatan</p>
+                                    <p class="text-[11px] font-black text-slate-700"
+                                        x-text="bookingDetailData.originName"></p>
+                                    <p class="text-[10px] text-blue-600 font-bold"
+                                        x-text="formatDate(bookingDetailData.departDateTime) + ' | ' + formatTime(bookingDetailData.departDateTime)">
+                                    </p>
+                                </div>
+                                <div class="space-y-1 text-right">
+                                    <p class="text-[8px] font-bold text-slate-400 uppercase">Kedatangan</p>
+                                    <p class="text-[11px] font-black text-slate-700"
+                                        x-text="bookingDetailData.destinationName"></p>
+                                    <p class="text-[10px] text-slate-500 font-bold"
+                                        x-text="formatDate(bookingDetailData.arrivalDateTime) + ' | ' + formatTime(bookingDetailData.arrivalDateTime)">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Loop Penumpang -->
+                        <template x-for="(pax, index) in bookingDetailData.paxBookingDetails" :key="index">
+                            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                                <div class="flex justify-between items-start border-b border-slate-50 pb-3">
+                                    <div>
+                                        <!-- Logika Membersihkan Nama Duplikat -->
+                                        <p class="text-sm font-black text-slate-800 uppercase"
+                                            x-text="[...new Set(pax.paxName.split(' '))].join(' ')"></p>
+                                        <p class="text-[10px] text-slate-500 font-medium" x-text="'ID: ' + pax.ID"></p>
+                                    </div>
+                                    <span
+                                        class="text-[8px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded uppercase">Verified</span>
+                                </div>
+
+                                <!-- Info Tambahan Penumpang -->
+                                <div class="grid grid-cols-2 gap-4 pb-2">
+                                    <div>
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase">Tipe</p>
+                                        <p class="text-[10px] font-bold text-slate-700" x-text="pax.paxType"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase">Gender</p>
+                                        <p class="text-[10px] font-bold text-slate-700"
+                                            x-text="pax.paxGender === 'M' ? 'Laki-laki' : 'Perempuan'"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Info Lokasi Bed -->
+                                <div class="grid grid-cols-3 gap-4 bg-slate-50 p-3 rounded-lg">
+                                    <div class="text-center">
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase mb-1">Deck</p>
+                                        <p class="text-sm font-black text-[#24b3ae]" x-text="pax.deck"></p>
+                                    </div>
+                                    <div class="text-center border-x border-slate-200">
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase mb-1">Kabin</p>
+                                        <p class="text-sm font-black text-[#24b3ae]" x-text="pax.cabin"></p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-[8px] font-bold text-slate-400 uppercase mb-1">Bed</p>
+                                        <p class="text-sm font-black text-[#24b3ae]" x-text="pax.bed"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Tombol Selesai -->
+                        <div class="pt-4">
+                            <button @click="location.reload()"
+                                class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs active:scale-95 shadow-lg">
+                                Selesai & Keluar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        </template>
+
+        <div x-show="loading"
+            class="fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-[150]" x-cloak>
+            <div class="text-center relative">
+                <div
+                    class="w-20 h-20 border-4 border-slate-100 border-t-[#0194f3] rounded-full animate-spin-slow mx-auto">
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center top-[-10px]">
+                    <i data-lucide="ship" class="w-8 h-8 text-[#24b3ae] animate-bounce"></i>
+                </div>
+                <p class="text-slate-800 font-black uppercase tracking-widest text-[10px] mt-4" x-text="loadingText">
+                </p>
+            </div>
+        </div>
+
+        <div x-show="toast.show" x-transition x-cloak
+            class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest px-6 py-3 rounded-full shadow-2xl z-[200]">
+            <span x-text="toast.message"></span>
+        </div>
+
+    </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('shipApp', () => ({
+                stage: 'search_form',
+                loading: false,
+                loadingText: 'Memuat...',
+                toast: { show: false, message: '', timeout: null },
+                showPaxModal: false,
+                search: {
+                    originPort: '',
+                    destinationPort: '',
+                    departDate: '',
+                    originPortName: '',
+                    destinationPortName: '',
+                    departDateLabel: '',
+                    adultsMale: 1,
+                    adultsFemale: 0,
+                    infants: 0,
+                    family: false,
+                    numCode: ''
+                },
+                buyer: { name: '', email: '', phone: '', address: '' },
+                originPortList: [],
+                destinationPortList: [],
+                scheduleList: [],
+                availabilityData: null,
+                passengers: [],
+                bookingData: null,
+                issuedData: null,
+                roomList: [],
+                bookingDetailData: null,
+                popularDests: [
+                    { name: 'Surabaya', code: '563' }, { name: 'Jakarta', code: '431' },
+                    { name: 'Belawan', code: '144' }, { name: 'Semarang', code: '494' }
+                ],
+                searchQuery: '',
+                showPortModal: false,
+                portModalType: 'origin',
+                // Di dalam x-data
+                filterClass: 'ALL',
+                selectedSchedule: null,
+                showPassengerModal: false,
+                selectedPaxIndex: null,
+                tempPax: {},
+                serviceFee: 0,
+
+                get filteredSchedules() {
+                    if (this.filterClass === 'ALL') return this.scheduleList;
+
+                    // Hanya tampilkan kapal yang memiliki kelas tersebut
+                    return this.scheduleList.filter(ship =>
+                        ship.scheduleFares.some(fare => fare.class === this.filterClass)
+                    );
+                },
+
+                getDisplayFare(ship) {
+                    if (!ship || !ship.scheduleFares || ship.scheduleFares.length === 0) {
+                        return { adultFare: 0, class: '-' };
+                    }
+
+                    if (this.filterClass === 'ALL') return ship.scheduleFares[0];
+
+                    const fare = ship.scheduleFares.find(f => f.class === this.filterClass);
+                    return fare || ship.scheduleFares[0];
+                },
+
+                async init() {
+                    this.loading = true;
+
+                    // 1. Set batas minimum tanggal (Hari ini)
+                    // Format YYYY-MM-DD
+                    this.minDate = new Date().toISOString().split('T')[0];
+
+                    // 2. Ambil data pelabuhan dari API
+                    await this.getPorts();
+
+                    // 3. Set tanggal default (Besok)
+                    this.setDefaultDepartDate();
+
+                    // 4. Inisialisasi library ikon (jika menggunakan Lucide)
+                    this.refreshIcons();
+
+                    // 5. Watcher untuk menyinkronkan Kode Port ke Nama Port (Asal)
+                    this.$watch('search.originPort', (val) => {
+                        const p = this.originPortList.find(x => x.code === val);
+                        this.search.originPortName = p ? p.name : '';
+                    });
+
+                    // 6. Watcher untuk menyinkronkan Kode Port ke Nama Port (Tujuan)
+                    this.$watch('search.destinationPort', (val) => {
+                        const p = this.destinationPortList.find(x => x.code === val);
+                        this.search.destinationPortName = p ? p.name : '';
+                    });
+
+                    this.loading = false;
+                },
+
+                // --- Fungsi Pendukung ---
+                // Contoh saat menerima respons API
+                handleApiResponse(response) {
+                    const rootOrigin = response.originName;           // "Belawan"
+                    const rootDestination = response.destinationName; // "Tanjung Balai Karimun"
+
+                    // Misal pengguna memilih schedule pertama (index 0)
+                    const selectedSchedule = response.schedules[0];
+
+                    // Gabungkan data agar properti Name tersedia di dalam availabilityData
+                    this.availabilityData = {
+                        ...selectedSchedule,
+                        originName: rootOrigin,
+                        destinationName: rootDestination,
+                        // Jika perlu menyimpan kelas yang dipilih
+                        selectedClass: selectedSchedule.scheduleFares[0].class
+                    };
+                },
+
+                // Di dalam x-data Alpine.js
+                calculateDuration(depart, arrival) {
+                    const start = new Date(depart);
+                    const end = new Date(arrival);
+                    const diffMs = end - start; // Selisih dalam milidetik
+
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    const diffHrs = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                    let duration = "";
+                    if (diffDays > 0) duration += `${diffDays}h `;
+                    if (diffHrs > 0) duration += `${diffHrs}j `;
+                    if (diffMins > 0) duration += `${diffMins}m`;
+
+                    return duration || "0m";
+                },
+
+                setDefaultDepartDate() {
+                    const t = new Date();
+                    // Set ke besok hari
+                    t.setDate(t.getDate() + 1);
+                    this.search.departDate = t.toISOString().split('T')[0];
+                    this.updateDepartDateLabel();
+                },
+
+                updateDepartDateLabel() {
+                    if (this.search.departDate) {
+                        // Proteksi jika user memasukkan tanggal manual yang lebih kecil dari minDate
+                        if (this.search.departDate < this.minDate) {
+                            this.setDefaultDepartDate();
+                            return;
+                        }
+
+                        const d = new Date(this.search.departDate);
+                        this.search.departDateLabel = d.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+                },
+
+                refreshIcons() {
+                    // Jika Anda menggunakan Lucide icons
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                },
+
+                async getPorts() {
+                    try {
+                        // Sesuai dengan respons yang Anda berikan
+                        const res = await fetch('https://darma.siappgo.id/api/ship/routes', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        const data = await res.json();
+
+                        if (data.status === "SUCCESS") {
+                            // Mapping data origins ke list internal
+                            this.originPortList = data.origins.map(p => ({
+                                code: p.originPort,
+                                name: p.originName
+                            }));
+
+                            // Mapping data destinations ke list internal
+                            this.destinationPortList = data.destinations.map(p => ({
+                                code: p.destinationPort,
+                                name: p.destinationName
+                            }));
+                        } else {
+                            this.showToast('Gagal mengambil data rute');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast('Gagal memuat rute (Server Error)');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                // --- Logika Helper & Bisnis (Dipertahankan) ---
+                refreshIcons() { this.$nextTick(() => { if (window.lucide) lucide.createIcons(); }); },
+
+                showToast(msg) {
+                    this.toast.message = msg; this.toast.show = true;
+                    if (this.toast.timeout) clearTimeout(this.toast.timeout);
+                    this.toast.timeout = setTimeout(() => { this.toast.show = false; }, 3000);
+                },
+
+                changePax(type, delta) {
+                    let newVal = parseInt(this.search[type]) + delta;
+
+                    // Batas minimum 0
+                    if (newVal < 0) return;
+
+                    // Logika khusus bayi: tidak boleh melebihi total dewasa
+                    if (type === 'infants') {
+                        let totalAdults = parseInt(this.search.adultsMale) + parseInt(this.search.adultsFemale);
+                        if (newVal > totalAdults) {
+                            this.showToast('Jumlah bayi tidak boleh melebihi dewasa');
+                            return;
+                        }
+                    }
+
+                    this.search[type] = newVal;
+                },
+
+                async performSearch() {
+                    if (!this.search.originPort || !this.search.destinationPort) {
+                        this.showToast('Pilih Asal & Tujuan!');
+                        return;
+                    }
+                    this.loading = true;
+                    this.loadingText = 'Mencari Jadwal...';
+                    try {
+                        const startDate = new Date(this.search.departDate);
+                        const endDate = new Date(this.search.departDate);
+                        endDate.setDate(startDate.getDate() + 3);
+
+                        const payload = {
+                            originPort: this.search.originPort,
+                            destinationPort: this.search.destinationPort,
+                            departStartDate: startDate.toISOString().split('T')[0] + 'T00:00:00Z',
+                            departEndDate: endDate.toISOString().split('T')[0] + 'T23:59:59Z'
+                        };
+
+                        const res = await fetch('https://darma.siappgo.id/api/ship/schedule', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+
+                        if (data.status === "SUCCESS") {
+                            this.scheduleList = data.schedules || [];
+                            this.stage = 'search_results';
+                        } else {
+                            this.showToast(data.respMessage);
+                        }
+                    } finally {
+                        this.loading = false;
+                        this.refreshIcons();
+                    }
+                },
+
+                // Buat fungsi helper untuk menyusun array pax agar konsisten di semua tahap
+                generatePaxPayload() {
+                    const paxData = [];
+                    if (parseInt(this.search.adultsMale) > 0) {
+                        paxData.push({ paxType: 0, paxGender: 0, paxTotal: parseInt(this.search.adultsMale) });
+                    }
+                    if (parseInt(this.search.adultsFemale) > 0) {
+                        paxData.push({ paxType: 0, paxGender: 1, paxTotal: parseInt(this.search.adultsFemale) });
+                    }
+                    if (parseInt(this.search.infants) > 0) {
+                        paxData.push({ paxType: 2, paxGender: 0, paxTotal: parseInt(this.search.infants) });
+                    }
+                    return paxData;
+                },
+
+                async selectSchedule(ship) {
+                    this.loading = true;
+                    this.loadingText = 'Mengecek ketersediaan...';
+                    try {
+                        const payload = {
+                            originPort: this.search.originPort,
+                            originCall: ship.originCall,
+                            destinationPort: this.search.destinationPort,
+                            destinationCall: ship.destCall,
+                            shipNumber: ship.shipNumber,
+                            departDate: ship.departDateTime + 'Z',
+                            subClass: ship.scheduleFares[0].subClass,
+                            pax: this.generatePaxPayload()
+                        };
+
+                        const res = await fetch('https://darma.siappgo.id/api/ship/availability', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+
+                        if (data.status === "SUCCESS") {
+                            // MAPPING KRUSIAL DISINI
+                            this.availabilityData = {
+                                ...data, // Data dari availability (harga, dll)
+                                ...ship, // Data dari schedule (nama kapal, dll)
+                                // Pastikan nama properti tanggal seragam
+                                departDate: data.departDate || ship.departDateTime,
+                                originName: this.search.originPortName,
+                                destinationName: this.search.destinationPortName,
+                                // Ambil routeInfo agar nama pelabuhan muncul lengkap
+                                routeInfo: ship.routeInfo
+                            };
+                            this.stage = 'booking_confirmation';
+                        } else {
+                            this.showToast(data.respMessage);
+                        }
+                    } finally {
+                        this.loading = false;
+                        this.refreshIcons();
+                    }
+                },
+
+                async getRoomAndProceed() {
+                    if (!this.buyer.name || !this.buyer.phone || !this.buyer.email) {
+                        this.showToast('Lengkapi Data Pemesan (Nama, No HP, Email)!');
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.loadingText = 'Mendapatkan Kamar...';
+
+                    try {
+                        const paxD = [];
+                        if (parseInt(this.search.adultsMale) > 0) paxD.push({ paxType: 0, paxGender: 0, paxTotal: parseInt(this.search.adultsMale) });
+                        if (parseInt(this.search.adultsFemale) > 0) paxD.push({ paxType: 0, paxGender: 1, paxTotal: parseInt(this.search.adultsFemale) });
+                        if (parseInt(this.search.infants) > 0) paxD.push({ paxType: 2, paxGender: 0, paxTotal: parseInt(this.search.infants) });
+
+                        const payload = {
+                            originPort: this.search.originPort,
+                            originCall: this.availabilityData.originCall,
+                            destinationPort: this.search.destinationPort,
+                            destinationCall: this.availabilityData.destinationCall,
+                            shipNumber: this.availabilityData.shipNumber,
+                            departDate: this.availabilityData.departDate,
+                            subClass: this.availabilityData.subClass,
+                            pax: paxD,
+                            ticketBuyerName: this.buyer.name,
+                            ticketBuyerEmail: this.buyer.email,
+                            ticketBuyerAddress: this.buyer.address || 'Indonesia',
+                            ticketBuyerPhone: this.buyer.phone,
+                            isFamily: this.search.family
+                        };
+
+                        const res = await fetch('https://darma.siappgo.id/api/ship/get-room', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+
+                        if (data.status === "SUCCESS") {
+                            // CRITICAL: Jangan timpa total! Gabungkan data lama dengan data baru
+                            // Ini akan menjaga originName, destinationName, shipName tetap ada
+                            this.availabilityData = { ...this.availabilityData, ...data };
+
+                            this.search.numCode = data.numCode;
+                            this.roomList = data.rooms || [];
+                            this.preparePassengerForm();
+                        } else {
+                            this.showToast(data.respMessage);
+                        }
+                    } catch (error) {
+                        console.error("Terjadi kesalahan:", error);
+                        this.showToast("Gagal menghubungi server.");
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                preparePassengerForm() {
+                    this.passengers = [];
+                    let paxIdx = 0;
+
+                    const addPax = (type, gender) => {
+                        // Ambil data kamar berdasarkan index penumpang
+                        const room = this.roomList[paxIdx] || {};
+                        this.passengers.push({
+                            firstName: '',
+                            lastName: '',
+                            birthDate: '',
+                            ID: '',
+                            phone: '',
+                            paxType: type,
+                            paxGender: gender,
+                            // Simpan info kamar langsung ke objek penumpang agar modal bisa baca
+                            roomInfo: room.deck ? `${room.deck} / ${room.cabin}-${room.bed}` : 'Otomatis'
+                        });
+                        paxIdx++;
+                    };
+
+                    // Gunakan nilai dari search (pastikan berupa Number)
+                    for (let i = 0; i < parseInt(this.search.adultsMale); i++) addPax(0, 0);
+                    for (let i = 0; i < parseInt(this.search.adultsFemale); i++) addPax(0, 1);
+                    for (let i = 0; i < parseInt(this.search.infants); i++) addPax(2, 0);
+
+                    this.stage = 'passenger_form';
+                    // Gunakan timeout sedikit agar DOM ter-render dulu sebelum load ikon
+                    setTimeout(() => { this.refreshIcons(); }, 100);
+                },
+
+                // 2. Fungsi untuk membuka modal
+                editPassenger(index) {
+                    this.selectedPaxIndex = index;
+                    // Menggunakan spread operator untuk clone object agar modal tidak merusak data asli sebelum di-save
+                    this.tempPax = { ...this.passengers[index] };
+                    this.showPassengerModal = true;
+                    this.refreshIcons();
+                },
+
+                savePassengerData() {
+                    // 1. Validasi Input Dasar
+                    if (!this.tempPax.firstName || !this.tempPax.birthDate || !this.tempPax.ID || !this.tempPax.phone) {
+                        alert('Lengkapi semua data penumpang (Nama, Tgl Lahir, NIK, dan No HP)!');
+                        return;
+                    }
+
+                    // 2. Hitung Umur
+                    const birth = new Date(this.tempPax.birthDate);
+                    const now = new Date();
+                    let ageInMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+                    if (now.getDate() < birth.getDate()) ageInMonths--;
+                    const ageInYears = ageInMonths / 12;
+
+                    // 3. Validasi Bayi (paxType 2) < 2 Tahun
+                    if (this.tempPax.paxType == 2 && ageInYears >= 2) {
+                        alert('Gagal Simpan: Penumpang BAYI harus berusia di bawah 2 tahun.');
+                        return;
+                    }
+
+                    // 4. Validasi Dewasa (paxType 0) >= 2 Tahun
+                    if (this.tempPax.paxType == 0 && ageInYears < 2) {
+                        alert('Gagal Simpan: Penumpang DEWASA harus berusia minimal 2 tahun.');
+                        return;
+                    }
+
+                    // Simpan ke array passengers jika lolos validasi
+                    this.passengers[this.selectedPaxIndex] = { ...this.tempPax };
+                    this.showPassengerModal = false;
+                    this.showToast('Data berhasil disimpan');
+                    this.refreshIcons();
+                },
+
+                fillPaxWithBuyer() {
+                    if (this.passengers.length > 0) {
+                        // Penumpang pertama (index 0) otomatis mengambil data pemesan
+                        this.passengers[0].firstName = this.buyer.name;
+                        this.passengers[0].phone = this.buyer.phone;
+                        // Opsional: Jika ingin otomatis dianggap valid (isi dummy/default data lain)
+                        this.showToast('Data penumpang 1 disamakan dengan pemesan');
+                    }
+                },
+
+                async performBooking() {
+                    // 1. Validasi Input
+                    for (let [idx, p] of this.passengers.entries()) {
+                        if (!p.firstName || !p.ID || !p.phone || !p.birthDate) {
+                            this.showToast(`Data Penumpang ${idx + 1} masih ada yang kosong!`);
+                            return;
+                        }
+                    }
+
+                    // 2. Logika Perhitungan Saldo
+                    const ticketPrice = parseInt(this.availabilityData.ticketPrice);
+                    const serviceFee = parseInt(this.availabilityData.serviceFee) || 0;
+                    const totalPotongSaldoJagel = ticketPrice + serviceFee;
+
+                    // Log sesuai permintaan:
+                    console.log("--- LOG TRANSAKSI ---");
+                    console.log("Harga Tiket (Darmawisata):", ticketPrice);
+                    console.log("Biaya Layanan (User):", serviceFee);
+                    console.log("Total Potong Saldo Jagel:", totalPotongSaldoJagel);
+                    console.log("----------------------");
+
+                    this.loading = true;
+                    this.loadingText = 'Memproses reservasi...';
+
+                    try {
+                        const payload = {
+                            numCode: this.search.numCode,
+                            originPort: this.search.originPort,
+                            originCall: this.availabilityData.originCall,
+                            destinationPort: this.search.destinationPort,
+                            destinationCall: this.availabilityData.destinationCall,
+                            shipNumber: this.availabilityData.shipNumber,
+                            departDate: this.availabilityData.departDate,
+                            paxDetails: this.passengers.map(p => ({
+                                firstName: p.firstName,
+                                lastName: p.lastName || p.firstName,
+                                birthDate: p.birthDate + (p.birthDate.includes('T') ? '' : 'T00:00:00Z'),
+                                ID: p.ID,
+                                phone: p.phone,
+                                paxType: parseInt(p.paxType),
+                                paxGender: parseInt(p.paxGender)
+                            })),
+                            // Opsional: Jika API tujuan menerima info biaya tambahan
+                            additionalFee: serviceFee,
+                            totalPrice: totalPotongSaldoJagel
+                        };
+
+                        const res = await fetch('https://darma.siappgo.id/api/ship/booking', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+                        if (data.status === "SUCCESS") {
+                            this.bookingData = data;
+                            this.stage = 'booking_success';
+                        } else {
+                            this.showToast(data.respMessage);
+                        }
+                    } catch (error) {
+                        this.showToast("Gagal memproses booking.");
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async saveBookingToDatabase(isTicketed = false) {
+                    try {
+                        const payload = {
+                            // Kumpulan response dari semua step API
+                            scheduleData: {
+                                originName: this.search.originPortName,
+                                destinationName: this.search.destinationPortName,
+                            },
+                            availabilityData: this.availabilityData || null,
+                            getRoomData: this.availabilityData || null, // availabilityData sudah di-merge dengan getRoomData
+                            bookingData: this.bookingData || null,
+                            issuedData: this.issuedData || null,
+                            bookingDetailData: this.bookingDetailData || null,
+
+                            // Data user/pemesan
+                            userEmail: this.buyer.email || '',
+                            userName: this.buyer.name || '',
+                            userId: this.buyer.userId || null, // jika ada session user ID
+
+                            // Biaya
+                            serviceFee: parseInt(this.availabilityData?.serviceFee) || 0,
+                            totalAmount: (parseInt(this.availabilityData?.ticketPrice) || 0)
+                                + (parseInt(this.availabilityData?.serviceFee) || 0),
+                        };
+
+                        console.log('[DB] 📤 Menyimpan data ke database...', {
+                            numCode: payload.bookingDetailData?.numCode || payload.bookingData?.numCode,
+                            bookingNumber: payload.bookingDetailData?.bokingNumber,
+                            isTicketed,
+                        });
+
+                        const res = await fetch('https://darma.siappgo.id/api/ship/save-booking', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        });
+
+                        const result = await res.json();
+
+                        if (result.success) {
+                            console.log(`[DB] ✅ Tersimpan. Booking ID: ${result.booking_id}, Status: ${result.ticket_status}`);
+                        } else {
+                            // Non-blocking — jangan tampilkan error ke user, cukup log
+                            console.warn('[DB] ⚠️ Gagal simpan ke DB:', result.message);
+                        }
+                    } catch (err) {
+                        // Non-blocking — gagal simpan tidak boleh ganggu flow user
+                        console.error('[DB] ❌ Exception saat simpan ke DB:', err.message);
+                    }
+                },
+
+                // ── GANTI fungsi performIssued yang lama dengan ini ───────────────
+                async performIssued() {
+                    this.loading = true;
+                    this.loadingText = 'Mohon tunggu...';
+                    try {
+                        const payload = {
+                            numCode: this.bookingData.numCode,
+                            bookingDate: this.bookingData.bookingDateTime.split('+')[0] + 'Z'
+                        };
+
+                        const res = await fetch('https://darma.siappgo.id/api/ship/issued', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+
+                        if (data.status === "SUCCESS") {
+                            this.issuedData = data;
+
+                            // Panggil detail untuk dapatkan data lengkap (nomor tiket, kabin, dll)
+                            await this.getBookingDetail(
+                                data.bookingNumber,
+                                this.bookingData.numCode,
+                                data.bookingDateTime  // ← gunakan bookingDateTime dari issued response
+                            );
+
+                            this.showToast('Tiket Berhasil Diterbitkan!');
+                            // Stage akan otomatis pindah ke 'view_detail' di dalam getBookingDetail
+                        } else {
+                            this.showToast(data.respMessage || 'Gagal Issued Tiket');
+                        }
+                    } catch (e) {
+                        this.showToast('Koneksi terputus saat proses Issued');
+                    } finally {
+                        this.loading = false;
+                        this.refreshIcons();
+                    }
+                },
+
+                // Tambahkan di dalam Alpine data Anda
+                // Tambahkan di dalam Alpine.data('shipApp', ...
+                bookingDetailData: null,
+
+                async getBookingDetail(bokingNumber, numCode, bookingDate) {
+                    this.loading = true;
+                    this.loadingText = 'Mengambil Detail Tiket...';
+                    try {
+                        const payload = {
+                            bokingNumber: bokingNumber,
+                            numCode: numCode,
+                            bookingDate: bookingDate
+                        };
+
+                        const res = await fetch('https://darma.siappgo.id/api/ship/booking-detail', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+
+                        if (data.status === "SUCCESS") {
+                            this.bookingDetailData = data;
+                            this.stage = 'issued_success';
+                            this.showToast('Detail Tiket Berhasil Dimuat');
+
+                            // ✅ TAMBAHAN: Simpan ke database setelah detail berhasil didapat
+                            // Non-blocking (tidak await) agar UI tidak tertahan
+                            this.saveBookingToDatabase(true);
+
+                        } else {
+                            this.showToast(data.respMessage || 'Gagal mengambil detail');
+                        }
+                    } catch (e) {
+                        this.showToast('Gangguan koneksi ke server');
+                    } finally {
+                        this.loading = false;
+                        this.refreshIcons();
+                    }
+                },
+                setDefaultDepartDate() {
+                    const t = new Date();
+                    t.setDate(t.getDate() + 1);
+                    this.search.departDate = t.toISOString().split('T')[0];
+                    this.updateDepartDateLabel();
+                },
+
+                updateDepartDateLabel() {
+                    if (this.search.departDate) {
+                        const d = new Date(this.search.departDate);
+                        this.search.departDateLabel = d.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+                },
+                selectPopularDest(dest) { this.search.destinationPort = dest.code; this.showToast(`Tujuan: ${dest.name}`); },
+                formatDate(iso) { return iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : ''; },
+                formatTime(iso) { return iso ? new Date(iso).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : ''; },
+                formatCurrency(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); }
+            }));
+        });
+    </script>
 </body>
 
 </html>
