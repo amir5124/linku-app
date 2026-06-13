@@ -2282,7 +2282,7 @@
             backdrop-filter:blur(8px);
         ">
             <div style="display:flex;align-items:center;gap:12px;">
-                <button onclick="showView(1)" style="
+                <button onclick="backFromDriverView()" style="
                     width:38px;height:38px;border-radius:50%;
                     background:#fff;border:1.5px solid #e2e8f0;
                     display:flex;align-items:center;justify-content:center;
@@ -2610,6 +2610,14 @@
             updateHistoryBadge();
         }
 
+        function backFromDriverView() {
+            if (confirm('Kembali ke beranda? Pesanan sudah dibayar. Pilih driver lagi dari riwayat pesanan.')) {
+                // Cart tetap tersimpan di localStorage, tidak diubah
+                // SSE driver ditutup untuk hemat resource
+                if (driverSSE) { driverSSE.close(); driverSSE = null; }
+                showView(1);
+            }
+        }
         function updateHistoryBadge() {
             const badge = document.querySelector('.hd-bell-badge');
             if (!badge) return;
@@ -2645,7 +2653,7 @@
 
             const h = getOrderHistory();
             const pendingOrders = h.filter(o => o.driver_status === 'WAITING_DRIVER' || o.driver_status === 'NO_DRIVER');
-            const CS_PHONE = '6282323907426'; // nomor mitra/CS untuk refund
+            const CS_PHONE = '6281347423737'; // nomor mitra/CS untuk refund
 
             overlay.innerHTML = `
     <div id="historyPanel" style="width:380px;max-width:100%;height:100vh;background:#fff;display:flex;flex-direction:column;overflow:hidden;animation:hSlide .25s ease;box-shadow:-4px 0 20px rgba(0,0,0,.12)">
@@ -2731,7 +2739,7 @@
                     `❌ Alasan: Tidak mendapat driver`
                 );
                 const csPhone = mitraPhone.replace(/\D/g, '');
-                const csLink = csPhone ? `https://wa.me/${csPhone}?text=${refundMsg}` : `https://wa.me/6285877049311?text=${refundMsg}`;
+                const csLink = csPhone ? `https://wa.me/${csPhone}?text=${refundMsg}` : `https://wa.me/6281347423737?text=${refundMsg}`;
 
                 return `<div style="border:1px solid ${(isWaitingDriver || isNoDriver) ? '#fde68a' : '#e2e8f0'};border-radius:14px;margin-bottom:10px;overflow:hidden;${(isWaitingDriver || isNoDriver) ? 'box-shadow:0 2px 8px rgba(234,179,8,.15)' : ''}">
             <div style="padding:13px 14px;cursor:pointer;display:flex;gap:10px;align-items:flex-start" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
@@ -3534,47 +3542,70 @@
                 try {
                     const res = await fetch(`${BACKEND}/check-status/${partnerReff}`);
                     const data = await res.json();
+
                     if (data.data?.status_trx === 'success') {
                         clearInterval(pollingInterval);
                         toast('✅ Pembayaran berhasil! Mencari driver...');
 
-                        if (!orderSaved && !localStorage.getItem('currentOrderId')) {
+                        if (!orderSaved) {
                             orderSaved = true;
-                            const orderResult = await saveOrderToDatabase();
-                            if (orderResult?.order_id) {
-                                const groups = Object.values(cart);
-                                const subTotal = getTotalPrice();
-                                const totalOngkir = getTotalOngkir();
-                                // Simpan ke history dengan status WAITING_DRIVER
-                                saveOrderToHistory({
-                                    order_id: orderResult.order_id,
-                                    payment_status: 'PAID',
-                                    driver_status: 'WAITING_DRIVER',
-                                    payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
-                                    customer_name: currentOrderData.customer_name,
-                                    customer_phone: currentOrderData.customer_phone,
-                                    base_price: subTotal,
-                                    service_fee: totalOngkir,
-                                    total_price: subTotal + totalOngkir,
-                                    mitra_phone: currentMitraPhone,
-                                    mitra_username: currentMitraUsername,
-                                    partner_commission: currentPartnerInfo?.partner_commission || null,
-                                    stores: groups.map(g => g.store),
-                                    order_items_parsed: groups.map(g => ({
-                                        name: g.store.title,
-                                        items: Object.values(g.items).map(i => ({
-                                            name: i.prod.title,
-                                            price: getProductFinalPrice(i.prod),
-                                            original_price: i.prod.original_price || i.prod.price,
-                                            qty: i.qty,
-                                            mitra_username: i.prod.mitra_username,
-                                            partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
-                                        }))
-                                    })),
-                                    created_at: Date.now()
-                                });
+
+                            // ✅ Simpan ke history DULU sebelum apapun, pakai data cart yang masih ada
+                            const groups = Object.values(cart);
+                            const subTotal = getTotalPrice();
+                            const totalOngkir = getTotalOngkir();
+                            const tempOrderId = 'TEMP_' + Date.now();
+
+                            saveOrderToHistory({
+                                order_id: tempOrderId,
+                                payment_status: 'PAID',
+                                driver_status: 'WAITING_DRIVER',
+                                payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
+                                customer_name: currentOrderData.customer_name,
+                                customer_phone: currentOrderData.customer_phone,
+                                base_price: subTotal,
+                                service_fee: totalOngkir,
+                                total_price: subTotal + totalOngkir,
+                                mitra_phone: currentMitraPhone,
+                                mitra_username: currentMitraUsername,
+                                partner_commission: currentPartnerInfo?.partner_commission || null,
+                                stores: groups.map(g => g.store),
+                                order_items_parsed: groups.map(g => ({
+                                    name: g.store.title,
+                                    items: Object.values(g.items).map(i => ({
+                                        name: i.prod.title,
+                                        price: getProductFinalPrice(i.prod),
+                                        original_price: i.prod.original_price || i.prod.price,
+                                        qty: i.qty,
+                                        mitra_username: i.prod.mitra_username,
+                                        partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
+                                    }))
+                                })),
+                                created_at: Date.now()
+                            });
+
+                            // ✅ Simpan ke database, update history dengan order_id asli jika berhasil
+                            try {
+                                const orderResult = await saveOrderToDatabase();
+                                if (orderResult?.order_id) {
+                                    // Update entry temporer dengan order_id asli dari database
+                                    const h = getOrderHistory();
+                                    const idx = h.findIndex(o => o.order_id === tempOrderId);
+                                    if (idx > -1) {
+                                        h[idx].order_id = orderResult.order_id;
+                                        localStorage.setItem(HISTORY_LS_KEY, JSON.stringify(h));
+                                    }
+                                    localStorage.setItem('currentOrderId', orderResult.order_id);
+                                    updateHistoryBadge();
+                                }
+                            } catch (err) {
+                                console.error('saveOrderToDatabase error:', err);
+                                // History sudah tersimpan dengan TEMP id, order tetap tercatat
+                                localStorage.setItem('currentOrderId', tempOrderId);
                             }
                         }
+
+                        // ✅ Selalu jalankan ini, terlepas dari berhasil tidaknya save ke DB
                         startDriverSSE();
                         showView(7);
                     }
@@ -3599,7 +3630,7 @@
                 items: Object.values(g.items).map(i => ({
                     name: i.prod.title,
                     original_price: i.prod.original_price || i.prod.price,
-                    price: getProductFinalPrice(i.prod),   // harga SUDAH dikurangi komisi
+                    price: getProductFinalPrice(i.prod),
                     qty: i.qty,
                     subtotal: getProductFinalPrice(i.prod) * i.qty,
                     mitra_username: i.prod.mitra_username,
@@ -3631,7 +3662,6 @@
                 partner_reff: currentPaymentData?.partner_reff,
                 customer_name: currentOrderData.customer_name,
                 customer_phone: currentOrderData.customer_phone,
-                // ✅ Data mitra lengkap untuk backend & Twilio
                 mitra_phone: currentMitraPhone,
                 mitra_username: currentMitraUsername,
                 partner_commission: currentPartnerInfo?.partner_commission || null,
@@ -3647,16 +3677,11 @@
                 console.log('Order saved:', data);
                 if (data.order_id) {
                     localStorage.setItem('currentOrderId', data.order_id);
-                    saveOrderToHistory({
-                        ...orderPayload, order_id: data.order_id,
-                        stores: groups.map(g => g.store), order_items_parsed: orderItemsParsed,
-                        created_at: Date.now()
-                    });
+                    // ✅ saveOrderToHistory DIHAPUS dari sini — sudah ditangani di startPollingPayment
                 }
                 return data;
             } catch (err) { console.error('Save order error:', err); return null; }
         }
-
         function copyVANumber() {
             const vaNumber = document.getElementById('vaNumber')?.textContent;
             if (vaNumber && vaNumber !== '-') { navigator.clipboard.writeText(vaNumber); toast('✅ Nomor VA disalin'); }
@@ -3670,7 +3695,52 @@
                 if (data.data?.status_trx === 'success') {
                     toast('✅ Pembayaran sudah berhasil!');
                     if (pollingInterval) clearInterval(pollingInterval);
-                    await saveOrderToDatabase();
+
+                    // ✅ Simpan history dulu sebelum DB
+                    const groups = Object.values(cart);
+                    const subTotal = getTotalPrice();
+                    const totalOngkir = getTotalOngkir();
+                    const tempId = 'TEMP_' + Date.now();
+                    saveOrderToHistory({
+                        order_id: tempId,
+                        payment_status: 'PAID',
+                        driver_status: 'WAITING_DRIVER',
+                        payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
+                        customer_name: currentOrderData.customer_name,
+                        customer_phone: currentOrderData.customer_phone,
+                        base_price: subTotal,
+                        service_fee: totalOngkir,
+                        total_price: subTotal + totalOngkir,
+                        mitra_phone: currentMitraPhone,
+                        mitra_username: currentMitraUsername,
+                        partner_commission: currentPartnerInfo?.partner_commission || null,
+                        stores: groups.map(g => g.store),
+                        order_items_parsed: groups.map(g => ({
+                            name: g.store.title,
+                            items: Object.values(g.items).map(i => ({
+                                name: i.prod.title,
+                                price: getProductFinalPrice(i.prod),
+                                original_price: i.prod.original_price || i.prod.price,
+                                qty: i.qty,
+                                mitra_username: i.prod.mitra_username,
+                                partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
+                            }))
+                        })),
+                        created_at: Date.now()
+                    });
+
+                    const orderResult = await saveOrderToDatabase();
+                    if (orderResult?.order_id) {
+                        const h = getOrderHistory();
+                        const idx = h.findIndex(o => o.order_id === tempId);
+                        if (idx > -1) {
+                            h[idx].order_id = orderResult.order_id;
+                            localStorage.setItem(HISTORY_LS_KEY, JSON.stringify(h));
+                        }
+                        localStorage.setItem('currentOrderId', orderResult.order_id);
+                        updateHistoryBadge();
+                    }
+
                     startDriverSSE();
                     showView(7);
                 } else toast('⏳ Masih menunggu pembayaran');
@@ -3697,8 +3767,7 @@
         function startDriverSSE() {
             if (driverSSE) { driverSSE.close(); driverSSE = null; }
             toast('🔄 Mencari driver terdekat...');
-            const sseUrl = `${BACKEND}/drivers?bearer_token=${encodeURIComponent(BEARER_TOKEN)}&detail=true`;
-            driverSSE = new EventSource(sseUrl);
+            const sseUrl = `${BACKEND}/drivers?detail=true`;
             drivers = [];
             const loadingOverlay = document.getElementById('driverLoadingOverlay');
             const loadingCount = document.getElementById('driverLoadingCount');
@@ -3706,7 +3775,9 @@
 
             function hideLoading() { if (loadingOverlay) loadingOverlay.style.display = 'none'; }
 
-            driverSSE.addEventListener('batch', e => {
+            const es = new EventSource(sseUrl);
+
+            es.addEventListener('batch', e => {
                 try {
                     const data = JSON.parse(e.data);
                     if (!data.drivers || !Array.isArray(data.drivers)) return;
@@ -3733,7 +3804,7 @@
                 } catch (err) { console.error('Batch error:', err); }
             });
 
-            driverSSE.addEventListener('driver_update', e => {
+            es.addEventListener('driver_update', e => {
                 try {
                     const data = JSON.parse(e.data);
                     const driver = data.driver;
@@ -3754,25 +3825,34 @@
                 } catch (err) { console.error('Driver update error:', err); }
             });
 
-            driverSSE.addEventListener('complete', e => {
+            es.addEventListener('complete', e => {
                 hideLoading();
                 const headerCount = document.getElementById('driverHeaderCount');
                 if (headerCount) headerCount.textContent = drivers.length > 0 ? `${drivers.length} driver aktif` : 'Tidak ada driver';
                 if (drivers.length === 0) {
                     const driverListElement = document.getElementById('driverList');
                     if (driverListElement) driverListElement.innerHTML = '<div class="empty"><div class="empty-ico">🚗❌</div><div class="empty-ttl">Tidak Ada Driver Tersedia</div><div class="empty-sub">Belum ada driver food delivery aktif dalam radius 10km.</div></div>';
-                    // Tandai order sebagai NO_DRIVER di history
                     const orderId = localStorage.getItem('currentOrderId');
                     if (orderId) updateOrderHistoryStatus(orderId, { driver_status: 'NO_DRIVER' });
                     toast('⚠️ Belum ada driver aktif dalam radius 10km');
                 } else toast(`✅ Ditemukan ${drivers.length} driver aktif`);
             });
 
-            driverSSE.addEventListener('end', e => { hideLoading(); if (driverSSE) { driverSSE.close(); driverSSE = null; } });
-            driverSSE.onerror = e => {
-                console.error('SSE Error:', e); hideLoading();
-                if (driverSSE) { driverSSE.close(); driverSSE = null; }
+            es.addEventListener('end', e => {
+                hideLoading();
+                es.close();
+                driverSSE = null;
+            });
+
+            es.onerror = e => {
+                console.error('SSE Error:', e);
+                hideLoading();
+                es.close();
+                driverSSE = null;
             };
+
+            // ✅ Assign ke global SETELAH semua listener terpasang
+            driverSSE = es;
         }
 
         function displayDriversOnMap() {
