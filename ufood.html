@@ -4399,14 +4399,22 @@
 
         function getUserLocation(callback) {
             if (navigator.geolocation) {
-                toast('📡 Mendeteksi lokasi GPS...');
+                toast('📍 Mohon izinkan akses lokasi untuk melanjutkan...');
                 navigator.geolocation.getCurrentPosition(
                     pos => callback({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-                    () => callback(uCoords), { timeout: 8000 }
+                    (error) => {
+                        console.warn('Izin lokasi ditolak:', error);
+                        toast('⚠️ Izin lokasi diperlukan untuk menemukan toko terdekat');
+                        callback(DEFAULT_COORDS);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0  // Pastikan tidak menggunakan cache
+                    }
                 );
-            } else callback(uCoords);
+            } else callback(DEFAULT_COORDS);
         }
-
         window.selectPlace = function (placeId) {
             new google.maps.Geocoder().geocode({ placeId }, (results, status) => {
                 if (status === 'OK' && results[0]) {
@@ -4487,8 +4495,59 @@
                 }
             }
 
+            // Tampilkan modal/popup lokasi saat halaman dibuka
+            function showLocationPopup() {
+                const popupHtml = `
+            <div id="locationPopup" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10001;">
+                <div style="background:#fff;border-radius:20px;max-width:320px;width:90%;padding:24px;text-align:center;">
+                    <div style="font-size:48px;margin-bottom:12px;">📍</div>
+                    <h3 style="margin:0 0 8px 0;">Akses Lokasi Diperlukan</h3>
+                    <p style="color:#64748b;margin-bottom:20px;font-size:14px;">Kami perlu mengetahui lokasi Anda untuk menampilkan toko makanan terdekat</p>
+                    <button onclick="requestLocation()" style="width:100%;padding:12px;background:#24b3ae;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Izinkan Akses Lokasi</button>
+                    <button onclick="useDefaultLocation()" style="width:100%;margin-top:10px;padding:12px;background:#e2e8f0;color:#475569;border:none;border-radius:12px;font-size:13px;cursor:pointer;">Gunakan Lokasi Default</button>
+                </div>
+            </div>
+        `;
+                document.body.insertAdjacentHTML('beforeend', popupHtml);
+            }
 
-            function applyDefaultLocation() {
+            // Fungsi untuk meminta lokasi
+            window.requestLocation = function () {
+                document.getElementById('locationPopup')?.remove();
+                if (navigator.geolocation) {
+                    toast('📍 Mendeteksi lokasi...');
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            uCoords = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            reverseGeocode(uCoords.lat, uCoords.lng, addr => {
+                                uAddress = addr;
+                                const shortAddr = addr.split(',').slice(0, 2).join(', ');
+                                const locElement = document.getElementById('v1Loc');
+                                if (locElement) locElement.innerHTML = shortAddr + ` <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>`;
+                            });
+                            initMap();
+                            loadStores();
+                            updateHistoryBadge();
+                            toast('✅ Lokasi berhasil dideteksi');
+                        },
+                        (error) => {
+                            console.warn("⚠️ Izin lokasi ditolak:", error);
+                            toast('⚠️ Mohon izinkan akses lokasi untuk pengalaman terbaik');
+                            useDefaultLocation();
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    );
+                } else {
+                    useDefaultLocation();
+                }
+            };
+
+            // Fungsi untuk menggunakan lokasi default
+            window.useDefaultLocation = function () {
+                document.getElementById('locationPopup')?.remove();
                 uCoords = DEFAULT_COORDS;
                 reverseGeocode(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, addr => {
                     uAddress = addr;
@@ -4499,40 +4558,11 @@
                 initMap();
                 loadStores();
                 updateHistoryBadge();
-            }
+                toast('📍 Menggunakan lokasi default');
+            };
 
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const coords = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        uCoords = coords;
-                        reverseGeocode(coords.lat, coords.lng, addr => {
-                            uAddress = addr;
-                            const shortAddr = addr.split(',').slice(0, 2).join(', ');
-                            const locElement = document.getElementById('v1Loc');
-                            if (locElement) locElement.innerHTML = shortAddr + ` <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>`;
-                        });
-                        initMap();
-                        loadStores();
-                        updateHistoryBadge();
-                    },
-                    (error) => {
-                        console.warn("⚠️ Izin lokasi ditolak atau error:", error.message);
-                        applyDefaultLocation();
-                    },
-                    {
-                        enableHighAccuracy: false,
-                        timeout: 5000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                console.warn("⚠️ Browser tidak support geolocation");
-                applyDefaultLocation();
-            }
+            // Tampilkan popup lokasi
+            showLocationPopup();
         })();
     </script>
     </script>
