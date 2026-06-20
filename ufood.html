@@ -2205,7 +2205,7 @@
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </div>
-            <div class="ci" onclick="selectPaymentMethod('qris')">
+            <!-- <div class="ci" onclick="selectPaymentMethod('qris')">
                 <div class="ci-img"
                     style="background:var(--primary-l);display:flex;align-items:center;justify-content:center;">
                     📱
@@ -2217,7 +2217,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#24b3ae" stroke-width="2">
                     <path d="M9 18l6-6-6-6" />
                 </svg>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -2456,7 +2456,7 @@
         // ═══════════════════════════════════════════════════════════════════════
         const API = 'https://ufood.siappgo.id';
         const BACKEND = 'https://jagel.siappgo.id';
-        const MAX_DISTANCE_KM = 10;
+        const MAX_DISTANCE_KM = 50;
         const DEFAULT_COORDS = { lat: -0.9114408, lng: 116.7876089 }; // Sukaraja, Sepaku, Penajam Paser Utara
         const GMAPS_KEY = 'AIzaSyCxfdljVSgNFeQKfEzNzeUJUuJVxSxntVQ';
 
@@ -3097,35 +3097,94 @@
             const bar = document.getElementById('v1SseBar');
             bar.classList.add('show');
             document.getElementById('v1Cards').innerHTML = [1, 2, 3, 4].map(() => skStore()).join('');
-            const url = `${API}/api/makanan/stores-stream?lat=${uCoords.lat}&lng=${uCoords.lng}`;
-            const es = new EventSource(url);
-            let total = 0, loaded = 0;
-            es.addEventListener('meta', e => { const d = JSON.parse(e.data); total = d.total_stores || 0; document.getElementById('v1Cnt').textContent = `0 / ${total} toko`; });
-            es.addEventListener('batch_stores', e => {
-                const d = JSON.parse(e.data);
-                d.stores.forEach(s => {
-                    if (s.origin_lat && s.origin_lng) s.distance = getDistance(uCoords.lat, uCoords.lng, s.origin_lat, s.origin_lng);
-                    if (!allStores.find(x => x.view_uid === s.view_uid)) allStores.push({ ...s, user_phone: s.user_phone || null, partner_view_uid: s.partner_view_uid || null });
+
+            let reconnectAttempts = 0;
+            const MAX_RECONNECT_ATTEMPTS = 5;
+            const BASE_DELAY = 2000; // 2 detik
+
+            function connectEventSource() {
+                const url = `${API}/api/makanan/stores-stream?lat=${uCoords.lat}&lng=${uCoords.lng}&t=${Date.now()}`;
+                const es = new EventSource(url);
+                let total = 0, loaded = 0;
+                let connectionTimeout = setTimeout(() => {
+                    console.warn('⚠️ Connection timeout, closing...');
+                    es.close();
+                    handleReconnect();
+                }, 30000); // 30 detik timeout
+
+                es.addEventListener('open', () => {
+                    console.log('✅ SSE connection established');
+                    clearTimeout(connectionTimeout);
+                    reconnectAttempts = 0; // Reset attempts on successful connection
                 });
-                loaded += d.stores.length;
-                const pct = total > 0 ? Math.round(loaded / total * 100) : 0;
-                document.getElementById('v1Fill').style.width = pct + '%';
-                document.getElementById('v1Cnt').textContent = `${loaded} / ${total} toko`;
-                const w = document.getElementById('v1Cards');
-                if (w.querySelector('.sk-c')) w.innerHTML = '';
-                renderStoreList();
-            });
-            es.addEventListener('done', () => {
-                es.close(); sseStoreDone = true;
-                document.getElementById('v1Dot').className = 'sse-dot done';
-                document.getElementById('v1Fill').style.width = '100%';
-                const nearby = allStores.filter(s => s.distance == null || s.distance <= MAX_DISTANCE_KM);
-                document.getElementById('v1Cnt').textContent = `${nearby.length} toko (≤10km)`;
-                setTimeout(() => bar.classList.remove('show'), 2000);
-                renderStoreList();
-                toast(`✅ ${nearby.length} toko makanan dalam 10km`);
-            });
-            es.onerror = () => { es.close(); sseStoreDone = true; document.getElementById('v1Dot').className = 'sse-dot done'; renderStoreList(); };
+
+                es.addEventListener('meta', e => {
+                    const d = JSON.parse(e.data);
+                    total = d.total_stores || 0;
+                    document.getElementById('v1Cnt').textContent = `0 / ${total} toko`;
+                });
+
+                es.addEventListener('batch_stores', e => {
+                    const d = JSON.parse(e.data);
+                    d.stores.forEach(s => {
+                        if (s.origin_lat && s.origin_lng) {
+                            s.distance = getDistance(uCoords.lat, uCoords.lng, s.origin_lat, s.origin_lng);
+                        }
+                        if (!allStores.find(x => x.view_uid === s.view_uid)) {
+                            allStores.push({ ...s, user_phone: s.user_phone || null, partner_view_uid: s.partner_view_uid || null });
+                        }
+                    });
+                    loaded += d.stores.length;
+                    const pct = total > 0 ? Math.round(loaded / total * 100) : 0;
+                    document.getElementById('v1Fill').style.width = pct + '%';
+                    document.getElementById('v1Cnt').textContent = `${loaded} / ${total} toko`;
+                    const w = document.getElementById('v1Cards');
+                    if (w.querySelector('.sk-c')) w.innerHTML = '';
+                    renderStoreList();
+                });
+
+                es.addEventListener('done', () => {
+                    es.close();
+                    sseStoreDone = true;
+                    document.getElementById('v1Dot').className = 'sse-dot done';
+                    document.getElementById('v1Fill').style.width = '100%';
+                    const nearby = allStores.filter(s => s.distance == null || s.distance <= MAX_DISTANCE_KM);
+                    document.getElementById('v1Cnt').textContent = `${nearby.length} toko (≤10km)`;
+                    setTimeout(() => bar.classList.remove('show'), 2000);
+                    renderStoreList();
+                    toast(`✅ ${nearby.length} toko makanan dalam 10km`);
+                });
+
+                es.onerror = (err) => {
+                    console.error('❌ SSE Error:', err);
+                    es.close();
+                    clearTimeout(connectionTimeout);
+                    handleReconnect();
+                };
+
+                function handleReconnect() {
+                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS && !sseStoreDone) {
+                        reconnectAttempts++;
+                        const delay = BASE_DELAY * Math.pow(2, reconnectAttempts - 1); // Exponential backoff
+                        console.log(`🔄 Reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+                        toast(`⏳ Koneksi terputus, mencoba ulang (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+                        setTimeout(connectEventSource, delay);
+                    } else if (!sseStoreDone) {
+                        console.error('❌ Max reconnection attempts reached');
+                        bar.classList.remove('show');
+                        document.getElementById('v1Cards').innerHTML = `
+                    <div class="empty">
+                        <div class="empty-ico">⚠️</div>
+                        <div class="empty-ttl">Gagal Memuat Toko</div>
+                        <div class="empty-sub">Periksa koneksi internet dan coba lagi</div>
+                        <button onclick="location.reload()" style="margin-top:16px;padding:10px 20px;background:#24b3ae;color:#fff;border:none;border-radius:10px;">🔄 Muat Ulang</button>
+                    </div>`;
+                        toast('❌ Gagal memuat toko, silakan refresh halaman');
+                    }
+                }
+            }
+
+            connectEventSource();
         }
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -4504,7 +4563,8 @@
                     <h3 style="margin:0 0 8px 0;">Akses Lokasi Diperlukan</h3>
                     <p style="color:#64748b;margin-bottom:20px;font-size:14px;">Kami perlu mengetahui lokasi Anda untuk menampilkan toko makanan terdekat</p>
                     <button onclick="requestLocation()" style="width:100%;padding:12px;background:#24b3ae;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;">Izinkan Akses Lokasi</button>
-                     </div>
+                    <button onclick="useDefaultLocation()" style="width:100%;margin-top:10px;padding:12px;background:#e2e8f0;color:#475569;border:none;border-radius:12px;font-size:13px;cursor:pointer;">Gunakan Lokasi Default</button>
+                    </div>
             </div>
         `;
                 document.body.insertAdjacentHTML('beforeend', popupHtml);

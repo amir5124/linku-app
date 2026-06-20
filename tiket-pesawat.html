@@ -105,10 +105,11 @@
                 class="bg-[#e9f4f9] p-3 flex justify-between items-center text-[11px] font-semibold border-b tracking-tight">
                 <div class="flex-1 text-[#24b3ae] leading-tight">
                     <span class="font-bold">Pesan hotel & UCar
-</span><br>
+                    </span><br>
                     <span class="text-gray-600 italic text-[10px]">Download aplikasi LinkU diplaystore</span>
                 </div>
-                <a href="https://play.google.com/store/apps/details?id=com.myiknlinku.iknlinku&pcampaignid=web_share"><button class="bg-[#24b3ae] text-white px-3 py-1.5 rounded-full font-bold shadow-sm">Download</button></a>
+                <a href="https://play.google.com/store/apps/details?id=com.myiknlinku.iknlinku&pcampaignid=web_share"><button
+                        class="bg-[#24b3ae] text-white px-3 py-1.5 rounded-full font-bold shadow-sm">Download</button></a>
             </div>
             <div x-show="step === 'search'" x-cloak class="p-4">
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-5 space-y-5">
@@ -480,6 +481,7 @@
                 </div>
             </div>
             <div x-show="step === 'passenger'" x-cloak class="min-h-screen bg-slate-50">
+                <!-- HEADER FIXED -->
                 <div
                     class="fixed top-0 left-0 right-0 z-50 bg-[#24b3ae] text-white shadow-lg p-4 flex items-center gap-4">
                     <button @click="step = 'search'" class="hover:bg-white/20 p-1 rounded-full transition-colors">
@@ -492,7 +494,9 @@
                         </p>
                     </div>
                 </div>
+
                 <div class="p-4 pt-20 space-y-4 pb-32">
+                    <!-- INFORMASI KONTAK -->
                     <div class="bg-white border rounded-xl p-4 shadow-sm space-y-4 text-sm">
                         <div class="flex items-center gap-2 border-b pb-2">
                             <i data-lucide="mail" class="w-4 h-4 text-[#24b3ae]"></i>
@@ -505,7 +509,8 @@
                             <div
                                 class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-bold flex items-center gap-2 text-sm shadow-sm">
                                 <img src="https://flagcdn.com/w20/id.png" srcset="https://flagcdn.com/w40/id.png 2x"
-                                    width="20" alt="Indonesia" class="rounded-sm shadow-sm"><span>+62</span>
+                                    width="20" alt="Indonesia" class="rounded-sm shadow-sm">
+                                <span>+62</span>
                             </div>
                             <input type="tel" x-model="contactData.phone"
                                 @input="contactData.phone = contactData.phone.replace(/^0+/, '')"
@@ -516,6 +521,32 @@
                             *Nomor handphone akan digunakan untuk pengiriman info jadwal penerbangan.
                         </p>
                     </div>
+
+                    <!-- MANAJEMEN DATA PENUMPANG -->
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-2 bg-white border rounded-xl p-3 shadow-sm">
+                        <div class="flex items-center gap-2 text-xs">
+                            <i data-lucide="database" class="w-4 h-4 text-[#24b3ae]"></i>
+                            <span class="text-slate-600" x-show="hasFilledPassengerData">
+                                Data tersimpan
+                            </span>
+                            <span class="text-slate-400" x-show="!hasFilledPassengerData">
+                                Belum ada data tersimpan
+                            </span>
+                        </div>
+                        <div class="flex gap-2" x-show="hasFilledPassengerData">
+                            <button @click="clearPassengers"
+                                class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
+                            </button>
+                            <button @click="resetPassengersToDefault"
+                                class="text-xs font-bold text-[#24b3ae] bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LOOPING FORM PENUMPANG -->
                     <template x-for="(p, index) in passengers" :key="index">
                         <div
                             class="bg-white border rounded-xl p-4 shadow-sm space-y-4 text-sm relative overflow-hidden">
@@ -533,12 +564,13 @@
                                     <option value="MRS">Nn.</option>
                                     <option value="MSTR">Anak (Laki-laki)</option>
                                     <option value="MISS">Anak (Perempuan)</option>
-                                </select><input type="text" x-model="p.firstName" placeholder="Nama Depan"
+                                </select>
+                                <input type="text" x-model="p.firstName" placeholder="Nama Depan"
                                     class="flex-1 p-3 border border-slate-200 rounded-lg outline-none uppercase font-bold min-w-0 focus:border-[#24b3ae]" />
                             </div>
                             <input type="text" x-model="p.lastName" placeholder="Nama Belakang"
-                                class="w-full p-3 border border-slate-200 rounded-lg outline-none uppercase font-bold focus:border-[#24b3ae]" /><input
-                                type="number" x-model="p.IDNumber" placeholder="NIK / No KTP"
+                                class="w-full p-3 border border-slate-200 rounded-lg outline-none uppercase font-bold focus:border-[#24b3ae]" />
+                            <input type="number" x-model="p.IDNumber" placeholder="NIK / No KTP"
                                 class="w-full p-3 border border-slate-200 rounded-lg outline-none tracking-widest focus:border-[#24b3ae]" />
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
@@ -553,8 +585,8 @@
                                         memilih tahun</p>
                                 </div>
                                 <div>
-                                    <label class="text-[8px] font-bold text-gray-400 mb-1 block">GENDER</label><select
-                                        x-model="p.gender"
+                                    <label class="text-[8px] font-bold text-gray-400 mb-1 block">GENDER</label>
+                                    <select x-model="p.gender"
                                         class="w-full p-2 border border-slate-200 rounded-lg bg-slate-50 text-xs font-bold focus:border-[#24b3ae]">
                                         <option value="Male">Pria</option>
                                         <option value="Female">Wanita</option>
@@ -563,6 +595,8 @@
                             </div>
                         </div>
                     </template>
+
+                    <!-- TOMBOL LANJUT -->
                     <div class="space-y-3">
                         <button @click="step = 'review'"
                             class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-transform flex justify-center items-center gap-2">
@@ -931,7 +965,7 @@
                                     Pastikan E-mail dan No. WhatsApp aktif untuk pengiriman E-Tiket.
                                 </p>
                             </div>
-                            <button @click="setupPassengerForms(); step = 'passenger';"
+                            <button @click="goToPassengerStep()"
                                 class="bg-[#24b3ae] text-white px-5 py-2.5 rounded-xl text-xs font-bold ">
                                 Isi Data
                             </button>
@@ -1108,20 +1142,11 @@
                                             Detail Penerbangan Pergi
                                         </p>
                                         <div
-                                            class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between items-center">
+                                            class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between">
                                             <span class="text-[11px] font-bold text-slate-700"
-                                                x-text="bookingDetail.flightDeparts?.[0]?.flightNumber + ' (Kelas ' + bookingDetail.flightDeparts?.[0]?.fdFlightClass + ')'">
-                                            </span>
-
-                                            <div class="flex items-center gap-1">
-                                                <span class="text-[11px] font-black text-slate-700 uppercase"
-                                                    x-text="bookingDetail.origin"></span>
-
-                                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
-
-                                                <span class="text-[11px] font-black text-slate-700 uppercase"
-                                                    x-text="bookingDetail.destination"></span>
-                                            </div>
+                                                x-text="bookingDetail.flightDeparts?.[0]?.flightNumber + ' (Kelas ' + bookingDetail.flightDeparts?.[0]?.fdFlightClass + ')'"></span><span
+                                                class="text-[11px] font-black text-slate-700"
+                                                x-text="bookingDetail.origin + ' â†’ ' + bookingDetail.destination"></span>
                                         </div>
                                     </div>
                                     <template x-if="bookingDetail.tripType === 'RoundTrip'">
@@ -1131,20 +1156,11 @@
                                                 Detail Penerbangan Pulang
                                             </p>
                                             <div
-                                                class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between items-center">
+                                                class="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex justify-between">
                                                 <span class="text-[11px] font-bold text-slate-700"
-                                                    x-text="bookingDetail.flightReturns?.[0]?.flightNumber + ' (Kelas ' + bookingDetail.flightReturns?.[0]?.fdFlightClass + ')'">
-                                                </span>
-
-                                                <div class="flex items-center gap-1">
-                                                    <span class="text-[11px] font-black text-slate-700 uppercase"
-                                                        x-text="bookingDetail.destination"></span>
-
-                                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
-
-                                                    <span class="text-[11px] font-black text-slate-700 uppercase"
-                                                        x-text="bookingDetail.origin"></span>
-                                                </div>
+                                                    x-text="bookingDetail.flightReturns?.[0]?.flightNumber + ' (Kelas ' + bookingDetail.flightReturns?.[0]?.fdFlightClass + ')'"></span><span
+                                                    class="text-[11px] font-black text-slate-700"
+                                                    x-text="bookingDetail.destination + ' â†’ ' + bookingDetail.origin"></span>
                                             </div>
                                         </div>
                                     </template>
@@ -1169,12 +1185,13 @@
                                     <div
                                         class="bg-slate-900 rounded-3xl p-6 text-white relative overflow-hidden shadow-xl shadow-slate-900/20 border border-white/5">
                                         <div
-                                            class="absolute top-0 right-0 w-32 h-32 bg-[#24b3ae]0/10 rounded-full -mr-16 -mt-16 blur-2xl">
+                                            class="absolute top-0 right-0 w-32 h-32 bg-[#24b3ae]/10 rounded-full -mr-16 -mt-16 blur-2xl">
                                         </div>
                                         <div
                                             class="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full -ml-12 -mb-12 blur-2xl">
                                         </div>
-                                        <div class="flex justify-between items-start mb-4">
+
+                                        <div class="flex justify-between items-start mb-4 relative z-10">
                                             <div>
                                                 <p
                                                     class="text-[8px] font-black text-[#24b3ae] uppercase tracking-[0.1em]">
@@ -1182,7 +1199,8 @@
                                                 </p>
                                                 <div class="flex items-baseline gap-1 mt-0.5">
                                                     <span class="text-xl font-black tracking-tighter text-white"
-                                                        x-text="'Rp ' + Math.ceil((bookingDetail.adminFee?.ticketPrice + (biayaAdminJagel || 0)) - ((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5)).toLocaleString('id-ID')"></span>
+                                                        x-text="'Rp ' + Math.ceil((bookingDetail.adminFee?.ticketPrice + (parseFloat(biayaAdminJagel) || 0)) - ((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5)).toLocaleString('id-ID')">
+                                                    </span>
                                                 </div>
                                             </div>
 
@@ -1194,13 +1212,28 @@
                                                 </span>
                                             </div>
                                         </div>
-                                        <div class="bg-white/5 rounded-2xl p-3 border border-white/5">
+
+                                        <div class="mb-4 relative z-10">
+                                            <label
+                                                class="text-[9px] text-slate-400 uppercase font-bold mb-1 block">Tambahkan
+                                                Biaya Layanan(Opsional)</label>
+                                            <div class="relative">
+                                                <span
+                                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-bold">Rp</span>
+                                                <input type="number" x-model="biayaAdminJagel" placeholder="0"
+                                                    class="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs font-bold text-white focus:outline-none focus:border-[#24b3ae]/50 transition-all">
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-white/5 rounded-2xl p-3 border border-white/5 relative z-10">
                                             <div class="flex justify-between items-center mb-1">
                                                 <span class="text-[10px] text-slate-400 font-medium italic">Harga
-                                                    Sebelum Diskon</span><span
-                                                    class="text-[11px] text-slate-400 line-through tracking-wide"
-                                                    x-text="'Rp ' + (bookingDetail.adminFee?.ticketPrice + (biayaAdminJagel || 0)).toLocaleString('id-ID')"></span>
+                                                    Sebelum Diskon</span>
+                                                <span class="text-[11px] text-slate-400 line-through tracking-wide"
+                                                    x-text="'Rp ' + (bookingDetail.adminFee?.ticketPrice + (parseFloat(biayaAdminJagel) || 0)).toLocaleString('id-ID')">
+                                                </span>
                                             </div>
+
                                             <div class="flex justify-between items-center">
                                                 <div class="flex items-center gap-1.5">
                                                     <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse">
@@ -1209,14 +1242,16 @@
                                                         class="text-[10px] font-bold text-green-400 uppercase tracking-tight">Diskon</span>
                                                 </div>
                                                 <span class="text-xs font-black text-green-400"
-                                                    x-text="'- Rp ' + Math.floor((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5).toLocaleString('id-ID')"></span>
+                                                    x-text="'- Rp ' + Math.floor((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5).toLocaleString('id-ID')">
+                                                </span>
                                             </div>
                                         </div>
-                                        <div class="mt-4 flex justify-between items-center">
+
+                                        <div class="mt-4 flex justify-between items-center relative z-10">
                                             <div class="flex items-center gap-2">
                                                 <div class="flex -space-x-2">
                                                     <div
-                                                        class="w-5 h-5 rounded-full border-2 border-slate-900 bg-[#24b3ae]0 flex items-center justify-center">
+                                                        class="w-5 h-5 rounded-full border-2 border-slate-900 bg-[#24b3ae] flex items-center justify-center">
                                                         <i data-lucide="shield-check" class="w-3 h-3 text-white"></i>
                                                     </div>
                                                     <div
@@ -1230,8 +1265,7 @@
                                             </div>
                                             <div class="text-right">
                                                 <p class="text-[8px] text-slate-500 uppercase font-bold leading-none">
-                                                    Anda Hemat
-                                                </p>
+                                                    Anda Hemat</p>
                                                 <p class="text-[11px] text-[#24b3ae] font-black tracking-tight"
                                                     x-text="'Rp ' + Math.floor((bookingDetail.adminFee?.ticketPrice - bookingDetail.adminFee?.salesPrice) * 0.5).toLocaleString('id-ID')">
                                                 </p>
@@ -1371,8 +1405,16 @@
                                 </div>
                                 <div class="flex justify-between items-baseline">
                                     <span class="text-xs font-bold opacity-60">IDR</span><span
-                                        class="text-2xl font-black text-white"
-                                        x-text="Math.ceil( (bookingDetail.adminFee.ticketPrice + (biayaAdminJagel || 0)) - ((bookingDetail.adminFee.ticketPrice - bookingDetail.adminFee.salesPrice) * 0.5) ).toLocaleString('id-ID')"></span>
+                                        class="text-2xl font-black text-white" x-text="(() => {
+                const ticket = Number(bookingDetail.adminFee?.ticketPrice || 0);
+                const sales = Number(bookingDetail.adminFee?.salesPrice || 0);
+                const admin = Number(biayaAdminJagel || 0);
+                const komisi = Math.max(0, ticket - sales);
+                const diskon = Math.floor(komisi * 0.5);
+                
+                return 'Rp ' + Math.ceil((ticket + admin) - diskon).toLocaleString('id-ID');
+            })()">
+                                    </span>
                                 </div>
                                 <p class="text-[8px] text-gray-500 mt-2 italic">*Harga sudah termasuk promo diskon.</p>
                             </div>
@@ -1386,21 +1428,22 @@
                             </div>
                         </div>
                     </div>
-                   <div class="grid grid-cols-2 gap-3">
-    <button x-show="bookingDetail && bookingDetail.bookingCode" 
-            @click="console.log('Tombol Unduh diklik'); downloadTicket()"
-            class="flex flex-col items-center justify-center p-4 bg-white border rounded-2xl gap-2 shadow-sm active:bg-slate-50">
-        <i data-lucide="download" class="w-5 h-5 text-[#24b3ae]"></i>
-        <span class="text-[10px] font-bold uppercase text-slate-600">Unduh PDF</span>
-    </button>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button x-show="bookingDetail && bookingDetail.bookingCode"
+                            @click="console.log('Tombol Unduh diklik'); downloadTicket()"
+                            class="flex flex-col items-center justify-center p-4 bg-white border rounded-2xl gap-2 shadow-sm active:bg-slate-50">
+                            <i data-lucide="download" class="w-5 h-5 text-[#24b3ae]"></i>
+                            <span class="text-[10px] font-bold uppercase text-slate-600">Unduh PDF</span>
+                        </button>
 
-    <button x-show="bookingDetail && bookingDetail.bookingCode"
-            @click="console.log('Tombol Share diklik'); shareToWhatsApp(bookingDetail.bookingCode)"
-            class="flex flex-col items-center justify-center p-4 bg-white border rounded-2xl gap-2 shadow-sm active:bg-slate-50">
-        <i data-lucide="share-2" class="w-5 h-5 text-[#24b3ae]"></i>
-        <span class="text-[10px] font-bold uppercase text-slate-600" x-text="btnLabel || 'Bagikan'"></span>
-    </button>
-</div>
+                        <button x-show="bookingDetail && bookingDetail.bookingCode"
+                            @click="console.log('Tombol Share diklik'); shareToWhatsApp(bookingDetail.bookingCode)"
+                            class="flex flex-col items-center justify-center p-4 bg-white border rounded-2xl gap-2 shadow-sm active:bg-slate-50">
+                            <i data-lucide="share-2" class="w-5 h-5 text-[#24b3ae]"></i>
+                            <span class="text-[10px] font-bold uppercase text-slate-600"
+                                x-text="btnLabel || 'Bagikan'"></span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div x-show="showPaxModal" x-cloak class="fixed inset-0 bg-black/60 z-[160] flex items-end">
@@ -2197,8 +2240,8 @@
                     { "origin": "TJQ", "destination": "KNO", "originName": "Indonesia, Tanjung Pandan (TJQ)", "destinationName": "Indonesia, Medan , Kuala Namo (KNO)" },
                     { "origin": "TJQ", "destination": "PGK", "originName": "Indonesia, Tanjung Pandan (TJQ)", "destinationName": "Indonesia, Pangkal Pinang, Bangka-Belitung (PGK)" },
                     { "origin": "TJQ", "destination": "SRG", "originName": "Indonesia, Tanjung Pandan (TJQ)", "destinationName": "Indonesia, Semarang, Jawa Tengah (SRG)" },
-                    { "origin": "TJQ", "destination": "SUB", "originName": "Indonesia, Tanjung Pandan (TJQ)", "destinationName": "Indonesia, Surabaya1 (SUB)" },
                     { "origin": "TJQ", "destination": "UPG", "originName": "Indonesia, Tanjung Pandan (TJQ)", "destinationName": "Indonesia, Ujungpandang (UPG)" },
+                    { "origin": "TJQ", "destination": "SUB", "originName": "Indonesia, Tanjung Pandan (TJQ)", "destinationName": "Indonesia, Surabaya1 (SUB)" },
                     { "origin": "TJQ", "destination": "JOG", "originName": "Indonesia, Tanjung Pandan (TJQ)", "destinationName": "Indonesia, Yogyakarta (JOG)" },
                     { "origin": "LUV", "destination": "BDO", "originName": "Indonesia, Tual (LUV)", "destinationName": "Indonesia, Bandung (BDO)" },
                     { "origin": "UPG", "destination": "BPN", "originName": "Indonesia, Ujungpandang (UPG)", "destinationName": "Indonesia, Balikpapan (BPN)" },
@@ -2300,7 +2343,7 @@
                 },
                 paxCount: { adult: 1, child: 0, infant: 0 },
                 contactData: { email: '', phone: '' },
-                passengers: [{ firstName: '', lastName: '', title: 'Mr', selectedSeat: '', idNumber: '', birthDate: '1995-01-01' }],
+                passengers: [],
                 bookingResult: null,
                 bookingResultReturn: null,
                 airports: [],
@@ -2322,8 +2365,10 @@
                 vaNumber: '', // Tempat menyimpan nomor VA dari backend
                 vaBankName: '',
                 bookingResult: null,
+                hasSavedPassengers: false,
                 bookingResultReturn: null,
                 additionalAdminFee: 0,
+                isInitialLoad: true,
                 bookingData: {
                     id: null,
                     pengguna: '',
@@ -2342,14 +2387,86 @@
 
 
                 init() {
-                    console.log("Username yang terdeteksi:", this.usernameJagel);
                     this.fetchAirlineList();
-                    this.initRoutes(); // Panggil fungsi inisialisasi rute lokal
+                    this.initRoutes();
                     this.generateCalendar();
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
+
+                    this.loadContactData();
+
+                    // Saat load pertama kali, set paxCount sesuai jumlah data tersimpan (kalau ada)
+                    const saved = localStorage.getItem('passengersData');
+                    if (saved) {
+                        try {
+                            const parsed = JSON.parse(saved);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                this.paxCount.adult = parsed.filter(p => p.type === 0).length;
+                                this.paxCount.child = parsed.filter(p => p.type === 1).length;
+                                this.paxCount.infant = parsed.filter(p => p.type === 2).length;
+                            }
+                        } catch (e) { console.warn('Gagal parsing passengers awal', e); }
+                    }
+
+                    this.setupPassengerForms();
+                    this.applySavedPassengerData();
+
+                    this.$nextTick(() => { this.isInitialLoad = false; });
+
+                    this.$watch('passengers', () => {
+                        this.savePassengers();
+                    });
+
+                    this.$watch('contactData', () => {
+                        this.saveContactData();
+                    }, { deep: true });
                 },
+
+                // Mengisi form yang sudah dibangun (sesuai paxCount terbaru) dengan data lama dari localStorage,
+                // tapi TIDAK mengubah jumlah form/paxCount.
+                applySavedPassengerData() {
+                    const saved = localStorage.getItem('passengersData');
+                    if (!saved) { this.hasSavedPassengers = false; return; }
+
+                    let parsed = [];
+                    try {
+                        parsed = JSON.parse(saved);
+                    } catch (e) {
+                        this.hasSavedPassengers = false;
+                        return;
+                    }
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                        this.hasSavedPassengers = false;
+                        return;
+                    }
+
+                    // Kelompokkan data lama berdasarkan type (0=Dewasa, 1=Anak, 2=Bayi)
+                    const grouped = { 0: [], 1: [], 2: [] };
+                    parsed.forEach(p => {
+                        if (grouped[p.type] !== undefined) grouped[p.type].push(p);
+                    });
+
+                    const typeCounters = { 0: 0, 1: 0, 2: 0 };
+                    this.passengers = this.passengers.map(p => {
+                        const list = grouped[p.type] || [];
+                        const idx = typeCounters[p.type]++;
+                        if (list[idx]) {
+                            // Timpa isian dari data lama, tapi pertahankan type/typeLabel form yang baru dibangun
+                            return { ...p, ...list[idx], type: p.type, typeLabel: p.typeLabel };
+                        }
+                        return p; // slot baru (misal penumpang ke-2) tetap kosong/default
+                    });
+
+                    this.hasSavedPassengers = true;
+                },
+
+                goToPassengerStep() {
+                    this.setupPassengerForms();      // selalu bangun form sesuai paxCount TERBARU (hasil dari modal)
+                    this.applySavedPassengerData();  // isi ulang dari localStorage sebanyak yang cocok
+                    this.step = 'passenger';
+                },
+
 
                 resetState() {
                     this.selectedFlight = null;
@@ -2399,6 +2516,99 @@
 
                     this.airports = uniqueAirports.sort((a, b) => a.city.localeCompare(b.city));
                     this.loading = false;
+                },
+
+                savePassengers() {
+                    try {
+                        localStorage.setItem('passengersData', JSON.stringify(this.passengers));
+                        this.hasSavedPassengers = true;
+                    } catch (e) {
+                        console.warn('Gagal menyimpan passengers ke localStorage', e);
+                    }
+                },
+
+
+
+                get hasFilledPassengerData() {
+                    return this.passengers.some(p =>
+                        (p.firstName && p.firstName.trim() !== '') ||
+                        (p.lastName && p.lastName.trim() !== '') ||
+                        (p.IDNumber && p.IDNumber.toString().trim() !== '')
+                    );
+                },
+
+                loadPassengers() {
+                    const saved = localStorage.getItem('passengersData');
+                    console.log('RAW localStorage:', saved); // <-- cek ini dulu
+                    if (saved) {
+                        try {
+                            const parsed = JSON.parse(saved);
+                            console.log('PARSED:', parsed);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                this.passengers = parsed;
+                                console.log('AFTER SET:', JSON.stringify(this.passengers));
+                                this.paxCount.adult = parsed.filter(p => p.type === 0).length;
+                                this.paxCount.child = parsed.filter(p => p.type === 1).length;
+                                this.paxCount.infant = parsed.filter(p => p.type === 2).length;
+                                this.hasSavedPassengers = true;
+                                return true;
+                            }
+                        } catch (e) {
+                            console.warn('Gagal parsing passengers dari localStorage', e);
+                        }
+                    }
+                    this.hasSavedPassengers = false;
+                    return false;
+                },
+
+                resetPassengersToDefault() {
+                    if (confirm('Reset data penumpang ke jumlah yang sedang dipilih?')) {
+                        this.setupPassengerForms();
+                        this.savePassengers();
+                        this.showToast('Data penumpang direset', 'info');
+                    }
+                },
+
+                clearPassengers() {
+                    if (confirm('Hapus semua data penumpang dan kontak yang tersimpan?')) {
+                        localStorage.removeItem('passengersData');
+                        localStorage.removeItem('contactData');
+                        this.hasSavedPassengers = false;
+                        this.contactData = { email: '', phone: '' };
+                        this.setupPassengerForms();
+                        this.showToast('Data penumpang & kontak berhasil dihapus', 'info');
+                    }
+                },
+
+                setupPassengerForms() {
+                    this.passengers = [];
+                    for (let i = 0; i < this.paxCount.adult; i++) this.passengers.push({ title: 'MR', firstName: '', lastName: '', birthDate: '1995-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 0, typeLabel: 'Dewasa' });
+                    for (let i = 0; i < this.paxCount.child; i++) this.passengers.push({ title: 'MSTR', firstName: '', lastName: '', birthDate: '2015-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 1, typeLabel: 'Anak' });
+                    for (let i = 0; i < this.paxCount.infant; i++) this.passengers.push({ title: 'MSTR', firstName: '', lastName: '', birthDate: '2024-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 2, typeLabel: 'Bayi' });
+                },
+
+                saveContactData() {
+                    try {
+                        localStorage.setItem('contactData', JSON.stringify(this.contactData));
+                    } catch (e) {
+                        console.warn('Gagal menyimpan contactData ke localStorage', e);
+                    }
+                },
+
+                loadContactData() {
+                    const saved = localStorage.getItem('contactData');
+                    if (saved) {
+                        try {
+                            const parsed = JSON.parse(saved);
+                            if (parsed && typeof parsed === 'object') {
+                                this.contactData = { ...this.contactData, ...parsed };
+                                return true;
+                            }
+                        } catch (e) {
+                            console.warn('Gagal parsing contactData dari localStorage', e);
+                        }
+                    }
+                    return false;
                 },
 
                 filteredAirports() {
@@ -3758,12 +3968,7 @@
                     if (type === 'OneWay') { this.search.returnDate = ''; this.search.returnDateLabel = ''; }
                     else if (type === 'RoundTrip' && !this.search.returnDate) { this.openModal('calendar', 'return'); }
                 },
-                setupPassengerForms() {
-                    this.passengers = [];
-                    for (let i = 0; i < this.paxCount.adult; i++) this.passengers.push({ title: 'MR', firstName: '', lastName: '', birthDate: '1995-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 0, typeLabel: 'Dewasa' });
-                    for (let i = 0; i < this.paxCount.child; i++) this.passengers.push({ title: 'MSTR', firstName: '', lastName: '', birthDate: '2015-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 1, typeLabel: 'Anak' });
-                    for (let i = 0; i < this.paxCount.infant; i++) this.passengers.push({ title: 'MSTR', firstName: '', lastName: '', birthDate: '2024-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 2, typeLabel: 'Bayi' });
-                },
+
                 goToSeats() {
                     this.activeSeatSegment = 0;
                     this.activePaxIndex = 0;
