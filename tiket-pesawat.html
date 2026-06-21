@@ -528,13 +528,18 @@
                         <div class="flex items-center gap-2 text-xs">
                             <i data-lucide="database" class="w-4 h-4 text-[#24b3ae]"></i>
                             <span class="text-slate-600" x-show="hasFilledPassengerData">
-                                Data tersimpan
+                                Data tersimpan: <span x-text="getTotalSavedPassengers()"></span> penumpang
                             </span>
                             <span class="text-slate-400" x-show="!hasFilledPassengerData">
                                 Belum ada data tersimpan
                             </span>
                         </div>
-                        <div class="flex gap-2" x-show="hasFilledPassengerData">
+                        <div class="flex gap-2 flex-wrap">
+                            <!-- Tombol Lihat Semua Data -->
+                            <button @click="showAllSavedPassengers()"
+                                class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                <i data-lucide="eye" class="w-3 h-3"></i> Lihat Semua
+                            </button>
                             <button @click="clearPassengers"
                                 class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1">
                                 <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
@@ -546,16 +551,83 @@
                         </div>
                     </div>
 
-                    <!-- LOOPING FORM PENUMPANG -->
+                    <!-- LOOPING FORM PENUMPANG dengan DROPDOWN AUTO-FILL -->
                     <template x-for="(p, index) in passengers" :key="index">
                         <div
                             class="bg-white border rounded-xl p-4 shadow-sm space-y-4 text-sm relative overflow-hidden">
                             <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#24b3ae]"></div>
-                            <div class="flex items-center gap-2 border-b pb-2">
-                                <i data-lucide="user" class="w-4 h-4 text-[#24b3ae]"></i>
-                                <h3 class="font-bold text-[#24b3ae] tracking-widest uppercase text-[10px]"
-                                    x-text="'Data Penumpang ' + (index + 1) + ' (' + p.typeLabel + ')'"></h3>
+
+                            <!-- HEADER dengan Dropdown -->
+                            <div class="flex items-center justify-between gap-2 border-b pb-2">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="user" class="w-4 h-4 text-[#24b3ae]"></i>
+                                    <h3 class="font-bold text-[#24b3ae] tracking-widest uppercase text-[10px]"
+                                        x-text="'Data Penumpang ' + (index + 1) + ' (' + p.typeLabel + ')'"></h3>
+                                </div>
+
+                                <!-- DROPDOWN AUTO-FILL -->
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click="open = !open; $event.stopPropagation()"
+                                        class="text-[10px] font-bold text-[#24b3ae] bg-teal-50 hover:bg-teal-100 px-2 py-1 rounded-lg transition flex items-center gap-1 whitespace-nowrap">
+                                        <i data-lucide="file-text" class="w-3 h-3"></i>
+                                        <span>Isi Otomatis</span>
+                                        <i data-lucide="chevron-down" class="w-3 h-3 transition-transform"
+                                            :class="{'rotate-180': open}"></i>
+                                    </button>
+
+                                    <!-- DROPDOWN MENU -->
+                                    <div x-show="open" @click.away="open = false"
+                                        class="absolute right-0 mt-1 w-72 bg-white border border-slate-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                                        <div class="p-2 space-y-1">
+                                            <!-- Header Dropdown -->
+                                            <div
+                                                class="px-3 py-1 text-[8px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                                                Data Penumpang Tersimpan
+                                            </div>
+
+                                            <!-- Opsi Data Tersimpan -->
+                                            <template x-for="(saved, idx) in getSavedPassengersList()" :key="idx">
+                                                <button @click="autoFillPassenger(index, saved); open = false;"
+                                                    class="w-full text-left px-3 py-2 hover:bg-teal-50 rounded-lg transition flex items-center gap-3 group">
+                                                    <div
+                                                        class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
+                                                        <i data-lucide="user-check" class="w-4 h-4 text-teal-600"></i>
+                                                    </div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <div class="font-bold text-xs text-slate-700 truncate">
+                                                            <span x-text="saved.firstName || ''"></span>
+                                                            <span x-text="saved.lastName || ''"></span>
+                                                            <span x-show="!saved.firstName && !saved.lastName"
+                                                                class="text-slate-400">(Tanpa Nama)</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-2 text-[9px] text-slate-400">
+                                                            <span x-text="saved.typeLabel || 'Penumpang'"></span>
+                                                            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                            <span x-text="saved.gender || '-'"></span>
+                                                            <span x-show="saved.IDNumber"
+                                                                class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                            <span x-show="saved.IDNumber" class="font-mono"
+                                                                x-text="'NIK: ' + saved.IDNumber"></span>
+                                                        </div>
+                                                    </div>
+                                                    <i data-lucide="chevron-right"
+                                                        class="w-3 h-3 text-slate-300 group-hover:text-teal-600"></i>
+                                                </button>
+                                            </template>
+
+                                            <!-- Jika tidak ada data tersimpan -->
+                                            <div x-show="getSavedPassengersList().length === 0"
+                                                class="px-3 py-6 text-xs text-center text-slate-400">
+                                                <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                                                <p class="font-medium">Belum ada data tersimpan</p>
+                                                <p class="text-[8px] mt-1">Isi data penumpang terlebih dahulu</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- FORM INPUT -->
                             <div class="flex gap-2">
                                 <select x-model="p.title"
                                     class="w-24 p-3 border border-slate-200 rounded-lg bg-slate-50 outline-none font-bold text-xs focus:border-[#24b3ae]">
@@ -593,15 +665,40 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <!-- Status & Tombol Hapus Per Penumpang -->
+                            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+                                <div x-show="isPassengerFilled(p)"
+                                    class="flex items-center gap-1 text-[8px] text-green-600">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                    <span>Data terisi ✓</span>
+                                </div>
+                                <div x-show="!isPassengerFilled(p)"
+                                    class="flex items-center gap-1 text-[8px] text-slate-400">
+                                    <i data-lucide="circle" class="w-3 h-3"></i>
+                                    <span>Kosong</span>
+                                </div>
+                                <button @click="clearSpecificPassenger(index)"
+                                    class="text-[8px] text-red-400 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded-lg transition"
+                                    x-show="isPassengerFilled(p)">
+                                    <i data-lucide="x-circle" class="w-3 h-3 inline"></i> Hapus data ini
+                                </button>
+                            </div>
                         </div>
                     </template>
 
                     <!-- TOMBOL LANJUT -->
                     <div class="space-y-3">
                         <button @click="step = 'review'"
-                            class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-transform flex justify-center items-center gap-2">
+                            class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-transform flex justify-center items-center gap-2 hover:scale-[1.02] active:scale-[0.98]">
                             <span>Selesai</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </button>
+
+                        <!-- Info jumlah data -->
+                        <p class="text-center text-[8px] text-slate-400">
+                            Total data penumpang tersimpan: <span x-text="getTotalSavedPassengers()"></span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -2421,15 +2518,184 @@
 
                     this.$watch('passengers', () => {
                         this.savePassengers();
-                    });
+                    }, { deep: true });
 
                     this.$watch('contactData', () => {
                         this.saveContactData();
                     }, { deep: true });
                 },
 
-                // Mengisi form yang sudah dibangun (sesuai paxCount terbaru) dengan data lama dari localStorage,
-                // tapi TIDAK mengubah jumlah form/paxCount.
+                // ========== FUNGSI AUTO-FILL PENUMPANG ==========
+
+                // 1. Auto fill data penumpang dari dropdown
+                autoFillPassenger(index, passengerData) {
+                    if (!passengerData) return;
+
+                    // Isi data penumpang berdasarkan data yang dipilih
+                    this.passengers[index] = {
+                        ...this.passengers[index],
+                        title: passengerData.title || 'MR',
+                        firstName: passengerData.firstName || '',
+                        lastName: passengerData.lastName || '',
+                        birthDate: passengerData.birthDate || '1995-01-01',
+                        gender: passengerData.gender || 'Male',
+                        IDNumber: passengerData.IDNumber || '',
+                        selectedSeat: passengerData.selectedSeat || '',
+                        type: passengerData.type || this.passengers[index].type,
+                        typeLabel: passengerData.typeLabel || this.passengers[index].typeLabel,
+                        id: passengerData.id || this.passengers[index].id
+                    };
+
+                    // Tampilkan notifikasi
+                    const name = `${passengerData.firstName || ''} ${passengerData.lastName || ''}`.trim() || 'Penumpang';
+                    this.showToast(`✅ Data ${name} berhasil diisi`, 'success');
+
+                    // Auto save setelah auto fill
+                    this.savePassengers();
+
+                    // Update icon
+                    this.$nextTick(() => {
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                },
+
+                // 2. Mendapatkan daftar penumpang yang tersimpan untuk dropdown
+                getSavedPassengersList() {
+                    try {
+                        const saved = localStorage.getItem('passengersData');
+                        if (saved) {
+                            const parsed = JSON.parse(saved);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                // Filter hanya data yang sudah terisi (bukan data kosong)
+                                const filled = parsed.filter(p =>
+                                    (p.firstName && p.firstName.trim() !== '') ||
+                                    (p.lastName && p.lastName.trim() !== '') ||
+                                    (p.IDNumber && p.IDNumber.toString().trim() !== '')
+                                );
+                                return filled;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Gagal load saved passengers', e);
+                    }
+                    return [];
+                },
+
+                // 3. Mengecek apakah data penumpang sudah terisi
+                isPassengerFilled(passenger) {
+                    return (passenger.firstName && passenger.firstName.trim() !== '') ||
+                        (passenger.lastName && passenger.lastName.trim() !== '') ||
+                        (passenger.IDNumber && passenger.IDNumber.toString().trim() !== '');
+                },
+
+                // 4. Mendapatkan total data tersimpan
+                getTotalSavedPassengers() {
+                    return this.getSavedPassengersList().length;
+                },
+
+                // 5. Menampilkan semua data tersimpan
+                showAllSavedPassengers() {
+                    const data = this.getSavedPassengersList();
+                    if (data.length === 0) {
+                        this.showToast('Belum ada data penumpang tersimpan', 'info');
+                        return;
+                    }
+
+                    // Buat pesan detail
+                    let message = `📋 TOTAL DATA PENUMPANG TERSIMPAN: ${data.length}\n\n`;
+                    data.forEach((p, i) => {
+                        const name = `${p.firstName || ''} ${p.lastName || ''}`.trim() || '(Tanpa Nama)';
+                        const type = p.typeLabel || 'Penumpang';
+                        const nik = p.IDNumber || '-';
+                        const gender = p.gender || '-';
+                        message += `${i + 1}. ${name} | ${type} | ${gender} | NIK: ${nik}\n`;
+                    });
+
+                    alert(message);
+                },
+
+                // 6. Menghapus data penumpang tertentu (per index)
+                clearSpecificPassenger(index) {
+                    if (confirm(`Hapus data penumpang ${index + 1}?`)) {
+                        const passenger = this.passengers[index];
+                        const name = `${passenger.firstName || ''} ${passenger.lastName || ''}`.trim() || 'Penumpang';
+
+                        // Reset data
+                        this.passengers[index] = {
+                            ...this.passengers[index],
+                            firstName: '',
+                            lastName: '',
+                            IDNumber: '',
+                            title: this.passengers[index].type === 0 ? 'MR' :
+                                this.passengers[index].type === 1 ? 'MSTR' : 'MSTR',
+                            birthDate: this.passengers[index].type === 0 ? '1995-01-01' :
+                                this.passengers[index].type === 1 ? '2015-01-01' : '2024-01-01',
+                            gender: 'Male',
+                            selectedSeat: ''
+                        };
+
+                        this.savePassengers();
+                        this.showToast(`🗑️ Data ${name} dihapus`, 'info');
+
+                        // Update icon
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        });
+                    }
+                },
+
+                // 7. Setup Passenger Forms dengan ID unik
+                setupPassengerForms() {
+                    this.passengers = [];
+                    const generateId = () => '_' + Math.random().toString(36).substr(2, 9);
+
+                    for (let i = 0; i < this.paxCount.adult; i++) {
+                        this.passengers.push({
+                            id: generateId(),
+                            title: 'MR',
+                            firstName: '',
+                            lastName: '',
+                            birthDate: '1995-01-01',
+                            gender: 'Male',
+                            IDNumber: '',
+                            selectedSeat: '',
+                            type: 0,
+                            typeLabel: 'Dewasa'
+                        });
+                    }
+                    for (let i = 0; i < this.paxCount.child; i++) {
+                        this.passengers.push({
+                            id: generateId(),
+                            title: 'MSTR',
+                            firstName: '',
+                            lastName: '',
+                            birthDate: '2015-01-01',
+                            gender: 'Male',
+                            IDNumber: '',
+                            selectedSeat: '',
+                            type: 1,
+                            typeLabel: 'Anak'
+                        });
+                    }
+                    for (let i = 0; i < this.paxCount.infant; i++) {
+                        this.passengers.push({
+                            id: generateId(),
+                            title: 'MSTR',
+                            firstName: '',
+                            lastName: '',
+                            birthDate: '2024-01-01',
+                            gender: 'Male',
+                            IDNumber: '',
+                            selectedSeat: '',
+                            type: 2,
+                            typeLabel: 'Bayi'
+                        });
+                    }
+                },
+
+                // ========== FUNGSI EXISTING (DIMODIFIKASI) ==========
+
+                // Mengisi form yang sudah dibangun dengan data lama dari localStorage
                 applySavedPassengerData() {
                     const saved = localStorage.getItem('passengersData');
                     if (!saved) { this.hasSavedPassengers = false; return; }
@@ -2472,7 +2738,6 @@
                     this.step = 'passenger';
                 },
 
-
                 resetState() {
                     this.selectedFlight = null;
                     this.selectedReturnFlight = null;
@@ -2502,7 +2767,6 @@
                         return { city: cleanCity, name: fullName };
                     };
 
-
                     localRouteData.routes.forEach(route => {
                         // Proses Origin
                         if (!map.has(route.origin)) {
@@ -2527,12 +2791,11 @@
                     try {
                         localStorage.setItem('passengersData', JSON.stringify(this.passengers));
                         this.hasSavedPassengers = true;
+                        console.log('✅ Data penumpang tersimpan:', this.passengers.length, 'penumpang');
                     } catch (e) {
                         console.warn('Gagal menyimpan passengers ke localStorage', e);
                     }
                 },
-
-
 
                 get hasFilledPassengerData() {
                     return this.passengers.some(p =>
@@ -2544,14 +2807,14 @@
 
                 loadPassengers() {
                     const saved = localStorage.getItem('passengersData');
-                    console.log('RAW localStorage:', saved); // <-- cek ini dulu
+                    console.log('📥 RAW localStorage:', saved);
                     if (saved) {
                         try {
                             const parsed = JSON.parse(saved);
-                            console.log('PARSED:', parsed);
+                            console.log('📋 PARSED:', parsed);
                             if (Array.isArray(parsed) && parsed.length > 0) {
                                 this.passengers = parsed;
-                                console.log('AFTER SET:', JSON.stringify(this.passengers));
+                                console.log('✅ AFTER SET:', JSON.stringify(this.passengers));
                                 this.paxCount.adult = parsed.filter(p => p.type === 0).length;
                                 this.paxCount.child = parsed.filter(p => p.type === 1).length;
                                 this.paxCount.infant = parsed.filter(p => p.type === 2).length;
@@ -2559,7 +2822,7 @@
                                 return true;
                             }
                         } catch (e) {
-                            console.warn('Gagal parsing passengers dari localStorage', e);
+                            console.warn('❌ Gagal parsing passengers dari localStorage', e);
                         }
                     }
                     this.hasSavedPassengers = false;
@@ -2568,9 +2831,18 @@
 
                 resetPassengersToDefault() {
                     if (confirm('Reset data penumpang ke jumlah yang sedang dipilih?')) {
+                        // Simpan data lama ke history sebelum reset
+                        if (this.passengers.length > 0) {
+                            this.savePassengerHistory(this.passengers);
+                        }
+
                         this.setupPassengerForms();
                         this.savePassengers();
-                        this.showToast('Data penumpang direset', 'info');
+                        this.showToast('Data penumpang direset (data lama tersimpan di history)', 'info');
+
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        });
                     }
                 },
 
@@ -2578,18 +2850,16 @@
                     if (confirm('Hapus semua data penumpang dan kontak yang tersimpan?')) {
                         localStorage.removeItem('passengersData');
                         localStorage.removeItem('contactData');
+                        localStorage.removeItem('passengerHistory');
                         this.hasSavedPassengers = false;
                         this.contactData = { email: '', phone: '' };
                         this.setupPassengerForms();
                         this.showToast('Data penumpang & kontak berhasil dihapus', 'info');
-                    }
-                },
 
-                setupPassengerForms() {
-                    this.passengers = [];
-                    for (let i = 0; i < this.paxCount.adult; i++) this.passengers.push({ title: 'MR', firstName: '', lastName: '', birthDate: '1995-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 0, typeLabel: 'Dewasa' });
-                    for (let i = 0; i < this.paxCount.child; i++) this.passengers.push({ title: 'MSTR', firstName: '', lastName: '', birthDate: '2015-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 1, typeLabel: 'Anak' });
-                    for (let i = 0; i < this.paxCount.infant; i++) this.passengers.push({ title: 'MSTR', firstName: '', lastName: '', birthDate: '2024-01-01', gender: 'Male', IDNumber: '', selectedSeat: '', type: 2, typeLabel: 'Bayi' });
+                        this.$nextTick(() => {
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                        });
+                    }
                 },
 
                 saveContactData() {
@@ -2614,6 +2884,118 @@
                         }
                     }
                     return false;
+                },
+
+                // ========== FUNGSI TAMBAHAN UNTUK HISTORY ==========
+
+                // 8. Menyimpan history data penumpang
+                savePassengerHistory(currentData) {
+                    try {
+                        // Ambil data historis yang sudah ada
+                        const history = JSON.parse(localStorage.getItem('passengerHistory') || '[]');
+
+                        // Tambahkan data baru dengan timestamp
+                        history.push({
+                            timestamp: new Date().toLocaleString('id-ID'),
+                            passengers: currentData.map(p => ({ ...p })), // Clone data
+                            totalPassengers: currentData.length
+                        });
+
+                        // Batasi history hanya 10 data terakhir
+                        if (history.length > 10) {
+                            history.shift(); // Hapus data tertua
+                        }
+
+                        localStorage.setItem('passengerHistory', JSON.stringify(history));
+                        console.log('📜 History tersimpan:', history.length, 'entri');
+                    } catch (e) {
+                        console.warn('Gagal menyimpan history', e);
+                    }
+                },
+
+                // 9. Memulihkan data dari history
+                restoreFromHistory() {
+                    try {
+                        const history = JSON.parse(localStorage.getItem('passengerHistory') || '[]');
+                        if (history.length === 0) {
+                            this.showToast('Tidak ada history data', 'warning');
+                            return;
+                        }
+
+                        // Tampilkan pilihan data historis
+                        let options = '📜 PILIH DATA HISTORIS:\n\n';
+                        history.forEach((h, i) => {
+                            options += `${i + 1}. ${h.timestamp} (${h.totalPassengers} penumpang)\n`;
+                        });
+                        options += '\nMasukkan nomor (0 untuk batal):';
+
+                        const choice = prompt(options);
+                        if (choice === null || choice === '0') return;
+
+                        const idx = parseInt(choice) - 1;
+                        if (idx >= 0 && idx < history.length) {
+                            const selected = history[idx];
+                            if (confirm(`Pulihkan data dari ${selected.timestamp} dengan ${selected.totalPassengers} penumpang?`)) {
+                                this.passengers = selected.passengers.map(p => ({ ...p }));
+                                this.savePassengers();
+                                this.showToast(`✅ Data historis dari ${selected.timestamp} berhasil dipulihkan`, 'success');
+
+                                this.$nextTick(() => {
+                                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                                });
+                            }
+                        } else {
+                            this.showToast('Pilihan tidak valid', 'error');
+                        }
+                    } catch (e) {
+                        console.warn('Gagal restore history', e);
+                        this.showToast('Gagal memulihkan data', 'error');
+                    }
+                },
+
+                // 10. Menampilkan history
+                showHistory() {
+                    try {
+                        const history = JSON.parse(localStorage.getItem('passengerHistory') || '[]');
+                        if (history.length === 0) {
+                            this.showToast('Belum ada history data', 'info');
+                            return;
+                        }
+
+                        let message = '📜 HISTORY DATA PENUMPANG\n\n';
+                        history.forEach((h, i) => {
+                            message += `${i + 1}. ${h.timestamp}\n`;
+                            message += `   Total: ${h.totalPassengers} penumpang\n`;
+                            h.passengers.forEach((p, j) => {
+                                const name = `${p.firstName || ''} ${p.lastName || ''}`.trim() || '(Tanpa Nama)';
+                                message += `   ${j + 1}. ${name} (${p.typeLabel})\n`;
+                            });
+                            message += '\n';
+                        });
+
+                        alert(message);
+                    } catch (e) {
+                        console.warn('Gagal show history', e);
+                    }
+                },
+
+                // 11. Fungsi showToast (jika belum ada)
+                showToast(message, type = 'info') {
+                    // Implementasi toast notification
+                    // Jika sudah ada, gunakan yang existing
+                    if (typeof this.toast === 'function') {
+                        this.toast(message, type);
+                        return;
+                    }
+
+                    // Fallback: alert biasa
+                    const icons = {
+                        success: '✅',
+                        info: 'ℹ️',
+                        warning: '⚠️',
+                        error: '❌'
+                    };
+                    alert(`${icons[type] || 'ℹ️'} ${message}`);
                 },
 
                 filteredAirports() {
