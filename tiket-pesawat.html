@@ -689,7 +689,7 @@
 
                     <!-- TOMBOL LANJUT -->
                     <div class="space-y-3">
-                        <button @click="step = 'review'"
+                        <button @click="saveToPassengerBook(passengers); step = 'review'"
                             class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-transform flex justify-center items-center gap-2 hover:scale-[1.02] active:scale-[0.98]">
                             <span>Selesai</span>
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -2531,7 +2531,10 @@
                 autoFillPassenger(index, passengerData) {
                     if (!passengerData) return;
 
-                    // Isi data penumpang berdasarkan data yang dipilih
+                    // ✅ Simpan dulu ke buku SEBELUM apapun berubah
+                    this.saveToPassengerBook([passengerData]);
+
+                    // Buat id BARU untuk slot form, jangan pakai id dari passengerData
                     this.passengers[index] = {
                         ...this.passengers[index],
                         title: passengerData.title || 'MR',
@@ -2541,38 +2544,32 @@
                         gender: passengerData.gender || 'Male',
                         IDNumber: passengerData.IDNumber || '',
                         selectedSeat: passengerData.selectedSeat || '',
-                        type: passengerData.type || this.passengers[index].type,
-                        typeLabel: passengerData.typeLabel || this.passengers[index].typeLabel,
-                        id: passengerData.id || this.passengers[index].id
+                        // ✅ Jangan copy id dari passengerData, pakai id slot form sendiri
+                        // type dan typeLabel tetap dari slot form
                     };
 
-                    // Tampilkan notifikasi
                     const name = `${passengerData.firstName || ''} ${passengerData.lastName || ''}`.trim() || 'Penumpang';
                     this.showToast(`✅ Data ${name} berhasil diisi`, 'success');
 
-                    // Auto save setelah auto fill
                     this.savePassengers();
 
-                    // Update icon
                     this.$nextTick(() => {
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     });
                 },
 
-                // 2. Mendapatkan daftar penumpang yang tersimpan untuk dropdown
                 getSavedPassengersList() {
                     try {
-                        const saved = localStorage.getItem('passengersData');
-                        if (saved) {
-                            const parsed = JSON.parse(saved);
+                        // ✅ Baca dari passengerBook (akumulatif), bukan passengersData
+                        const book = localStorage.getItem('passengerBook');
+                        if (book) {
+                            const parsed = JSON.parse(book);
                             if (Array.isArray(parsed) && parsed.length > 0) {
-                                // Filter hanya data yang sudah terisi (bukan data kosong)
-                                const filled = parsed.filter(p =>
+                                return parsed.filter(p =>
                                     (p.firstName && p.firstName.trim() !== '') ||
                                     (p.lastName && p.lastName.trim() !== '') ||
                                     (p.IDNumber && p.IDNumber.toString().trim() !== '')
                                 );
-                                return filled;
                             }
                         }
                     } catch (e) {
@@ -2791,12 +2788,67 @@
                     try {
                         localStorage.setItem('passengersData', JSON.stringify(this.passengers));
                         this.hasSavedPassengers = true;
-                        console.log('✅ Data penumpang tersimpan:', this.passengers.length, 'penumpang');
+                        // ❌ Jangan panggil saveToPassengerBook() di sini
                     } catch (e) {
                         console.warn('Gagal menyimpan passengers ke localStorage', e);
                     }
                 },
 
+                saveToPassengerBook(passengers) {
+                    try {
+                        let book = [];
+                        try {
+                            book = JSON.parse(localStorage.getItem('passengerBook') || '[]');
+                            if (!Array.isArray(book)) book = [];
+                        } catch { book = []; }
+
+                        passengers.forEach(p => {
+                            if (!p.firstName || p.firstName.trim().length < 2) return;
+
+                            const pFirst = p.firstName.trim().toUpperCase();
+                            const pLast = (p.lastName || '').trim().toUpperCase();
+                            const pNIK = (p.IDNumber || '').toString().trim();
+
+                            // ✅ Duplikat check HANYA berdasarkan NIK atau nama, BUKAN id
+                            const dupIndex = book.findIndex(b => {
+                                const bFirst = (b.firstName || '').trim().toUpperCase();
+                                const bLast = (b.lastName || '').trim().toUpperCase();
+                                const bNIK = (b.IDNumber || '').toString().trim();
+
+                                const nikMatch = pNIK && bNIK && pNIK === bNIK;
+                                const nameMatch = pFirst === bFirst && pLast === bLast;
+
+                                return nikMatch || nameMatch;
+                            });
+
+                            if (dupIndex === -1) {
+                                // Belum ada → tambah baru, generate id sendiri
+                                book.push({
+                                    ...p,
+                                    id: '_' + Math.random().toString(36).substr(2, 9), // ✅ id baru
+                                    firstName: p.firstName.trim(),
+                                    lastName: (p.lastName || '').trim(),
+                                    savedAt: new Date().toLocaleString('id-ID')
+                                });
+                            } else {
+                                // Sudah ada → update saja
+                                book[dupIndex] = {
+                                    ...book[dupIndex],
+                                    ...p,
+                                    id: book[dupIndex].id, // ✅ Pertahankan id yang lama di buku
+                                    firstName: p.firstName.trim(),
+                                    lastName: (p.lastName || '').trim(),
+                                    savedAt: new Date().toLocaleString('id-ID')
+                                };
+                            }
+                        });
+
+                        localStorage.setItem('passengerBook', JSON.stringify(book));
+                        console.log('📚 passengerBook:', book.map(b => b.firstName));
+                    } catch (e) {
+                        console.warn('Gagal menyimpan ke buku penumpang', e);
+                    }
+                },
                 get hasFilledPassengerData() {
                     return this.passengers.some(p =>
                         (p.firstName && p.firstName.trim() !== '') ||
@@ -2851,6 +2903,7 @@
                         localStorage.removeItem('passengersData');
                         localStorage.removeItem('contactData');
                         localStorage.removeItem('passengerHistory');
+                        localStorage.removeItem('passengerBook');
                         this.hasSavedPassengers = false;
                         this.contactData = { email: '', phone: '' };
                         this.setupPassengerForms();
