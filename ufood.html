@@ -2205,7 +2205,7 @@
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </div>
-            <!-- <div class="ci" onclick="selectPaymentMethod('qris')">
+            <div class="ci" onclick="selectPaymentMethod('qris')">
                 <div class="ci-img"
                     style="background:var(--primary-l);display:flex;align-items:center;justify-content:center;">
                     📱
@@ -2217,7 +2217,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#24b3ae" stroke-width="2">
                     <path d="M9 18l6-6-6-6" />
                 </svg>
-            </div> -->
+            </div>
         </div>
     </div>
 
@@ -2398,6 +2398,19 @@
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </div>
+            <!-- BCA (baru) -->
+            <div class="ci" onclick="createVA('BCA')">
+                <div class="ci-img"
+                    style="background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
+                </div>
+                <div class="ci-info">
+                    <div class="ci-name">Bank BCA</div>
+                    <div class="ci-cat">Kode Bank: 014</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#24b3ae" stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                </svg>
+            </div>
             <div class="ci" onclick="createVA('PERMATA')">
                 <div class="ci-img"
                     style="background:#fce4ec;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
@@ -2405,6 +2418,19 @@
                 <div class="ci-info">
                     <div class="ci-name">Bank Permata</div>
                     <div class="ci-cat">Kode Bank: 013</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#24b3ae" stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                </svg>
+            </div>
+            <!-- BSI (baru) -->
+            <div class="ci" onclick="createVA('BSI')">
+                <div class="ci-img"
+                    style="background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:24px;">🕌
+                </div>
+                <div class="ci-info">
+                    <div class="ci-name">Bank BSI</div>
+                    <div class="ci-cat">Kode Bank: 451</div>
                 </div>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#24b3ae" stroke-width="2">
                     <path d="M9 18l6-6-6-6" />
@@ -2468,8 +2494,9 @@
         const BALANCE_USERNAME = 'amir';
 
         const BANK_LIST = {
-            'MANDIRI': '008', 'BNI': '009', 'BRI': '002', 'PERMATA': '013',
-            'CIMB': '022', 'DANAMON': '011', 'MAYBANK': '016'
+            'MANDIRI': '008', 'BNI': '009', 'BRI': '002', 'BCA': '014',
+            'PERMATA': '013', 'CIMB': '022', 'DANAMON': '011', 'MAYBANK': '016',
+            'BSI': '451'
         };
 
 
