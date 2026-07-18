@@ -250,20 +250,25 @@
                                                 <span class="text-xs text-slate-600 font-medium"
                                                     x-text="fare.PaxType"></span>
                                             </div>
-                                            <p class="text-sm font-black text-[#24b3ae] mt-0.5"
-                                                x-text="formatCurrency(fare.Price)"></p>
+                                            <p x-show="fare.Availability === 0"
+                                                class="text-[10px] font-bold text-red-500 mt-0.5"
+                                                x-text="fare.AvailabilityInfo || 'PENUH'"></p>
                                         </div>
 
                                         <div
                                             class="flex items-center gap-3 bg-white rounded-full px-2 py-1 shadow-sm border border-slate-100">
                                             <button @click="updateQty(item.shipNumber, index, -1)"
-                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-50 text-slate-600 active:bg-slate-200 transition">
+                                                :disabled="fare.Availability === 0"
+                                                :class="fare.Availability === 0 ? 'opacity-40 cursor-not-allowed' : 'active:bg-slate-200'"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-50 text-slate-600 transition">
                                                 <i data-lucide="minus" class="w-3.5 h-3.5"></i>
                                             </button>
                                             <span class="text-xs font-bold min-w-[20px] text-center"
                                                 x-text="fare.count || 0"></span>
-                                            <button @click="updateQty(item.shipNumber, index, 1)"
-                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-[#24b3ae] text-white active:scale-90 transition shadow-md shadow-cyan-100">
+                                            <button @click="updateQty(item.shipNumber, index, 1, fare)"
+                                                :disabled="fare.Availability === 0"
+                                                :class="fare.Availability === 0 ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#24b3ae] text-white active:scale-90 shadow-md shadow-cyan-100'"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full transition">
                                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                                             </button>
                                         </div>
@@ -1127,16 +1132,26 @@
                         });
                     },
 
-                    updateQty(shipNumber, fareIndex, delta) {
+                    updateQty(shipNumber, fareIndex, delta, fare = null) {
                         const ship = this.scheduleList.find(s => s.shipNumber === shipNumber);
-                        if (ship && ship.Fares[fareIndex]) {
-                            let currentCount = ship.Fares[fareIndex].count || 0;
-                            let newCount = currentCount + delta;
+                        if (!ship || !ship.Fares[fareIndex]) return;
 
-                            // Batasi agar tidak kurang dari 0
-                            if (newCount >= 0) {
-                                ship.Fares[fareIndex].count = newCount;
-                            }
+                        const target = ship.Fares[fareIndex];
+
+                        // Cegah tambah tiket kalau kuota habis
+                        if (delta > 0 && target.Availability === 0) {
+                            this.showToast(target.AvailabilityInfo || 'Kuota tiket ini sudah penuh');
+                            return;
+                        }
+
+                        let currentCount = target.count || 0;
+                        let newCount = currentCount + delta;
+
+                        // Batasi agar tidak kurang dari 0 dan tidak melebihi kuota tersedia
+                        if (newCount >= 0 && (delta < 0 || newCount <= target.Availability)) {
+                            target.count = newCount;
+                        } else if (delta > 0 && newCount > target.Availability) {
+                            this.showToast(`Sisa kuota hanya ${target.Availability} tiket`);
                         }
                     },
 
