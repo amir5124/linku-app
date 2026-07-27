@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -4353,37 +4354,15 @@
                             const result = await response.json();
                             console.log("🔄 Cek Status LinkQu:", result.status);
 
-                            if (result.status === "SUCCESS" || result.status === "SETTLED") {
+                            if (result.ticket_status === 'TICKETED') {
                                 clearInterval(this.paymentInterval);
-                                this.showToast("Pembayaran Berhasil! Menerbitkan tiket...", "success");
-
-                                try {
-                                    // Eksekusi issue ticket
-                                    const issueResult = await this.issueTicket();
-
-                                    // Tutup modal pembayaran
-                                    this.showConfirmModal = false;
-
-                                    // ARAHKAN KE STEP E-TICKET
-                                    // Pastikan data hasil issue disimpan ke bookingDetail agar UI terupdate
-                                    if (issueResult && issueResult.data) {
-                                        this.bookingDetail = { ...this.bookingDetail, ...issueResult.data };
-                                    }
-
-                                    this.step = 'e-ticket';
-                                    this.showToast("E-Ticket berhasil terbit!", "success");
-
-                                    // Opsional: Re-render icon lucide jika digunakan
-                                    if (window.lucide) {
-                                        setTimeout(() => lucide.createIcons(), 100);
-                                    }
-
-                                } catch (issueErr) {
-                                    console.error("Issue Error:", issueErr);
-                                    this.showToast("Pembayaran Sukses, Gagal Terbit Otomatis.", "warning");
-                                    // Tetap pindah ke e-ticket tapi status mungkin masih 'PENDING'
-                                    this.step = 'e-ticket';
-                                }
+                                this.showConfirmModal = false;
+                                await this.getDetail(); // ambil detail terbaru (sudah Ticketed) dari backend
+                                this.step = 'e-ticket';
+                                this.showToast("E-Ticket berhasil terbit!", "success");
+                            } else if (result.status === 'SUCCESS' || result.status === 'PROCESSING_TICKET') {
+                                this.showToast("Pembayaran diterima, sedang menerbitkan tiket...", "info");
+                                // lanjut polling
                             }
                         } catch (e) {
                             console.error("Polling Network Error:", e.message);
@@ -4391,48 +4370,7 @@
                     }, 5000);
                 },
 
-                async issueTicket() {
-                    const data = this.bookingDetail || this.bookingResult;
-                    if (!data) throw new Error("Data booking tidak ditemukan");
-
-                    console.log("🎟 Mengirim permintaan Issued untuk:", data.bookingCode);
-
-                    try {
-                        const res = await fetch('https://darma.siappgo.id/api/flights/issued-ticket', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                airlineID: data.airlineID,
-                                origin: (data.origin || "").substring(0, 3),
-                                destination: (data.destination || "").substring(0, 3),
-                                tripType: data.tripType || "OneWay",
-                                departDate: data.departDate,
-                                returnDate: data.returnDate || "0001-01-01T00:00:00",
-                                bookingCode: data.bookingCode,
-                                bookingDate: (data.bookingDate || "").split('.')[0],
-                                airlineAccessCode: data.airlineID,
-                                userID: "S8MFEIKENB"
-                            })
-                        });
-
-                        const result = await res.json();
-
-                        // Cek status sukses dari vendor maskapai
-                        if (result.status !== "SUCCESS") {
-                            throw new Error(result.respMessage || "Gagal issued ke maskapai.");
-                        }
-
-                        // Perbarui status tiket lokal agar tampilan LUNAS/TICKETED muncul
-                        if (this.bookingDetail) {
-                            this.bookingDetail.ticketStatus = 'TICKETED';
-                        }
-
-                        return result; // Mengembalikan hasil agar startPollingStatus bisa membaca datanya
-                    } catch (e) {
-                        throw e;
-                    }
-                },
-
+                
 
                 downloadQR(url, reff) {
                     if (!url) return;
