@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 
@@ -4031,9 +4030,43 @@
                 },
                 async createBooking() {
                     this.loading = true;
-                    this.loadingText = "Mendaftarkan Reservasi...";
+                    this.loadingText = "Mengecek Saldo Vendor...";
                     try {
                         console.log("🚀 [START] createBooking...");
+
+                        // --- CEK SALDO VENDOR TERLEBIH DAHULU ---
+                        const balanceRes = await fetch('https://darma.siappgo.id/api/agent/get-balance', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})
+                        });
+
+                        const balanceResult = await balanceRes.json();
+                        console.log("💰 [SALDO VENDOR] Response:", balanceResult);
+
+                        if (balanceResult.status !== "SUCCESS") {
+                            throw new Error("Gagal mengecek saldo vendor: " + (balanceResult.respMessage || "Unknown error"));
+                        }
+
+                        const vendorBalance = Number(balanceResult.balance);
+                        console.log("💰 [SALDO VENDOR] Saldo saat ini: Rp" + vendorBalance.toLocaleString('id-ID'));
+
+                        // --- CEK KECUKUPAN SALDO VS HARGA TIKET ---
+                        const totalPrice = Number(this.validatedTotalPrice || 0);
+                        console.log("🎫 [HARGA TIKET] Total yang dibutuhkan: Rp" + totalPrice.toLocaleString('id-ID'));
+
+                        if (totalPrice > 0 && vendorBalance < totalPrice) {
+                            console.warn("⛔ Saldo vendor tidak mencukupi untuk booking ini!");
+                            this.showToast(
+                                `Saldo vendor tidak mencukupi. Saldo: Rp${vendorBalance.toLocaleString('id-ID')}, Dibutuhkan: Rp${totalPrice.toLocaleString('id-ID')}`,
+                                "error"
+                            );
+                            this.loading = false;
+                            return; // Hentikan proses booking di sini
+                        }
+
+                        this.loadingText = "Mendaftarkan Reservasi...";
+
                         const isRT = this.search.tripType === 'RoundTrip';
                         const isSame = isRT && this.selectedFlight?.airlineID === this.selectedReturnFlight?.airlineID;
                         const currentOperator = "Guest";
@@ -4065,12 +4098,10 @@
                             });
 
                             const result = await res.json();
-                            console.log("📡 Response Server Full:", result); // Cek apakah 'id' sudah muncul di sini
+                            console.log("📡 Response Server Full:", result);
 
                             if (result.status === "SUCCESS") {
                                 this.bookingResult = result;
-
-                                // Ambil ID dengan prioritas: id dari server > insertId dari server > id lama
                                 const internalId = result.id || result.insertId;
 
                                 if (!internalId) {
@@ -4078,7 +4109,7 @@
                                 }
 
                                 this.bookingData = {
-                                    id: internalId, // Sekarang ID 140 akan tersimpan di sini
+                                    id: internalId,
                                     pengguna: currentOperator,
                                     phone: this.contactData.phone,
                                     email: this.contactData.email
@@ -4107,7 +4138,6 @@
                                 throw new Error("Gagal Booking Keberangkatan: " + (resultDep.respMessage || resultDep.message));
                             }
 
-                            // Simpan ID keberangkatan sebagai utama
                             this.bookingResult = resultDep;
                             this.bookingData = {
                                 id: resultDep.id || resultDep.insertId,
@@ -4116,7 +4146,6 @@
                                 email: this.contactData.email
                             };
 
-                            // Booking Kepulangan
                             const ret = this.prepareSinglePayload("return");
                             const retPayload = { ...ret, usernameFromFrontend: currentOperator };
 
@@ -4147,7 +4176,6 @@
                         this.loading = false;
                     }
                 },
-
                 async confirmIssued() {
                     try {
                         const data = this.bookingDetail || this.bookingResult;
@@ -4370,7 +4398,7 @@
                     }, 5000);
                 },
 
-                
+
 
                 downloadQR(url, reff) {
                     if (!url) return;
