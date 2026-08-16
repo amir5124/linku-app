@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -3493,6 +3494,53 @@
         }
 
         // ═══════════════════════════════════════════════════════════════════════
+        // BUILD ORDER PAYLOAD — dikirim ke backend saat create VA/QRIS
+        // Backend akan pakai ini untuk membuat order otomatis setelah callback sukses
+        // ═══════════════════════════════════════════════════════════════════════
+        function buildOrderPayload(customerName, customerPhone) {
+            const groups = Object.values(cart);
+            const firstStore = groups[0]?.store;
+            const subTotal = getTotalPrice();
+            const totalOngkir = getTotalOngkir();
+
+            return {
+                customer_name: customerName,
+                customer_phone: customerPhone,
+                base_price: subTotal,
+                service_fee: totalOngkir,
+                total_price: subTotal + totalOngkir,
+                origin_address: firstStore?.origin_address || firstStore?.title,
+                origin_lat: firstStore?.origin_lat,
+                origin_lng: firstStore?.origin_lng,
+                destination_address: uAddress || firstStore?.origin_address,
+                destination_lat: uCoords.lat,
+                destination_lng: uCoords.lng,
+                distance_km: firstStore?.distance || 0,
+                estimated_duration_min: Math.max(3, Math.round((firstStore?.distance || 0) * 6)),
+                order_note: document.getElementById('noteArea')?.value || '',
+                mitra_phone: currentMitraPhone,
+                mitra_username: currentMitraUsername,
+                partner_commission: currentPartnerInfo?.partner_commission || null,
+                order_items: groups.map(g => ({
+                    name: g.store.title,
+                    store: g.store,
+                    distance: g.store.distance || 0,
+                    ongkir: calcOngkir(g.store.distance || 0),
+                    items: Object.values(g.items).map(i => ({
+                        name: i.prod.title,
+                        original_price: i.prod.original_price || i.prod.price,
+                        price: getProductFinalPrice(i.prod),
+                        qty: i.qty,
+                        subtotal: getProductFinalPrice(i.prod) * i.qty,
+                        mitra_username: i.prod.mitra_username,
+                        mitra_phone: i.prod.mitra_phone,
+                        partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
+                    }))
+                }))
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
         // PAYMENT
         // ═══════════════════════════════════════════════════════════════════════
         function selectPaymentMethod(method) {
@@ -3522,7 +3570,9 @@
                 subTotal, ongkir: totalOngkir,
                 mitra_phone: currentMitraPhone,
                 mitra_username: currentMitraUsername,
-                partner_commission: currentPartnerInfo?.partner_commission || null
+                partner_commission: currentPartnerInfo?.partner_commission || null,
+                // ✅ Payload lengkap untuk backend — dipakai /callback untuk auto-create order
+                order_payload: buildOrderPayload(customerName, customerPhone)
             };
             currentPaymentMethod = method;
 
@@ -3534,12 +3584,13 @@
             if (!currentOrderData) return;
             toast('🔄 Membuat QRIS...');
             try {
-                const payload = {
+              const payload = {
                     amount: currentOrderData.amount,
                     customer_id: currentOrderData.customer_id,
                     customer_name: currentOrderData.customer_name,
                     customer_email: `${currentOrderData.customer_phone}@jastip.com`,
-                    customer_phone: currentOrderData.customer_phone
+                    customer_phone: currentOrderData.customer_phone,
+                    order_payload: currentOrderData.order_payload
                 };
                 const res = await fetch(`${BACKEND}/create-qris`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
@@ -3547,6 +3598,9 @@
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
                 currentPaymentData = data;
+                // ✅ Simpan reff agar bisa resume kalau tab di-refresh/close sebelum bayar sukses
+                localStorage.setItem('linkU_pending_reff', data.partner_reff);
+                localStorage.setItem('linkU_pending_method', 'qris');
                 document.getElementById('qrisAmount').textContent = fmt(currentOrderData.amount);
                 const qrisImage = document.getElementById('qrisImage');
                 if (data.imageqris) qrisImage.src = data.imageqris;
@@ -3585,13 +3639,14 @@
             toast(`🔄 Membuat VA ${bankName}...`);
 
             try {
-                const payload = {
+              const payload = {
                     amount: currentOrderData.amount,
                     customer_id: currentOrderData.customer_id,
                     customer_name: currentOrderData.customer_name,
                     customer_email: `${currentOrderData.customer_phone}@jastip.com`,
                     customer_phone: currentOrderData.customer_phone,
-                    bank_code: bankCode
+                    bank_code: bankCode,
+                    order_payload: currentOrderData.order_payload
                 };
 
                 const res = await fetch(`${BACKEND}/create-va`, {
@@ -3604,6 +3659,9 @@
                 if (data.error) throw new Error(data.error);
 
                 currentPaymentData = data;
+                // ✅ Simpan reff agar bisa resume kalau tab di-refresh/close sebelum bayar sukses
+                localStorage.setItem('linkU_pending_reff', data.partner_reff);
+                localStorage.setItem('linkU_pending_method', 'va');
                 document.getElementById('vaAmount').textContent = fmt(currentOrderData.amount);
                 document.getElementById('vaNumber').textContent = data.virtual_account || '-';
                 document.getElementById('vaBankName').textContent = bankName;
@@ -3620,160 +3678,155 @@
                 }
             }
         }
-        async function startPollingPayment(partnerReff) {
+       async function startPollingPayment(partnerReff) {
             if (pollingInterval) clearInterval(pollingInterval);
-            let orderSaved = false;
+            let handled = false;
 
             pollingInterval = setInterval(async () => {
                 try {
                     const res = await fetch(`${BACKEND}/check-status/${partnerReff}`);
                     const data = await res.json();
 
-                    if (data.data?.status_trx === 'success') {
+                    if (data.data?.status_trx === 'success' && !handled) {
+                        handled = true;
                         clearInterval(pollingInterval);
                         toast('✅ Pembayaran berhasil! Mencari driver...');
-
-                        if (!orderSaved) {
-                            orderSaved = true;
-
-                            // ✅ Simpan ke history DULU sebelum apapun, pakai data cart yang masih ada
-                            const groups = Object.values(cart);
-                            const subTotal = getTotalPrice();
-                            const totalOngkir = getTotalOngkir();
-                            const tempOrderId = 'TEMP_' + Date.now();
-
-                            saveOrderToHistory({
-                                order_id: tempOrderId,
-                                payment_status: 'PAID',
-                                driver_status: 'WAITING_DRIVER',
-                                payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
-                                customer_name: currentOrderData.customer_name,
-                                customer_phone: currentOrderData.customer_phone,
-                                base_price: subTotal,
-                                service_fee: totalOngkir,
-                                total_price: subTotal + totalOngkir,
-                                mitra_phone: currentMitraPhone,
-                                mitra_username: currentMitraUsername,
-                                partner_commission: currentPartnerInfo?.partner_commission || null,
-                                stores: groups.map(g => g.store),
-                                order_items_parsed: groups.map(g => ({
-                                    name: g.store.title,
-                                    items: Object.values(g.items).map(i => ({
-                                        name: i.prod.title,
-                                        price: getProductFinalPrice(i.prod),
-                                        original_price: i.prod.original_price || i.prod.price,
-                                        qty: i.qty,
-                                        mitra_username: i.prod.mitra_username,
-                                        partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
-                                    }))
-                                })),
-                                created_at: Date.now()
-                            });
-
-                            // ✅ Simpan ke database, update history dengan order_id asli jika berhasil
-                            try {
-                                const orderResult = await saveOrderToDatabase();
-                                if (orderResult?.order_id) {
-                                    // Update entry temporer dengan order_id asli dari database
-                                    const h = getOrderHistory();
-                                    const idx = h.findIndex(o => o.order_id === tempOrderId);
-                                    if (idx > -1) {
-                                        h[idx].order_id = orderResult.order_id;
-                                        localStorage.setItem(HISTORY_LS_KEY, JSON.stringify(h));
-                                    }
-                                    localStorage.setItem('currentOrderId', orderResult.order_id);
-                                    updateHistoryBadge();
-                                }
-                            } catch (err) {
-                                console.error('saveOrderToDatabase error:', err);
-                                // History sudah tersimpan dengan TEMP id, order tetap tercatat
-                                localStorage.setItem('currentOrderId', tempOrderId);
-                            }
-                        }
-
-                        // ✅ Selalu jalankan ini, terlepas dari berhasil tidaknya save ke DB
-                        startDriverSSE();
-                        showView(7);
+                        handlePaymentConfirmed(data.data);
                     }
                 } catch (err) { console.log('Polling error:', err); }
             }, 5000);
         }
 
         // ═══════════════════════════════════════════════════════════════════════
+        // HANDLE PAYMENT CONFIRMED — order_id SUDAH dibuat server (via /callback)
+        // Fungsi ini cuma menyinkronkan UI + history, TIDAK membuat order baru
+        // ═══════════════════════════════════════════════════════════════════════
+        function handlePaymentConfirmed(statusData) {
+            const orderId = statusData.order_id;
+
+            // Bersihkan penanda "pending payment" karena sudah selesai
+            localStorage.removeItem('linkU_pending_reff');
+            localStorage.removeItem('linkU_pending_method');
+
+            if (orderId) {
+                localStorage.setItem('currentOrderId', orderId);
+
+                const groups = Object.values(cart);
+                saveOrderToHistory({
+                    order_id: orderId,
+                    payment_status: 'PAID',
+                    driver_status: 'WAITING_DRIVER',
+                    payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
+                    customer_name: currentOrderData?.customer_name,
+                    customer_phone: currentOrderData?.customer_phone,
+                    base_price: getTotalPrice(),
+                    service_fee: getTotalOngkir(),
+                    total_price: getTotalPrice() + getTotalOngkir(),
+                    mitra_phone: currentMitraPhone,
+                    mitra_username: currentMitraUsername,
+                    partner_commission: currentPartnerInfo?.partner_commission || null,
+                    stores: groups.map(g => g.store),
+                    order_items_parsed: groups.map(g => ({
+                        name: g.store.title,
+                        items: Object.values(g.items).map(i => ({
+                            name: i.prod.title,
+                            price: getProductFinalPrice(i.prod),
+                            original_price: i.prod.original_price || i.prod.price,
+                            qty: i.qty,
+                            mitra_username: i.prod.mitra_username,
+                            partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
+                        }))
+                    })),
+                    created_at: Date.now()
+                });
+                updateHistoryBadge();
+            } else {
+                // Sangat jarang: callback belum sempat proses order_payload.
+                // Order TETAP akan dibuat di server begitu callback selesai;
+                // resume logic di init() akan menangkapnya nanti.
+                console.warn('⚠️ order_id belum tersedia dari server, akan disinkronkan otomatis nanti');
+                toast('⚠️ Order sedang diproses server...');
+            }
+
+            startDriverSSE();
+            showView(7);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
         // SAVE ORDER TO DATABASE — dengan mitra_phone di payload
         // ═══════════════════════════════════════════════════════════════════════
-        async function saveOrderToDatabase() {
-            if (!currentOrderData) return;
-            const groups = Object.values(cart);
-            const firstStore = groups[0]?.store;
-            const subTotal = getTotalPrice();
-            const totalOngkir = getTotalOngkir();
-            const total = subTotal + totalOngkir;
+        // async function saveOrderToDatabase() {
+        //     if (!currentOrderData) return;
+        //     const groups = Object.values(cart);
+        //     const firstStore = groups[0]?.store;
+        //     const subTotal = getTotalPrice();
+        //     const totalOngkir = getTotalOngkir();
+        //     const total = subTotal + totalOngkir;
 
-            const orderItemsParsed = groups.map(g => ({
-                name: g.store.title, store: g.store,
-                distance: g.store.distance || 0, ongkir: calcOngkir(g.store.distance || 0),
-                items: Object.values(g.items).map(i => ({
-                    name: i.prod.title,
-                    original_price: i.prod.original_price || i.prod.price,
-                    price: getProductFinalPrice(i.prod),
-                    qty: i.qty,
-                    subtotal: getProductFinalPrice(i.prod) * i.qty,
-                    mitra_username: i.prod.mitra_username,
-                    mitra_phone: i.prod.mitra_phone,
-                    partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
-                }))
-            }));
+        //     const orderItemsParsed = groups.map(g => ({
+        //         name: g.store.title, store: g.store,
+        //         distance: g.store.distance || 0, ongkir: calcOngkir(g.store.distance || 0),
+        //         items: Object.values(g.items).map(i => ({
+        //             name: i.prod.title,
+        //             original_price: i.prod.original_price || i.prod.price,
+        //             price: getProductFinalPrice(i.prod),
+        //             qty: i.qty,
+        //             subtotal: getProductFinalPrice(i.prod) * i.qty,
+        //             mitra_username: i.prod.mitra_username,
+        //             mitra_phone: i.prod.mitra_phone,
+        //             partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
+        //         }))
+        //     }));
 
-            const orderPayload = {
-                order_status: 'PENDING',
-                order_note: document.getElementById('noteArea')?.value || '',
-                service_type: 'food_delivery',
-                service_name: 'Jastip Makanan',
-                origin_address: firstStore?.origin_address || firstStore?.title,
-                origin_lat: firstStore?.origin_lat,
-                origin_lng: firstStore?.origin_lng,
-                destination_address: uAddress || firstStore?.origin_address,
-                destination_lat: uCoords.lat,
-                destination_lng: uCoords.lng,
-                distance_km: firstStore?.distance || 0,
-                estimated_duration_min: Math.max(3, Math.round((firstStore?.distance || 0) * 6)),
-                base_price: subTotal,
-                service_fee: totalOngkir,
-                discount: 0,
-                total_price: total,
-                admin_fee: currentOrderData.admin_fee || 0,
-                payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
-                payment_status: 'PAID',
-                partner_reff: currentPaymentData?.partner_reff,
-                customer_name: currentOrderData.customer_name,
-                customer_phone: currentOrderData.customer_phone,
-                mitra_phone: currentMitraPhone,
-                mitra_username: currentMitraUsername,
-                partner_commission: currentPartnerInfo?.partner_commission || null,
-                order_items: JSON.stringify(orderItemsParsed)
-            };
+        //     const orderPayload = {
+        //         order_status: 'PENDING',
+        //         order_note: document.getElementById('noteArea')?.value || '',
+        //         service_type: 'food_delivery',
+        //         service_name: 'Jastip Makanan',
+        //         origin_address: firstStore?.origin_address || firstStore?.title,
+        //         origin_lat: firstStore?.origin_lat,
+        //         origin_lng: firstStore?.origin_lng,
+        //         destination_address: uAddress || firstStore?.origin_address,
+        //         destination_lat: uCoords.lat,
+        //         destination_lng: uCoords.lng,
+        //         distance_km: firstStore?.distance || 0,
+        //         estimated_duration_min: Math.max(3, Math.round((firstStore?.distance || 0) * 6)),
+        //         base_price: subTotal,
+        //         service_fee: totalOngkir,
+        //         discount: 0,
+        //         total_price: total,
+        //         admin_fee: currentOrderData.admin_fee || 0,
+        //         payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
+        //         payment_status: 'PAID',
+        //         partner_reff: currentPaymentData?.partner_reff,
+        //         customer_name: currentOrderData.customer_name,
+        //         customer_phone: currentOrderData.customer_phone,
+        //         mitra_phone: currentMitraPhone,
+        //         mitra_username: currentMitraUsername,
+        //         partner_commission: currentPartnerInfo?.partner_commission || null,
+        //         order_items: JSON.stringify(orderItemsParsed)
+        //     };
 
-            try {
-                const res = await fetch(`${BACKEND}/orders`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(orderPayload)
-                });
-                const data = await res.json();
-                console.log('Order saved:', data);
-                if (data.order_id) {
-                    localStorage.setItem('currentOrderId', data.order_id);
-                    // ✅ saveOrderToHistory DIHAPUS dari sini — sudah ditangani di startPollingPayment
-                }
-                return data;
-            } catch (err) { console.error('Save order error:', err); return null; }
-        }
+        //     try {
+        //         const res = await fetch(`${BACKEND}/orders`, {
+        //             method: 'POST', headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify(orderPayload)
+        //         });
+        //         const data = await res.json();
+        //         console.log('Order saved:', data);
+        //         if (data.order_id) {
+        //             localStorage.setItem('currentOrderId', data.order_id);
+        //             // ✅ saveOrderToHistory DIHAPUS dari sini — sudah ditangani di startPollingPayment
+        //         }
+        //         return data;
+        //     } catch (err) { console.error('Save order error:', err); return null; }
+        // }
         function copyVANumber() {
             const vaNumber = document.getElementById('vaNumber')?.textContent;
             if (vaNumber && vaNumber !== '-') { navigator.clipboard.writeText(vaNumber); toast('✅ Nomor VA disalin'); }
         }
 
-        async function checkPaymentStatus() {
+       async function checkPaymentStatus() {
             if (!currentPaymentData?.partner_reff) { toast('Tidak ada data pembayaran'); return; }
             try {
                 const res = await fetch(`${BACKEND}/check-status/${currentPaymentData.partner_reff}`);
@@ -3781,54 +3834,7 @@
                 if (data.data?.status_trx === 'success') {
                     toast('✅ Pembayaran sudah berhasil!');
                     if (pollingInterval) clearInterval(pollingInterval);
-
-                    // ✅ Simpan history dulu sebelum DB
-                    const groups = Object.values(cart);
-                    const subTotal = getTotalPrice();
-                    const totalOngkir = getTotalOngkir();
-                    const tempId = 'TEMP_' + Date.now();
-                    saveOrderToHistory({
-                        order_id: tempId,
-                        payment_status: 'PAID',
-                        driver_status: 'WAITING_DRIVER',
-                        payment_method: currentPaymentMethod === 'va' ? 'VIRTUAL_ACCOUNT' : 'QRIS',
-                        customer_name: currentOrderData.customer_name,
-                        customer_phone: currentOrderData.customer_phone,
-                        base_price: subTotal,
-                        service_fee: totalOngkir,
-                        total_price: subTotal + totalOngkir,
-                        mitra_phone: currentMitraPhone,
-                        mitra_username: currentMitraUsername,
-                        partner_commission: currentPartnerInfo?.partner_commission || null,
-                        stores: groups.map(g => g.store),
-                        order_items_parsed: groups.map(g => ({
-                            name: g.store.title,
-                            items: Object.values(g.items).map(i => ({
-                                name: i.prod.title,
-                                price: getProductFinalPrice(i.prod),
-                                original_price: i.prod.original_price || i.prod.price,
-                                qty: i.qty,
-                                mitra_username: i.prod.mitra_username,
-                                partner_commission: i.prod.partner_commission || i.prod.commission_percent || 0
-                            }))
-                        })),
-                        created_at: Date.now()
-                    });
-
-                    const orderResult = await saveOrderToDatabase();
-                    if (orderResult?.order_id) {
-                        const h = getOrderHistory();
-                        const idx = h.findIndex(o => o.order_id === tempId);
-                        if (idx > -1) {
-                            h[idx].order_id = orderResult.order_id;
-                            localStorage.setItem(HISTORY_LS_KEY, JSON.stringify(h));
-                        }
-                        localStorage.setItem('currentOrderId', orderResult.order_id);
-                        updateHistoryBadge();
-                    }
-
-                    startDriverSSE();
-                    showView(7);
+                    handlePaymentConfirmed(data.data);
                 } else toast('⏳ Masih menunggu pembayaran');
             } catch (err) { toast('Gagal cek status'); }
         }
@@ -4561,9 +4567,30 @@
         // ═══════════════════════════════════════════════════════════════════════
         // INIT
         // ═══════════════════════════════════════════════════════════════════════
-        (async () => {
+       (async () => {
             loadCartLS();
             updateCartUI();
+
+            // ✅ RESUME: kalau ada pembayaran pending dari sesi sebelumnya
+            // (tab di-refresh/close saat menunggu callback), cek statusnya sekarang.
+            // Order sudah pasti dibuat di server oleh /callback, jadi ini murni sinkronisasi UI.
+            const pendingReff = localStorage.getItem('linkU_pending_reff');
+            const pendingMethod = localStorage.getItem('linkU_pending_method');
+            if (pendingReff && !localStorage.getItem('currentOrderId')) {
+                fetch(`${BACKEND}/check-status/${pendingReff}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.data?.status_trx === 'success') {
+                            currentPaymentMethod = pendingMethod;
+                            currentPaymentData = { partner_reff: pendingReff };
+                            toast('✅ Pembayaran sebelumnya sudah berhasil, mencari driver...');
+                            handlePaymentConfirmed(data.data);
+                        } else {
+                            console.log('ℹ️ Pending payment belum sukses, dibiarkan (mungkin memang belum dibayar)');
+                        }
+                    })
+                    .catch(err => console.log('Resume check error:', err));
+            }
 
             const urlParams = new URLSearchParams(window.location.search);
             const phone = urlParams.get('phone');
