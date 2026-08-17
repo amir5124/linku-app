@@ -2363,7 +2363,7 @@
             <div class="v3-ttl">Pilih Bank Virtual Account</div>
         </div>
         <div class="cg" style="margin-top:16px;">
-            <div class="ci" onclick="createVA('MANDIRI')">
+           <div class="ci" onclick="createVA('MANDIRI', '008')">
                 <div class="ci-img"
                     style="background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
                 </div>
@@ -2375,7 +2375,7 @@
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </div>
-            <div class="ci" onclick="createVA('BNI')">
+           <div class="ci" onclick="createVA('BNI', '009')">
                 <div class="ci-img"
                     style="background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
                 </div>
@@ -2387,7 +2387,7 @@
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </div>
-            <div class="ci" onclick="createVA('BRI')">
+            <div class="ci" onclick="createVA('BRI', '002')">
                 <div class="ci-img"
                     style="background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
                 </div>
@@ -2400,7 +2400,7 @@
                 </svg>
             </div>
             <!-- BCA (baru) -->
-            <div class="ci" onclick="createVA('BCA')">
+            <div class="ci" onclick="createVA('BCA', '014')">
                 <div class="ci-img"
                     style="background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
                 </div>
@@ -2412,7 +2412,7 @@
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </div>
-            <div class="ci" onclick="createVA('PERMATA')">
+            <div class="ci" onclick="createVA('PERMATA', '013')">
                 <div class="ci-img"
                     style="background:#fce4ec;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
                 </div>
@@ -2425,7 +2425,7 @@
                 </svg>
             </div>
             <!-- BSI (baru) -->
-            <div class="ci" onclick="createVA('BSI')">
+            <div class="ci" onclick="createVA('BSI', '451')">
                 <div class="ci-img"
                     style="background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:24px;">🕌
                 </div>
@@ -4587,37 +4587,7 @@
                 return true;
             }
           
-            // ── Pulihkan tampilan halaman VA (view 5) atau QRIS (view 6) ──
-            function restorePendingPaymentView(pending) {
-                currentPaymentMethod = pending.method;
-                currentPaymentData = { partner_reff: pending.partner_reff };
-                currentOrderData = {
-                    customer_name: pending.customer_name,
-                    customer_phone: pending.customer_phone,
-                    amount: pending.amount
-                };
-
-                if (pending.method === 'va') {
-                    document.getElementById('vaAmount').textContent = fmt(pending.amount);
-                    document.getElementById('vaNumber').textContent = pending.va_number || '-';
-                    document.getElementById('vaBankName').textContent = pending.bank_name || '-';
-                    document.getElementById('vaBankCode').textContent = pending.bank_code || '-';
-                    showView(5);
-                } else {
-                    document.getElementById('qrisAmount').textContent = fmt(pending.amount);
-                    const qrisImage = document.getElementById('qrisImage');
-                    if (pending.qris_image) qrisImage.src = pending.qris_image;
-                    showView(6);
-                }
-
-                toast('🔄 Melanjutkan pembayaran Anda yang tertunda...');
-                startPollingPayment(pending.partner_reff);
-                return true;
-            }
-
-        // ═══════════════════════════════════════════════════════════════════════
-        // AUTOCOMPLETE
-        // ═══════════════════════════════════════════════════════════════════════
+           
         function openAC(field) {
             acCurrentField = field;
             const modal = document.getElementById('acModal');
