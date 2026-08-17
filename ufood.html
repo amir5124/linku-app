@@ -3597,14 +3597,21 @@
                 });
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
-                currentPaymentData = data;
-                // ✅ Simpan reff agar bisa resume kalau tab di-refresh/close sebelum bayar sukses
-                localStorage.setItem('linkU_pending_reff', data.partner_reff);
-                localStorage.setItem('linkU_pending_method', 'qris');
+               currentPaymentData = data;
+                const qrisImgUrl = data.imageqris || data.qris_url || '';
+                // ✅ Simpan SEMUA data tampilan agar view bisa direkonstruksi utuh setelah refresh
+                localStorage.setItem('linkU_pending_payment', JSON.stringify({
+                    partner_reff: data.partner_reff,
+                    method: 'qris',
+                    amount: currentOrderData.amount,
+                    qris_image: qrisImgUrl,
+                    customer_name: currentOrderData.customer_name,
+                    customer_phone: currentOrderData.customer_phone,
+                    saved_at: Date.now()
+                }));
                 document.getElementById('qrisAmount').textContent = fmt(currentOrderData.amount);
                 const qrisImage = document.getElementById('qrisImage');
-                if (data.imageqris) qrisImage.src = data.imageqris;
-                else if (data.qris_url) qrisImage.src = data.qris_url;
+                if (qrisImgUrl) qrisImage.src = qrisImgUrl;
                 showView(6);
                 startPollingPayment(data.partner_reff);
             } catch (err) { toast('❌ Gagal membuat QRIS: ' + err.message); }
@@ -3658,10 +3665,19 @@
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
 
-                currentPaymentData = data;
-                // ✅ Simpan reff agar bisa resume kalau tab di-refresh/close sebelum bayar sukses
-                localStorage.setItem('linkU_pending_reff', data.partner_reff);
-                localStorage.setItem('linkU_pending_method', 'va');
+               currentPaymentData = data;
+                // ✅ Simpan SEMUA data tampilan agar view bisa direkonstruksi utuh setelah refresh
+                localStorage.setItem('linkU_pending_payment', JSON.stringify({
+                    partner_reff: data.partner_reff,
+                    method: 'va',
+                    amount: currentOrderData.amount,
+                    va_number: data.virtual_account || '-',
+                    bank_name: bankName,
+                    bank_code: bankCode,
+                    customer_name: currentOrderData.customer_name,
+                    customer_phone: currentOrderData.customer_phone,
+                    saved_at: Date.now()
+                }));
                 document.getElementById('vaAmount').textContent = fmt(currentOrderData.amount);
                 document.getElementById('vaNumber').textContent = data.virtual_account || '-';
                 document.getElementById('vaBankName').textContent = bankName;
@@ -3705,8 +3721,7 @@
             const orderId = statusData.order_id;
 
             // Bersihkan penanda "pending payment" karena sudah selesai
-            localStorage.removeItem('linkU_pending_reff');
-            localStorage.removeItem('linkU_pending_method');
+            localStorage.removeItem('linkU_pending_payment');
 
             if (orderId) {
                 localStorage.setItem('currentOrderId', orderId);
@@ -4464,6 +4479,142 @@
             }
         }
 
+       // ═══════════════════════════════════════════════════════════════
+            // RESUME ACTIVE ORDER / PAYMENT — dipanggil setiap kali halaman dibuka
+            // Menangani 3 kasus refresh:
+            //  1. Order sudah dibuat (currentOrderId ada) → lanjut ke pencarian driver
+            //  2. Pembayaran sudah sukses tapi order_id belum sempat tersimpan → ambil dari server
+            //  3. Pembayaran MASIH PENDING (user lagi bayar di app lain) → pulihkan
+            //     halaman VA/QRIS + nyalakan ulang polling
+            // Return true kalau berhasil resume ke salah satu view di atas.
+            // ═══════════════════════════════════════════════════════════════
+          async function resumeActiveOrder() {
+                let orderId = localStorage.getItem('currentOrderId');
+
+                if (!orderId) {
+                    const pendingRaw = localStorage.getItem('linkU_pending_payment');
+                    if (pendingRaw) {
+                        try {
+                            const pending = JSON.parse(pendingRaw);
+                            const res = await fetch(`${BACKEND}/check-status/${pending.partner_reff}`);
+                            const data = await res.json();
+
+                            if (data.data?.status_trx === 'success') {
+                                currentPaymentMethod = pending.method;
+                                currentPaymentData = { partner_reff: pending.partner_reff };
+                                currentOrderData = {
+                                    customer_name: pending.customer_name,
+                                    customer_phone: pending.customer_phone,
+                                    amount: pending.amount
+                                };
+                                toast('✅ Pembayaran sebelumnya sudah berhasil, mencari driver...');
+                                handlePaymentConfirmed(data.data);
+                                return true;
+                            } else {
+                                // ✅ BELUM sukses BUKAN berarti gagal — mungkin cuma jeda webhook.
+                                // Pulihkan tampilan VA/QRIS dan LANJUTKAN polling, jangan menyerah.
+                                return restorePendingPaymentView(pending);
+                            }
+                        } catch (err) {
+                            console.log('Resume payment check error:', err);
+                        }
+                    }
+                    return false;
+                }
+
+                localStorage.removeItem('linkU_pending_payment');
+
+                const history = getOrderHistory();
+                const orderEntry = history.find(o => o.order_id === orderId);
+
+                if (orderEntry && orderEntry.driver_status === 'ACCEPTED') {
+                    localStorage.removeItem('currentOrderId');
+                    return false;
+                }
+                if (!Object.keys(cart).length) {
+                    localStorage.removeItem('currentOrderId');
+                    return false;
+                }
+
+                const subTotal = getTotalPrice();
+                const totalOngkir = getTotalOngkir();
+                currentOrderData = {
+                    customer_name: orderEntry?.customer_name || '-',
+                    customer_phone: orderEntry?.customer_phone || '-',
+                    amount: orderEntry?.total_price || (subTotal + totalOngkir)
+                };
+                currentPaymentMethod = orderEntry?.payment_method === 'VIRTUAL_ACCOUNT' ? 'va' : 'qris';
+                if (orderEntry?.mitra_phone) currentMitraPhone = orderEntry.mitra_phone;
+                if (orderEntry?.mitra_username) currentMitraUsername = orderEntry.mitra_username;
+                if (orderEntry?.mitra_username || orderEntry?.mitra_phone) {
+                    currentPartnerInfo = {
+                        phone: orderEntry.mitra_phone,
+                        username: orderEntry.mitra_username,
+                        partner_commission: orderEntry.partner_commission || 0
+                    };
+                }
+
+                toast('🔄 Melanjutkan pencarian driver untuk pesanan Anda...');
+                showView(7);
+                startDriverSSE();
+                return true;
+            }
+
+            function restorePendingPaymentView(pending) {
+                currentPaymentMethod = pending.method;
+                currentPaymentData = { partner_reff: pending.partner_reff };
+                currentOrderData = {
+                    customer_name: pending.customer_name,
+                    customer_phone: pending.customer_phone,
+                    amount: pending.amount
+                };
+
+                if (pending.method === 'va') {
+                    document.getElementById('vaAmount').textContent = fmt(pending.amount);
+                    document.getElementById('vaNumber').textContent = pending.va_number || '-';
+                    document.getElementById('vaBankName').textContent = pending.bank_name || '-';
+                    document.getElementById('vaBankCode').textContent = pending.bank_code || '-';
+                    showView(5);
+                } else {
+                    document.getElementById('qrisAmount').textContent = fmt(pending.amount);
+                    const qrisImage = document.getElementById('qrisImage');
+                    if (pending.qris_image) qrisImage.src = pending.qris_image;
+                    showView(6);
+                }
+
+                toast('🔄 Menunggu konfirmasi pembayaran Anda...');
+                startPollingPayment(pending.partner_reff);
+                return true;
+            }
+          
+            // ── Pulihkan tampilan halaman VA (view 5) atau QRIS (view 6) ──
+            function restorePendingPaymentView(pending) {
+                currentPaymentMethod = pending.method;
+                currentPaymentData = { partner_reff: pending.partner_reff };
+                currentOrderData = {
+                    customer_name: pending.customer_name,
+                    customer_phone: pending.customer_phone,
+                    amount: pending.amount
+                };
+
+                if (pending.method === 'va') {
+                    document.getElementById('vaAmount').textContent = fmt(pending.amount);
+                    document.getElementById('vaNumber').textContent = pending.va_number || '-';
+                    document.getElementById('vaBankName').textContent = pending.bank_name || '-';
+                    document.getElementById('vaBankCode').textContent = pending.bank_code || '-';
+                    showView(5);
+                } else {
+                    document.getElementById('qrisAmount').textContent = fmt(pending.amount);
+                    const qrisImage = document.getElementById('qrisImage');
+                    if (pending.qris_image) qrisImage.src = pending.qris_image;
+                    showView(6);
+                }
+
+                toast('🔄 Melanjutkan pembayaran Anda yang tertunda...');
+                startPollingPayment(pending.partner_reff);
+                return true;
+            }
+
         // ═══════════════════════════════════════════════════════════════════════
         // AUTOCOMPLETE
         // ═══════════════════════════════════════════════════════════════════════
@@ -4574,23 +4725,7 @@
             // ✅ RESUME: kalau ada pembayaran pending dari sesi sebelumnya
             // (tab di-refresh/close saat menunggu callback), cek statusnya sekarang.
             // Order sudah pasti dibuat di server oleh /callback, jadi ini murni sinkronisasi UI.
-            const pendingReff = localStorage.getItem('linkU_pending_reff');
-            const pendingMethod = localStorage.getItem('linkU_pending_method');
-            if (pendingReff && !localStorage.getItem('currentOrderId')) {
-                fetch(`${BACKEND}/check-status/${pendingReff}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.data?.status_trx === 'success') {
-                            currentPaymentMethod = pendingMethod;
-                            currentPaymentData = { partner_reff: pendingReff };
-                            toast('✅ Pembayaran sebelumnya sudah berhasil, mencari driver...');
-                            handlePaymentConfirmed(data.data);
-                        } else {
-                            console.log('ℹ️ Pending payment belum sukses, dibiarkan (mungkin memang belum dibayar)');
-                        }
-                    })
-                    .catch(err => console.log('Resume check error:', err));
-            }
+           
 
             const urlParams = new URLSearchParams(window.location.search);
             const phone = urlParams.get('phone');
@@ -4625,12 +4760,12 @@
             }
 
             // Fungsi untuk meminta lokasi
-            window.requestLocation = function () {
+           window.requestLocation = function () {
                 document.getElementById('locationPopup')?.remove();
                 if (navigator.geolocation) {
                     toast('📍 Mendeteksi lokasi...');
                     navigator.geolocation.getCurrentPosition(
-                        (position) => {
+                        async (position) => {
                             uCoords = {
                                 lat: position.coords.latitude,
                                 lng: position.coords.longitude
@@ -4641,10 +4776,15 @@
                                 const locElement = document.getElementById('v1Loc');
                                 if (locElement) locElement.innerHTML = shortAddr + ` <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>`;
                             });
-                            initMap();
-                            loadStores();
                             updateHistoryBadge();
-                            toast('✅ Lokasi berhasil dideteksi');
+
+                            // ✅ Cek dulu apakah ada order aktif yang harus di-resume
+                            const resumed = await resumeActiveOrder();
+                            if (!resumed) {
+                                initMap();
+                                loadStores();
+                                toast('✅ Lokasi berhasil dideteksi');
+                            }
                         },
                         (error) => {
                             console.warn("⚠️ Izin lokasi ditolak:", error);
@@ -4659,7 +4799,8 @@
             };
 
             // Fungsi untuk menggunakan lokasi default
-            window.useDefaultLocation = function () {
+           // Fungsi untuk menggunakan lokasi default
+            window.useDefaultLocation = async function () {
                 document.getElementById('locationPopup')?.remove();
                 uCoords = DEFAULT_COORDS;
                 reverseGeocode(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng, addr => {
@@ -4668,10 +4809,15 @@
                     const locElement = document.getElementById('v1Loc');
                     if (locElement) locElement.innerHTML = shortAddr + ` <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>`;
                 });
-                initMap();
-                loadStores();
                 updateHistoryBadge();
-                toast('📍 Menggunakan lokasi default');
+
+                // ✅ Cek dulu apakah ada order aktif yang harus di-resume
+                const resumed = await resumeActiveOrder();
+                if (!resumed) {
+                    initMap();
+                    loadStores();
+                    toast('📍 Menggunakan lokasi default');
+                }
             };
 
             // Tampilkan popup lokasi
