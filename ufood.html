@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 
@@ -2423,6 +2422,15 @@
             </div>
         </div>
 
+        <!-- Tombol Batalkan Pencarian -->
+        <div style="position:absolute;top:88px;left:16px;right:16px;z-index:10;">
+            <button id="cancelSearchBtn" onclick="cancelDriverSearch()" style="
+        width:100%;padding:10px;background:rgba(239,68,68,0.95);color:#fff;
+        border:none;border-radius:12px;font-size:13px;font-weight:700;
+        box-shadow:0 2px 8px rgba(0,0,0,0.15);backdrop-filter:blur(4px);
+    ">❌ Batalkan Pencarian Driver</button>
+        </div>
+
         <!-- Driver List — absolute bottom overlay, scrollable (langsung bisa dipilih) -->
         <div id="driverListWrap" style="
             position:absolute;bottom:0;left:0;right:0;z-index:10;
@@ -2777,6 +2785,31 @@
         function goBack(targetView) {
             clearStage();
             showView(targetView);
+        }
+
+        function cancelDriverSearch() {
+            if (!confirm('⚠️ Batalkan pencarian driver?\n\nPesanan Anda TIDAK akan dihapus dan tetap tersimpan. Anda bisa mencari driver lagi kapan saja lewat menu Riwayat 🔔.')) {
+                return;
+            }
+
+            // Hentikan SSE pencarian driver
+            if (driverSSE) { driverSSE.close(); driverSSE = null; }
+
+            // Tandai order sebagai dibatalkan (bukan dihapus) di history
+            const orderId = localStorage.getItem('currentOrderId');
+            if (orderId) {
+                updateOrderHistoryStatus(orderId, { driver_status: 'NO_DRIVER' });
+            }
+
+            // Hapus penanda "sedang berlangsung" supaya refresh tidak auto-redirect lagi
+            localStorage.removeItem('currentOrderId');
+            clearStage();
+
+            // Cart & data pesanan TIDAK dihapus — tetap di localStorage/history
+            updateHistoryBadge();
+
+            toast('⏹️ Pencarian dibatalkan. Cek Riwayat untuk melanjutkan.');
+            showView(1);
         }
 
         // ── Persist form pelanggan (nama, WhatsApp, catatan) agar bisa dipulihkan ──
