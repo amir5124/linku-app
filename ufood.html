@@ -1735,6 +1735,49 @@
             color: var(--g800);
         }
 
+        /* ── HEADER dengan Back Button ── */
+        .v3-hd {
+            background: #fff;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, .06);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .back-btn {
+            width: 34px;
+            height: 34px;
+            background: var(--g100);
+            border: none;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--g200);
+            transform: scale(1.05);
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        .v3-ttl {
+            flex: 1;
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--g800);
+        }
+
         .ac-item-sub {
             font-size: 11.5px;
             color: var(--g400);
@@ -2073,10 +2116,12 @@
                     <line x1="3" y1="6" x2="21" y2="6" />
                     <path d="M16 10a4 4 0 0 1-8 0" />
                 </svg><span style="color:#fff;font-size:10.5px;">Order</span></button>
-            <button class="nv"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="1.8">
+            <button class="nv" onclick="openWhatsApp()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg><span>Chat</span></button>
+                </svg>
+                <span>Chat</span>
+            </button>
             <button class="nv"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -2186,7 +2231,7 @@
     <!-- ════════════ VIEW 4: PILIH METODE PEMBAYARAN ════════════ -->
     <div class="view" id="v4">
         <div class="v3-hd">
-            <button class="back-btn" onclick="showView(3)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+            <button class="back-btn" onclick="goBack(3)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="#334155" stroke-width="2.5">
                     <path d="m15 18-6-6 6-6" />
                 </svg></button>
@@ -2224,29 +2269,59 @@
 
     <!-- ════════════ VIEW 5: VA PAGE (dengan info bank) ════════════ -->
     <div class="view" id="v5">
-        <div class="va-hd">
-            <h1>Virtual Account</h1>
-            <p>Transfer sesuai nominal untuk konfirmasi otomatis</p>
+        <!-- HEADER dengan Back Button seperti halaman lain -->
+        <div class="v3-hd" style="background:linear-gradient(135deg, #1a8f8b, #24b3ae);">
+            <button class="back-btn" onclick="goBackFromPayment('va')" style="background:rgba(255,255,255,0.2);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+            </button>
+            <div class="v3-ttl" style="color:#fff;font-size:16px;">Virtual Account</div>
+            <div style="width:34px;"></div> <!-- Spacer -->
         </div>
-        <div class="va-card">
+
+        <div class="va-card" style="margin-top:16px;">
+            <div
+                style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start;">
+                <span style="font-size:20px;flex-shrink:0;">🚫</span>
+                <div>
+                    <div style="font-size:13px;font-weight:800;color:#dc2626;">JANGAN TUTUP HALAMAN INI</div>
+                    <div style="font-size:11.5px;color:#991b1b;margin-top:2px;">Tetap di halaman ini sampai pembayaran
+                        terkonfirmasi otomatis</div>
+                </div>
+            </div>
+
             <div style="text-align:center">
                 <span class="va-status pending" id="vaStatus">Menunggu Pembayaran</span>
             </div>
+
             <div class="va-amount" id="vaAmount">Rp 0</div>
+
             <div class="va-number">
                 <div class="label">Bank</div>
                 <div class="number" id="vaBankName" style="font-size:18px;">-</div>
-                <!-- <div class="label" style="margin-top:10px;">Kode Bank</div> -->
-                <div class="number" id="vaBankCode" style="font-size:14px;">-</div>
+                <div class="number" id="vaBankCode" style="font-size:14px;margin-top:4px;color:var(--g400);">-</div>
             </div>
+
             <div class="va-number">
                 <div class="label">Nomor Virtual Account</div>
                 <div class="number" id="vaNumber">-</div>
             </div>
+
             <button class="copy-btn" onclick="copyVANumber()">📋 Salin Nomor VA</button>
             <button class="co-btn" style="margin-top:12px;" onclick="checkPaymentStatus()">🔄 Cek Status
                 Pembayaran</button>
+
+            <div
+                style="margin-top:16px;padding:12px 14px;background:#f0fdfb;border-radius:12px;border:1px solid #b2f5ee;display:flex;gap:10px;align-items:flex-start;">
+                <span style="font-size:18px;flex-shrink:0;">🛵</span>
+                <div style="font-size:12px;color:#0d7377;line-height:1.5;">
+                    Setelah pembayaran berhasil, Anda akan otomatis diarahkan untuk memilih <strong>Petugas / Driver
+                        LinkU</strong> terdekat.
+                </div>
+            </div>
         </div>
+
         <div style="padding:14px;text-align:center;font-size:12px;color:var(--g400);">
             ⚡ Pembayaran akan dikonfirmasi otomatis dalam 1-2 menit setelah transfer<br>
             💡 Pastikan transfer sesuai nominal
@@ -2255,18 +2330,47 @@
 
     <!-- ════════════ VIEW 6: QRIS PAGE ════════════ -->
     <div class="view" id="v6">
-        <div class="va-hd">
-            <h1>QRIS</h1>
-            <p>Scan QR Code menggunakan aplikasi pembayaran favoritmu</p>
+        <!-- HEADER dengan Back Button seperti halaman lain -->
+        <div class="v3-hd" style="background:linear-gradient(135deg, #1a8f8b, #24b3ae);">
+            <button class="back-btn" onclick="goBackFromPayment('qris')" style="background:rgba(255,255,255,0.2);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+            </button>
+            <div class="v3-ttl" style="color:#fff;font-size:16px;">QRIS</div>
+            <div style="width:34px;"></div> <!-- Spacer -->
         </div>
-        <div class="va-card qris-card">
+
+        <div class="va-card qris-card" style="margin-top:16px;">
+            <div
+                style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start;text-align:left;">
+                <span style="font-size:20px;flex-shrink:0;">🚫</span>
+                <div>
+                    <div style="font-size:13px;font-weight:800;color:#dc2626;">JANGAN TUTUP HALAMAN INI</div>
+                    <div style="font-size:11.5px;color:#991b1b;margin-top:2px;">Tetap di halaman ini sampai pembayaran
+                        terkonfirmasi otomatis</div>
+                </div>
+            </div>
+
             <div style="text-align:center">
                 <span class="va-status pending" id="qrisStatus">Menunggu Pembayaran</span>
             </div>
+
             <div class="va-amount" id="qrisAmount">Rp 0</div>
+
             <img class="qris-image" id="qrisImage" src="" alt="QRIS Code">
+
             <button class="co-btn" style="margin-top:12px;" onclick="checkPaymentStatus()">🔄 Cek Status
                 Pembayaran</button>
+
+            <div
+                style="margin-top:16px;padding:12px 14px;background:#f0fdfb;border-radius:12px;border:1px solid #b2f5ee;display:flex;gap:10px;align-items:flex-start;text-align:left;">
+                <span style="font-size:18px;flex-shrink:0;">🛵</span>
+                <div style="font-size:12px;color:#0d7377;line-height:1.5;">
+                    Setelah pembayaran berhasil, Anda akan otomatis diarahkan untuk memilih <strong>Petugas / Driver
+                        LinkU</strong> terdekat.
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2356,14 +2460,14 @@
     <!-- ════════════ VIEW 8: PILIH BANK ════════════ -->
     <div class="view" id="v8">
         <div class="v3-hd">
-            <button class="back-btn" onclick="showView(3)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+            <button class="back-btn" onclick="goBack(3)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="#334155" stroke-width="2.5">
                     <path d="m15 18-6-6 6-6" />
                 </svg></button>
             <div class="v3-ttl">Pilih Bank Virtual Account</div>
         </div>
         <div class="cg" style="margin-top:16px;">
-           <div class="ci" onclick="createVA('MANDIRI', '008')">
+            <div class="ci" onclick="createVA('MANDIRI', '008')">
                 <div class="ci-img"
                     style="background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
                 </div>
@@ -2375,7 +2479,7 @@
                     <path d="M9 18l6-6-6-6" />
                 </svg>
             </div>
-           <div class="ci" onclick="createVA('BNI', '009')">
+            <div class="ci" onclick="createVA('BNI', '009')">
                 <div class="ci-img"
                     style="background:#e3f2fd;display:flex;align-items:center;justify-content:center;font-size:24px;">🏦
                 </div>
@@ -2493,6 +2597,8 @@
         const CART_LS_KEY = 'linkU_cart_makanan';
         const HISTORY_LS_KEY = 'linkU_order_history';
         const BALANCE_USERNAME = 'amir';
+        const STAGE_LS_KEY = 'linkU_current_stage';
+        const CUSTOMER_FORM_LS_KEY = 'linkU_customer_form';
 
         const BANK_LIST = {
             'MANDIRI': '008', 'BNI': '009', 'BRI': '002', 'BCA': '014',
@@ -2609,7 +2715,93 @@
             if (n === 7 && driverMap) setTimeout(() => driverMap.invalidateSize(), 100);
         }
 
+        // ═══════════════════════════════════════════════════════════════════════
+        // GO BACK FROM PAYMENT PAGE (VA / QRIS)
+        // ═══════════════════════════════════════════════════════════════════════
+        function goBackFromPayment(method) {
+            // Konfirmasi ke user
+            if (!confirm('⚠️ Kembali ke halaman pembayaran?\n\nJika Anda kembali, pembayaran akan dibatalkan dan Anda harus memilih metode pembayaran ulang.')) {
+                return;
+            }
+
+            // Hentikan polling jika berjalan
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+
+            // Hapus pending payment dari localStorage
+            localStorage.removeItem('linkU_pending_payment');
+
+            // Hapus stage
+            clearStage();
+
+            // Reset status pembayaran
+            if (method === 'va') {
+                document.getElementById('vaStatus').className = 'va-status pending';
+                document.getElementById('vaStatus').textContent = 'Menunggu Pembayaran';
+            } else if (method === 'qris') {
+                document.getElementById('qrisStatus').className = 'va-status pending';
+                document.getElementById('qrisStatus').textContent = 'Menunggu Pembayaran';
+            }
+
+            // Kembali ke halaman keranjang
+            showView(3);
+            renderCart();
+            toast('⏹️ Pembayaran dibatalkan');
+        }
+
         function goCart() { renderCart(); showView(3); }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // STAGE SYSTEM — mempertahankan halaman aktif meski di-refresh.
+        // Hanya untuk halaman yang state-nya tidak bisa dipulihkan begitu saja
+        // dari cart/localStorage biasa (v4 pilih metode, v5 VA, v6 QRIS, v7 driver).
+        // Stage dihapus HANYA ketika tombol kembali ditekan (goBack) atau alur selesai.
+        // ═══════════════════════════════════════════════════════════════════════
+        function saveStage(view) {
+            try { localStorage.setItem(STAGE_LS_KEY, JSON.stringify({ view, ts: Date.now() })); } catch (e) { }
+        }
+        function getStage() {
+            try {
+                const raw = localStorage.getItem(STAGE_LS_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) { return null; }
+        }
+        function clearStage() {
+            localStorage.removeItem(STAGE_LS_KEY);
+        }
+
+        // Dipakai oleh SEMUA tombol "kembali" di halaman ber-stage (v4, v8, v7)
+        // supaya user memutus alur secara eksplisit — refresh saja TIDAK memutus alur.
+        function goBack(targetView) {
+            clearStage();
+            showView(targetView);
+        }
+
+        // ── Persist form pelanggan (nama, WhatsApp, catatan) agar bisa dipulihkan ──
+        function saveCustomerForm() {
+            try {
+                localStorage.setItem(CUSTOMER_FORM_LS_KEY, JSON.stringify({
+                    name: document.getElementById('customerName')?.value || '',
+                    phone: document.getElementById('customerPhone')?.value || '',
+                    note: document.getElementById('noteArea')?.value || ''
+                }));
+            } catch (e) { }
+        }
+        function restoreCustomerForm() {
+            try {
+                const raw = localStorage.getItem(CUSTOMER_FORM_LS_KEY);
+                if (!raw) return;
+                const d = JSON.parse(raw);
+                const nameEl = document.getElementById('customerName');
+                const phoneEl = document.getElementById('customerPhone');
+                const noteEl = document.getElementById('noteArea');
+                if (nameEl && d.name) nameEl.value = d.name;
+                if (phoneEl && d.phone) phoneEl.value = d.phone;
+                if (noteEl && d.note) noteEl.value = d.note;
+            } catch (e) { }
+        }
 
         // ═══════════════════════════════════════════════════════════════════════
         // ORDER HISTORY — LOCALSTORAGE
@@ -2643,6 +2835,7 @@
                 // Cart tetap tersimpan di localStorage, tidak diubah
                 // SSE driver ditutup untuk hemat resource
                 if (driverSSE) { driverSSE.close(); driverSSE = null; }
+                clearStage();
                 showView(1);
             }
         }
@@ -2823,10 +3016,34 @@
         }
 
         function retryDriverSelection(orderId) {
+            // ✅ Ambil data order dari history — WAJIB, karena user datang dari
+            // panel riwayat, bukan dari alur checkout, jadi currentOrderData masih kosong
+            const history = getOrderHistory();
+            const orderEntry = history.find(o => o.order_id === orderId);
+
+            if (orderEntry) {
+                currentOrderData = {
+                    customer_name: orderEntry.customer_name || '-',
+                    customer_phone: orderEntry.customer_phone || '-',
+                    amount: orderEntry.total_price || 0
+                };
+                currentPaymentMethod = orderEntry.payment_method === 'VIRTUAL_ACCOUNT' ? 'va' : 'qris';
+                if (orderEntry.mitra_phone) currentMitraPhone = orderEntry.mitra_phone;
+                if (orderEntry.mitra_username) currentMitraUsername = orderEntry.mitra_username;
+                if (orderEntry.mitra_username || orderEntry.mitra_phone) {
+                    currentPartnerInfo = {
+                        phone: orderEntry.mitra_phone,
+                        username: orderEntry.mitra_username,
+                        partner_commission: orderEntry.partner_commission || 0
+                    };
+                }
+            }
+
             // Set currentOrderId dan buka view driver
             localStorage.setItem('currentOrderId', orderId);
             closeHistoryPanel();
             updateOrderHistoryStatus(orderId, { driver_status: 'WAITING_DRIVER' });
+            saveStage(7);
             // Reload driver SSE dan tampilkan view driver
             startDriverSSE();
             showView(7);
@@ -3050,6 +3267,92 @@
             L.marker([uCoords.lat, uCoords.lng], { icon: ui }).addTo(storeMap).bindPopup('📍 Lokasi Anda');
         }
 
+        // ═══════════════════════════════════════════════════════════════════════
+        // OPEN WHATSAPP DENGAN QUICK REPLY
+        // ═══════════════════════════════════════════════════════════════════════
+        function openWhatsApp() {
+            const phoneNumber = '6281347423737';
+            const cleanNumber = phoneNumber.replace(/\D/g, '');
+
+            // Tampilkan dialog pilihan pesan
+            const quickMessages = [
+                'Halo LinkU, saya mau order Jastip Makanan',
+                'Halo LinkU, saya mau tanya tentang menu',
+                'Halo LinkU, saya mau konfirmasi pembayaran',
+                'Halo LinkU, saya mau tanya status pesanan'
+            ];
+
+            // Buat modal pilihan sederhana
+            let modal = document.getElementById('waQuickModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'waQuickModal';
+                modal.style.cssText = `
+            position:fixed;inset:0;background:rgba(0,0,0,0.5);
+            display:none;align-items:center;justify-content:center;
+            z-index:99999;
+        `;
+                document.body.appendChild(modal);
+            }
+
+            modal.innerHTML = `
+        <div style="background:#fff;border-radius:16px;max-width:340px;width:90%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <div style="text-align:center;margin-bottom:16px;">
+                <div style="font-size:40px;">💬</div>
+                <h3 style="margin:8px 0 4px 0;font-size:17px;color:#0f172a;">Hubungi Kami</h3>
+                <p style="font-size:13px;color:#64748b;margin:0;">Pilih pesan cepat atau tulis sendiri</p>
+            </div>
+            
+            ${quickMessages.map(msg => `
+                <button onclick="sendWhatsApp('${encodeURIComponent(msg)}')" 
+                    style="width:100%;padding:10px 14px;margin-bottom:8px;
+                    background:#f1f5f9;border:none;border-radius:10px;
+                    text-align:left;font-size:13px;color:#334155;
+                    cursor:pointer;transition:background 0.2s;">
+                    ${msg}
+                </button>
+            `).join('')}
+            
+            <button onclick="sendWhatsApp('')" 
+                style="width:100%;padding:10px;margin-top:4px;
+                background:#25d366;color:#fff;border:none;border-radius:10px;
+                font-size:14px;font-weight:600;cursor:pointer;">
+                📱 Chat Sekarang
+            </button>
+            
+            <button onclick="closeWhatsAppModal()" 
+                style="width:100%;padding:10px;margin-top:8px;
+                background:none;border:none;color:#94a3b8;
+                font-size:13px;cursor:pointer;">
+                Batal
+            </button>
+        </div>
+    `;
+
+            modal.style.display = 'flex';
+        }
+
+        function sendWhatsApp(message) {
+            const phoneNumber = '6281347423737';
+            const cleanNumber = phoneNumber.replace(/\D/g, '');
+            const waUrl = `https://wa.me/${cleanNumber}?text=${message}`;
+            window.open(waUrl, '_blank');
+            closeWhatsAppModal();
+        }
+
+        function closeWhatsAppModal() {
+            const modal = document.getElementById('waQuickModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Tutup modal jika klik di luar
+        document.addEventListener('click', function (e) {
+            const modal = document.getElementById('waQuickModal');
+            if (modal && e.target === modal) {
+                closeWhatsAppModal();
+            }
+        });
+
         function updateMapMarkers() {
             if (!storeMap || !mapMarkers) return;
             mapMarkers.clearLayers();
@@ -3223,6 +3526,7 @@
                 if (!store?.is_open) toast('❌ Toko sedang tutup');
                 return;
             }
+            clearStage();
             currentStore = store; activeCat = 'all';
 
             if (store.partner_view_uid && (!currentPartnerInfo || currentPartnerInfo.view_uid !== store.partner_view_uid)) {
@@ -3584,7 +3888,7 @@
             if (!currentOrderData) return;
             toast('🔄 Membuat QRIS...');
             try {
-              const payload = {
+                const payload = {
                     amount: currentOrderData.amount,
                     customer_id: currentOrderData.customer_id,
                     customer_name: currentOrderData.customer_name,
@@ -3597,7 +3901,7 @@
                 });
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
-               currentPaymentData = data;
+                currentPaymentData = data;
                 const qrisImgUrl = data.imageqris || data.qris_url || '';
                 // ✅ Simpan SEMUA data tampilan agar view bisa direkonstruksi utuh setelah refresh
                 localStorage.setItem('linkU_pending_payment', JSON.stringify({
@@ -3612,6 +3916,7 @@
                 document.getElementById('qrisAmount').textContent = fmt(currentOrderData.amount);
                 const qrisImage = document.getElementById('qrisImage');
                 if (qrisImgUrl) qrisImage.src = qrisImgUrl;
+                saveStage(6);
                 showView(6);
                 startPollingPayment(data.partner_reff);
             } catch (err) { toast('❌ Gagal membuat QRIS: ' + err.message); }
@@ -3646,7 +3951,7 @@
             toast(`🔄 Membuat VA ${bankName}...`);
 
             try {
-              const payload = {
+                const payload = {
                     amount: currentOrderData.amount,
                     customer_id: currentOrderData.customer_id,
                     customer_name: currentOrderData.customer_name,
@@ -3665,7 +3970,7 @@
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
 
-               currentPaymentData = data;
+                currentPaymentData = data;
                 // ✅ Simpan SEMUA data tampilan agar view bisa direkonstruksi utuh setelah refresh
                 localStorage.setItem('linkU_pending_payment', JSON.stringify({
                     partner_reff: data.partner_reff,
@@ -3682,6 +3987,7 @@
                 document.getElementById('vaNumber').textContent = data.virtual_account || '-';
                 document.getElementById('vaBankName').textContent = bankName;
                 document.getElementById('vaBankCode').textContent = bankCode;
+                saveStage(5);
                 showView(5);
                 startPollingPayment(data.partner_reff);
             } catch (err) {
@@ -3694,7 +4000,7 @@
                 }
             }
         }
-       async function startPollingPayment(partnerReff) {
+        async function startPollingPayment(partnerReff) {
             if (pollingInterval) clearInterval(pollingInterval);
             let handled = false;
 
@@ -3763,6 +4069,7 @@
                 toast('⚠️ Order sedang diproses server...');
             }
 
+            saveStage(7);
             startDriverSSE();
             showView(7);
         }
@@ -3841,7 +4148,7 @@
             if (vaNumber && vaNumber !== '-') { navigator.clipboard.writeText(vaNumber); toast('✅ Nomor VA disalin'); }
         }
 
-       async function checkPaymentStatus() {
+        async function checkPaymentStatus() {
             if (!currentPaymentData?.partner_reff) { toast('Tidak ada data pembayaran'); return; }
             try {
                 const res = await fetch(`${BACKEND}/check-status/${currentPaymentData.partner_reff}`);
@@ -4405,8 +4712,11 @@
             });
 
             // Bersihkan cart
+            // Bersihkan cart & stage — alur pesanan sudah tuntas
             cart = {}; saveCartLS(); updateCartUI();
             localStorage.removeItem('currentOrderId');
+            clearStage();
+            localStorage.removeItem(CUSTOMER_FORM_LS_KEY);
 
             setTimeout(() => {
                 toast('🎉 Pesanan berhasil! Driver akan segera menghubungi Anda');
@@ -4479,115 +4789,137 @@
             }
         }
 
-       // ═══════════════════════════════════════════════════════════════
-            // RESUME ACTIVE ORDER / PAYMENT — dipanggil setiap kali halaman dibuka
-            // Menangani 3 kasus refresh:
-            //  1. Order sudah dibuat (currentOrderId ada) → lanjut ke pencarian driver
-            //  2. Pembayaran sudah sukses tapi order_id belum sempat tersimpan → ambil dari server
-            //  3. Pembayaran MASIH PENDING (user lagi bayar di app lain) → pulihkan
-            //     halaman VA/QRIS + nyalakan ulang polling
-            // Return true kalau berhasil resume ke salah satu view di atas.
-            // ═══════════════════════════════════════════════════════════════
-          async function resumeActiveOrder() {
-                let orderId = localStorage.getItem('currentOrderId');
+        async function resumeActiveOrder() {
+            let orderId = localStorage.getItem('currentOrderId');
 
-                if (!orderId) {
-                    const pendingRaw = localStorage.getItem('linkU_pending_payment');
-                    if (pendingRaw) {
-                        try {
-                            const pending = JSON.parse(pendingRaw);
-                            const res = await fetch(`${BACKEND}/check-status/${pending.partner_reff}`);
-                            const data = await res.json();
+            if (!orderId) {
+                const pendingRaw = localStorage.getItem('linkU_pending_payment');
+                if (pendingRaw) {
+                    try {
+                        const pending = JSON.parse(pendingRaw);
+                        const res = await fetch(`${BACKEND}/check-status/${pending.partner_reff}`);
+                        const data = await res.json();
 
-                            if (data.data?.status_trx === 'success') {
-                                currentPaymentMethod = pending.method;
-                                currentPaymentData = { partner_reff: pending.partner_reff };
-                                currentOrderData = {
-                                    customer_name: pending.customer_name,
-                                    customer_phone: pending.customer_phone,
-                                    amount: pending.amount
-                                };
-                                toast('✅ Pembayaran sebelumnya sudah berhasil, mencari driver...');
-                                handlePaymentConfirmed(data.data);
-                                return true;
-                            } else {
-                                // ✅ BELUM sukses BUKAN berarti gagal — mungkin cuma jeda webhook.
-                                // Pulihkan tampilan VA/QRIS dan LANJUTKAN polling, jangan menyerah.
-                                return restorePendingPaymentView(pending);
-                            }
-                        } catch (err) {
-                            console.log('Resume payment check error:', err);
+                        if (data.data?.status_trx === 'success') {
+                            currentPaymentMethod = pending.method;
+                            currentPaymentData = { partner_reff: pending.partner_reff };
+                            currentOrderData = {
+                                customer_name: pending.customer_name,
+                                customer_phone: pending.customer_phone,
+                                amount: pending.amount
+                            };
+                            toast('✅ Pembayaran sebelumnya sudah berhasil, mencari driver...');
+                            handlePaymentConfirmed(data.data);
+                            return true;
+                        } else {
+                            // ✅ BELUM sukses BUKAN berarti gagal — mungkin cuma jeda webhook.
+                            // Pulihkan tampilan VA/QRIS dan LANJUTKAN polling, jangan menyerah.
+                            return restorePendingPaymentView(pending);
                         }
+                    } catch (err) {
+                        console.log('Resume payment check error:', err);
                     }
-                    return false;
                 }
 
-                localStorage.removeItem('linkU_pending_payment');
-
-                const history = getOrderHistory();
-                const orderEntry = history.find(o => o.order_id === orderId);
-
-                if (orderEntry && orderEntry.driver_status === 'ACCEPTED') {
-                    localStorage.removeItem('currentOrderId');
-                    return false;
+                // ── Tidak ada order/payment pending. Cek apakah user sedang di v4 (pilih metode) ──
+                const stage = getStage();
+                if (stage && stage.view === 4 && Object.keys(cart).length) {
+                    restoreCustomerForm();
+                    renderCart();
+                    toast('🔄 Melanjutkan pemilihan metode pembayaran...');
+                    showView(4);
+                    return true;
                 }
-                if (!Object.keys(cart).length) {
-                    localStorage.removeItem('currentOrderId');
-                    return false;
-                }
-
-                const subTotal = getTotalPrice();
-                const totalOngkir = getTotalOngkir();
-                currentOrderData = {
-                    customer_name: orderEntry?.customer_name || '-',
-                    customer_phone: orderEntry?.customer_phone || '-',
-                    amount: orderEntry?.total_price || (subTotal + totalOngkir)
-                };
-                currentPaymentMethod = orderEntry?.payment_method === 'VIRTUAL_ACCOUNT' ? 'va' : 'qris';
-                if (orderEntry?.mitra_phone) currentMitraPhone = orderEntry.mitra_phone;
-                if (orderEntry?.mitra_username) currentMitraUsername = orderEntry.mitra_username;
-                if (orderEntry?.mitra_username || orderEntry?.mitra_phone) {
-                    currentPartnerInfo = {
-                        phone: orderEntry.mitra_phone,
-                        username: orderEntry.mitra_username,
-                        partner_commission: orderEntry.partner_commission || 0
-                    };
-                }
-
-                toast('🔄 Melanjutkan pencarian driver untuk pesanan Anda...');
-                showView(7);
-                startDriverSSE();
-                return true;
+                clearStage();
+                return false;
             }
 
-            function restorePendingPaymentView(pending) {
-                currentPaymentMethod = pending.method;
-                currentPaymentData = { partner_reff: pending.partner_reff };
-                currentOrderData = {
-                    customer_name: pending.customer_name,
-                    customer_phone: pending.customer_phone,
-                    amount: pending.amount
-                };
+            localStorage.removeItem('linkU_pending_payment');
 
-                if (pending.method === 'va') {
-                    document.getElementById('vaAmount').textContent = fmt(pending.amount);
-                    document.getElementById('vaNumber').textContent = pending.va_number || '-';
-                    document.getElementById('vaBankName').textContent = pending.bank_name || '-';
-                    document.getElementById('vaBankCode').textContent = pending.bank_code || '-';
-                    showView(5);
-                } else {
-                    document.getElementById('qrisAmount').textContent = fmt(pending.amount);
-                    const qrisImage = document.getElementById('qrisImage');
-                    if (pending.qris_image) qrisImage.src = pending.qris_image;
-                    showView(6);
-                }
+            const history = getOrderHistory();
+            const orderEntry = history.find(o => o.order_id === orderId);
 
-                toast('🔄 Menunggu konfirmasi pembayaran Anda...');
-                startPollingPayment(pending.partner_reff);
-                return true;
+            // ✅ Order sudah selesai (driver diterima) — tidak perlu apa-apa, biarkan ke v1
+            if (orderEntry && orderEntry.driver_status === 'ACCEPTED') {
+                localStorage.removeItem('currentOrderId');
+                clearStage();
+                return false;
             }
-          
-           
+
+            // ✅ FIX UTAMA: Order sudah gagal dapat driver (NO_DRIVER) — JANGAN auto-redirect.
+            // Biarkan user mendarat di v1 supaya melihat badge lonceng & panel history,
+            // lalu klik "Cari Driver Lagi" secara manual kalau mau coba ulang.
+            // Tanpa fix ini, user selalu dipaksa masuk v7 setiap buka app, dan tidak pernah
+            // sempat melihat notifikasi/history-nya sama sekali.
+            if (orderEntry && orderEntry.driver_status === 'NO_DRIVER') {
+                clearStage();
+                return false;
+            }
+
+            if (!Object.keys(cart).length) {
+                localStorage.removeItem('currentOrderId');
+                clearStage();
+                return false;
+            }
+
+            const subTotal = getTotalPrice();
+            const totalOngkir = getTotalOngkir();
+            currentOrderData = {
+                customer_name: orderEntry?.customer_name || '-',
+                customer_phone: orderEntry?.customer_phone || '-',
+                amount: orderEntry?.total_price || (subTotal + totalOngkir)
+            };
+            currentPaymentMethod = orderEntry?.payment_method === 'VIRTUAL_ACCOUNT' ? 'va' : 'qris';
+            if (orderEntry?.mitra_phone) currentMitraPhone = orderEntry.mitra_phone;
+            if (orderEntry?.mitra_username) currentMitraUsername = orderEntry.mitra_username;
+            if (orderEntry?.mitra_username || orderEntry?.mitra_phone) {
+                currentPartnerInfo = {
+                    phone: orderEntry.mitra_phone,
+                    username: orderEntry.mitra_username,
+                    partner_commission: orderEntry.partner_commission || 0
+                };
+            }
+
+            // ✅ Hanya auto-resume ke v7 kalau statusnya masih AKTIF mencari (WAITING_DRIVER)
+            saveStage(7);
+            toast('🔄 Melanjutkan pencarian driver untuk pesanan Anda...');
+            showView(7);
+            startDriverSSE();
+            return true;
+        }
+
+        function restorePendingPaymentView(pending) {
+            currentPaymentMethod = pending.method;
+            currentPaymentData = { partner_reff: pending.partner_reff };
+            currentOrderData = {
+                customer_name: pending.customer_name,
+                customer_phone: pending.customer_phone,
+                amount: pending.amount
+            };
+
+            if (pending.method === 'va') {
+                document.getElementById('vaAmount').textContent = fmt(pending.amount);
+                document.getElementById('vaNumber').textContent = pending.va_number || '-';
+                document.getElementById('vaBankName').textContent = pending.bank_name || '-';
+                document.getElementById('vaBankCode').textContent = pending.bank_code || '-';
+                saveStage(5);
+                showView(5);
+            } else {
+                document.getElementById('qrisAmount').textContent = fmt(pending.amount);
+                const qrisImage = document.getElementById('qrisImage');
+                if (pending.qris_image) qrisImage.src = pending.qris_image;
+                saveStage(6);
+                showView(6);
+            }
+
+            toast('🔄 Menunggu konfirmasi pembayaran Anda...');
+            startPollingPayment(pending.partner_reff);
+            return true;
+        }
+
+
+
+
         function openAC(field) {
             acCurrentField = field;
             const modal = document.getElementById('acModal');
@@ -4638,11 +4970,15 @@
             });
         };
 
-        // ═══════════════════════════════════════════════════════════════════════
-        // EVENT LISTENERS
-        // ═══════════════════════════════════════════════════════════════════════
         document.getElementById('checkoutBtn')?.addEventListener('click', () => {
-            showView(4);  // ← Tampilkan halaman pilihan metode
+            saveCustomerForm();
+            saveStage(4);   // ← Tandai stage: user sedang di halaman pilih metode
+            showView(4);
+        });
+
+        // Simpan form pelanggan setiap kali diketik, supaya tidak hilang saat refresh
+        ['customerName', 'customerPhone', 'noteArea'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', saveCustomerForm);
         });
 
         document.getElementById('v1Search')?.addEventListener('input', renderStoreList);
@@ -4688,14 +5024,14 @@
         // ═══════════════════════════════════════════════════════════════════════
         // INIT
         // ═══════════════════════════════════════════════════════════════════════
-       (async () => {
+        (async () => {
             loadCartLS();
             updateCartUI();
 
             // ✅ RESUME: kalau ada pembayaran pending dari sesi sebelumnya
             // (tab di-refresh/close saat menunggu callback), cek statusnya sekarang.
             // Order sudah pasti dibuat di server oleh /callback, jadi ini murni sinkronisasi UI.
-           
+
 
             const urlParams = new URLSearchParams(window.location.search);
             const phone = urlParams.get('phone');
@@ -4730,7 +5066,7 @@
             }
 
             // Fungsi untuk meminta lokasi
-           window.requestLocation = function () {
+            window.requestLocation = function () {
                 document.getElementById('locationPopup')?.remove();
                 if (navigator.geolocation) {
                     toast('📍 Mendeteksi lokasi...');
@@ -4769,7 +5105,7 @@
             };
 
             // Fungsi untuk menggunakan lokasi default
-           // Fungsi untuk menggunakan lokasi default
+            // Fungsi untuk menggunakan lokasi default
             window.useDefaultLocation = async function () {
                 document.getElementById('locationPopup')?.remove();
                 uCoords = DEFAULT_COORDS;
