@@ -1,0 +1,3654 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>Vendor Dashboard — Bus & Travel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <style>
+        :root {
+            --p: #24b3ae;
+            --p-dark: #1a8a86;
+            --p-light: #e3f6f5;
+            --s: #e03f7d;
+            --bg: #eef1f8;
+            --tx: #2d2f36;
+            --mt: #8a8f9c;
+            --ln: #dfe3ee;
+            --ok: #1f9d55;
+            --ok-light: #e4f7ec;
+            --warn: #e8710a;
+            --warn-light: #ffeadb;
+            --err: #e5484d;
+            --err-light: #fde2e2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Poppins, sans-serif;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--tx);
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh
+        }
+
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: #f6f8fc;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(0, 0, 0, .04)
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: 0
+        }
+
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+            width: 100%;
+            border: 1px solid var(--ln);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+            color: var(--tx)
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--p)
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--mt);
+            margin-bottom: 6px;
+            font-weight: 500
+        }
+
+        .field {
+            margin-bottom: 14px
+        }
+
+        .hdr {
+            background: linear-gradient(120deg, var(--p-dark), var(--p));
+            color: #fff;
+            padding: 18px 18px 22px;
+            border-radius: 0 0 22px 22px;
+            box-shadow: 0 4px 16px rgba(36, 179, 174, .25)
+        }
+
+        .hdr-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px
+        }
+
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #fff;
+            color: var(--p-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, .6)
+        }
+
+        .hdr-top b {
+            font-size: 16px;
+            display: block
+        }
+
+        .hdr-top span {
+            font-size: 12px;
+            opacity: .85
+        }
+
+        .hdr-badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, .18);
+            border: 1px solid rgba(255, 255, 255, .35);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600
+        }
+
+        .hdr-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            background: rgba(255, 255, 255, .12);
+            border-radius: 12px;
+            padding: 12px
+        }
+
+        .hdr-stats>div {
+            text-align: center
+        }
+
+        .hdr-stats b {
+            display: block;
+            font-size: 18px;
+            font-weight: 700
+        }
+
+        .hdr-stats span {
+            font-size: 11px;
+            opacity: .85
+        }
+
+        .tabs {
+            display: flex;
+            background: #fff;
+            margin: 14px 14px 0;
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+            position: sticky;
+            top: 8px;
+            z-index: 10;
+            overflow-x: auto
+        }
+
+        .tabs button {
+            flex: 1;
+            min-width: 68px;
+            background: transparent;
+            color: var(--mt);
+            padding: 10px 6px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            white-space: nowrap
+        }
+
+        .tabs button.on {
+            background: var(--p-light);
+            color: var(--p-dark)
+        }
+
+        .content {
+            flex: 1;
+            padding: 14px
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06)
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .card-title iconify-icon {
+            color: var(--p);
+            font-size: 22px
+        }
+
+        .card-sub {
+            font-size: 12px;
+            color: var(--mt);
+            margin-bottom: 14px
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--p);
+            color: #fff;
+            font-weight: 600;
+            padding: 13px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px
+        }
+
+        .btn:hover {
+            background: var(--p-dark)
+        }
+
+        .btn:disabled {
+            background: #c9cfdb;
+            cursor: not-allowed
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--p);
+            border: 1.5px solid var(--p)
+        }
+
+        .btn-outline:hover {
+            background: var(--p-light)
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 13px;
+            width: auto
+        }
+
+        .btn-ok {
+            background: var(--ok);
+            color: #fff
+        }
+
+        .btn-warn {
+            background: var(--warn);
+            color: #fff
+        }
+
+        .btn-err {
+            background: var(--err);
+            color: #fff
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .sched {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+            border-left: 4px solid var(--p)
+        }
+
+        .sched.draft {
+            border-left-color: var(--warn)
+        }
+
+        .sched.published {
+            border-left-color: var(--ok)
+        }
+
+        .sched.unpublished {
+            border-left-color: var(--err)
+        }
+
+        .sched.template {
+            border-left-color: #7b5ea7;
+            background: linear-gradient(90deg, #f6f2ff, #fff 40%)
+        }
+
+        .sched-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 10px
+        }
+
+        .sched-head b {
+            font-size: 14px
+        }
+
+        .sched-head .mt {
+            font-size: 12px;
+            color: var(--mt)
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600
+        }
+
+        .badge.ok {
+            background: var(--ok-light);
+            color: var(--ok)
+        }
+
+        .badge.warn {
+            background: var(--warn-light);
+            color: var(--warn)
+        }
+
+        .badge.err {
+            background: var(--err-light);
+            color: var(--err)
+        }
+
+        .badge.mt {
+            background: var(--bg);
+            color: var(--mt)
+        }
+
+        .badge.info {
+            background: var(--p-light);
+            color: var(--p-dark)
+        }
+
+        .badge.template {
+            background: #ede7f6;
+            color: #7b5ea7
+        }
+
+        .sched-route {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--bg);
+            border-radius: 8px
+        }
+
+        .sched-route .city {
+            font-size: 14px;
+            font-weight: 600
+        }
+
+        .sched-route .time {
+            font-size: 12px;
+            color: var(--mt)
+        }
+
+        .sched-route iconify-icon {
+            color: var(--p);
+            font-size: 20px
+        }
+
+        .sched-info {
+            display: flex;
+            gap: 14px;
+            font-size: 12px;
+            color: var(--mt);
+            margin-top: 8px;
+            flex-wrap: wrap
+        }
+
+        .sched-info span {
+            display: flex;
+            align-items: center;
+            gap: 4px
+        }
+
+        .sched-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--ln);
+            flex-wrap: wrap
+        }
+
+        .sched-actions button {
+            flex: 1;
+            min-width: 70px;
+            padding: 8px 6px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--bg);
+            color: var(--tx);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px
+        }
+
+        .sched-actions button.publish {
+            background: var(--ok-light);
+            color: var(--ok)
+        }
+
+        .sched-actions button.edit {
+            background: var(--p-light);
+            color: var(--p-dark)
+        }
+
+        .sched-actions button.clone {
+            background: #fff3cd;
+            color: #8a6d00
+        }
+
+        .sched-actions button.delete {
+            background: var(--err-light);
+            color: var(--err)
+        }
+
+        .ov {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .55);
+            z-index: 50;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .sheet {
+            width: 100%;
+            max-width: 480px;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            animation: up .3s
+        }
+
+        @keyframes up {
+            from {
+                transform: translateY(60px);
+                opacity: .5
+            }
+        }
+
+        .sheet-head {
+            padding: 14px 20px 12px;
+            border-bottom: 1px solid var(--ln);
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .sheet-head h2 {
+            font-size: 17px;
+            font-weight: 700
+        }
+
+        .sheet-head button {
+            background: transparent;
+            color: var(--mt);
+            font-size: 24px;
+            display: flex
+        }
+
+        .sheet-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            flex: 1
+        }
+
+        .sheet-foot {
+            padding: 12px 20px 18px;
+            border-top: 1px solid var(--ln);
+            display: flex;
+            gap: 10px
+        }
+
+        .grab {
+            width: 40px;
+            height: 5px;
+            border-radius: 3px;
+            background: #c4c8d3;
+            margin: 0 auto 10px
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--mt)
+        }
+
+        .empty iconify-icon {
+            font-size: 56px;
+            opacity: .4;
+            margin-bottom: 10px;
+            display: block
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 90px;
+            transform: translateX(-50%);
+            background: #2d2f36;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 10px;
+            z-index: 99;
+            max-width: 90%;
+            font-size: 13px;
+            text-align: center
+        }
+
+        .nav-foot {
+            display: flex;
+            background: #fff;
+            border-top: 1px solid var(--ln);
+            position: sticky;
+            bottom: 0;
+            z-index: 5
+        }
+
+        .nav-foot button {
+            flex: 1;
+            background: transparent;
+            padding: 12px 4px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--mt);
+            font-size: 10px;
+            font-weight: 600
+        }
+
+        .nav-foot button.on {
+            color: var(--p)
+        }
+
+        .nav-foot button iconify-icon {
+            font-size: 22px
+        }
+
+        .status-page {
+            text-align: center;
+            padding: 40px 24px
+        }
+
+        .status-icon {
+            font-size: 72px;
+            margin-bottom: 16px;
+            display: inline-block
+        }
+
+        .status-icon.pending {
+            color: var(--warn)
+        }
+
+        .status-icon.rejected {
+            color: var(--err)
+        }
+
+        .status-icon.suspended {
+            color: var(--err)
+        }
+
+        .status-icon.register {
+            color: var(--p)
+        }
+
+        .status-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px
+        }
+
+        .status-desc {
+            font-size: 13px;
+            color: var(--mt);
+            margin-bottom: 20px;
+            line-height: 1.6
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--ln);
+            font-size: 13px;
+            text-align: left
+        }
+
+        .info-row:last-child {
+            border-bottom: 0
+        }
+
+        .info-row span:first-child {
+            color: var(--mt)
+        }
+
+        .info-row span:last-child {
+            font-weight: 600;
+            text-align: right
+        }
+
+        .sk {
+            background: linear-gradient(90deg, #e6e9f2 25%, #f5f6fb 50%, #e6e9f2 75%);
+            background-size: 200% 100%;
+            animation: shm 1.2s infinite;
+            border-radius: 8px;
+            height: 16px
+        }
+
+        @keyframes shm {
+            to {
+                background-position: -200% 0
+            }
+        }
+
+        .mt {
+            color: var(--mt)
+        }
+
+        .grn {
+            color: var(--ok)
+        }
+
+        .rd {
+            color: var(--err)
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .mb-2 {
+            margin-bottom: 8px
+        }
+
+        .mb-3 {
+            margin-bottom: 14px
+        }
+
+        .facility-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            border: 1px solid var(--ln);
+            background: #fff;
+            color: var(--tx)
+        }
+
+        .facility-chip.on {
+            background: var(--p-light);
+            border-color: var(--p);
+            color: var(--p-dark)
+        }
+
+        .day-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1.5px solid var(--ln);
+            background: #fff;
+            color: var(--tx);
+            font-weight: 600;
+            font-size: 12px
+        }
+
+        .day-chip.on {
+            background: var(--p);
+            border-color: var(--p);
+            color: #fff
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1/1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--ln)
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block
+        }
+
+        .photo-item .tag {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: var(--p);
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600
+        }
+
+        .photo-item .tag.new {
+            background: var(--warn)
+        }
+
+        .photo-item .btn-x {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: var(--err);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            border: 0;
+            cursor: pointer
+        }
+
+        .photo-item .btn-cover {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, .7);
+            color: #fff;
+            font-size: 9px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 0;
+            cursor: pointer
+        }
+
+        .plan-option {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            border: 2px solid var(--ln);
+            border-radius: 10px;
+            cursor: pointer;
+            background: #fff;
+            transition: all .2s;
+            margin-bottom: 10px
+        }
+
+        .plan-option.on {
+            border-color: var(--p);
+            background: var(--p-light)
+        }
+
+        .plan-option input {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--p);
+            margin-top: 2px;
+            flex-shrink: 0
+        }
+
+        .plan-option b {
+            display: block;
+            margin-bottom: 4px
+        }
+
+        .plan-option .desc {
+            font-size: 12px;
+            color: var(--mt);
+            line-height: 1.5
+        }
+
+        .seat-picker {
+            display: grid;
+            gap: 6px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 10px;
+            margin-top: 6px
+        }
+
+        .seat-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center
+        }
+
+        .seat-cell {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600
+        }
+
+        .seat-cell.seat {
+            background: #9be0dd;
+            color: #0d6e6a;
+            border: 1px solid var(--p)
+        }
+
+        .seat-cell.driver {
+            background: #e5e8ef;
+            color: #8a8f9c;
+            font-size: 14px
+        }
+
+        .seat-cell.empty {
+            background: transparent
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <script>
+        /* =====================================================================
+         * KONFIGURASI API
+         * ===================================================================== */
+        const API_BASE = 'https://bus.siappgo.id/api';
+
+        /* =====================================================================
+         * DATA USER JAGEL (HARDCODE)
+         * ===================================================================== */
+        const USER = {
+            user_id: 'JGL-0009',
+            username: 'herry5',
+            fullname: 'Herry N',
+            phone: '082150750649',
+            email: 'nurdiansyahsh86@gmail.com',
+        };
+
+        /* =====================================================================
+         * STATE
+         * ===================================================================== */
+        const S = {
+            tab: 'schedules',
+            modal: null,
+            vendorStatus: 'loading',
+            vendorInfo: null,
+
+            schedules: [],
+            templates: [],       // recurring templates
+            routes: [],
+            vehicles: [],
+            cities: [],
+            facilities: [],
+            bankAccounts: [],
+            seatLayouts: [],
+            seatTemplates: [],   // master template kursi dari sistem
+            pickupStops: [],
+            dropoffStops: [],
+            loading: true,
+
+            topupInfo: null,
+            topupPolling: null,
+
+            // Form jadwal
+            form: {
+                id: null, route_id: '', vehicle_id: '',
+                pickup_stop_id: '', dropoff_stop_id: '',
+                departure_date: '', departure_time: '',
+                duration_minutes: 180,
+                price: '', original_price: '', discount_percent: 0,
+                insurance_available: false, insurance_product_id: 1,
+                direction: 'pergi', is_popular: false,
+                seat_source: 'vehicle',      // vehicle | template | custom
+                seat_template_id: '',        // kalau source=template
+                seat_custom: '',             // kalau source=custom
+            },
+
+            // Form clone jadwal
+            cloneForm: {
+                schedule_id: null,
+                departure_at: '',
+                duration_minutes: 180,
+                _src: null,
+            },
+
+            // Form template recurring
+            templateForm: {
+                id: null,
+                route_id: '', vehicle_id: '',
+                pickup_stop_id: '', dropoff_stop_id: '',
+                departure_time: '08:00',
+                duration_minutes: 180,
+                price: '', original_price: '', discount_percent: 0,
+                insurance_available: 0, insurance_product_id: null,
+                is_popular: 0,
+                seat_source: 'vehicle',
+                seat_template_id: '',
+                seat_custom: '',
+                days_of_week: [1, 2, 3, 4, 5, 6, 7],
+                active_from: '',
+                active_until: '',
+                generate_days_ahead: 30,
+            },
+
+            registerForm: {
+                name: '', legal_name: '', npwp: '', nib: '',
+                contact_phone: '', contact_email: '', address: '',
+                payment_system: 'commission',
+                markup_percent: 10,
+            },
+
+            vehicleForm: {
+                id: null, name: '', class_name: '',
+                vehicle_type: 'shuttle', plate_number: '',
+                brand: '', model: '', year: new Date().getFullYear(),
+                seat_arrangement: '', capacity: 8,
+                seat_layout_id: '', is_active: 1,
+                facility_ids: [],
+                photos: [],
+                existingPhotos: [],
+            },
+
+            routeForm: { id: null, origin_city_id: '', destination_city_id: '', name: '' },
+            bankForm: { id: null, bank_name: '', account_number: '', account_holder: '', is_primary: 0 },
+            profileForm: {
+                name: '', legal_name: '', npwp: '', nib: '',
+                contact_phone: '', contact_email: '', address: '',
+                logo_url: '', description: ''
+            },
+
+            cityPickTarget: null,
+            cityPickTarget2: null,
+            cityPickSearch: '',
+
+            saving: false, registering: false, savingVehicle: false,
+            savingRoute: false, savingBank: false, savingProfile: false,
+            savingTopup: false, savingClone: false, savingTemplate: false,
+        };
+
+        const $ = s => document.querySelector(s);
+        const ic = (n, z) => `<iconify-icon icon="${n}" style="font-size:${z || 20}px"></iconify-icon>`;
+        const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        const P = n => 'IDR ' + Number(n || 0).toLocaleString('id-ID');
+
+        const DN = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        const MN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const DAY_NAMES = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+        function fmtDate(s) {
+            if (!s) return '-';
+            const d = new Date(String(s).replace(' ', 'T'));
+            if (isNaN(d)) return s;
+            return `${DN[d.getDay()]}, ${d.getDate()} ${MN[d.getMonth()]} ${d.getFullYear()}`;
+        }
+        function fmtTime(s) {
+            if (!s) return '-';
+            return String(s).slice(11, 16) || String(s).slice(0, 5);
+        }
+        function fmtDateTime(s) {
+            if (!s) return '-';
+            return `${fmtDate(s)} • ${fmtTime(s)}`;
+        }
+        function toast(m) {
+            const el = document.createElement('div');
+            el.className = 'toast';
+            el.textContent = m;
+            document.body.append(el);
+            setTimeout(() => el.remove(), 2600);
+        }
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        /* =====================================================================
+         * API LAYER
+         * ===================================================================== */
+        function userHeaders(extra = {}) {
+            return {
+                'Content-Type': 'application/json',
+                'X-User-Id': USER.user_id,
+                'X-Username': USER.username,
+                'X-FullName': USER.fullname,
+                'X-Phone': USER.phone || '',
+                'X-Email': USER.email || '',
+                ...extra
+            };
+        }
+
+        async function authFetch(path, options = {}) {
+            const headers = userHeaders(options.headers || {});
+            let res, data;
+            try {
+                res = await fetch(API_BASE + path, { ...options, headers });
+            } catch (e) {
+                throw new Error('Tidak dapat terhubung ke server');
+            }
+            try { data = await res.json(); } catch (e) { data = null; }
+            if (!res.ok || (data && data.success === false)) {
+                const err = new Error((data && data.message) || `Error ${res.status}`);
+                err.status = res.status;
+                err.data = data;
+                throw err;
+            }
+            return data;
+        }
+
+        const apiGet = (path) => authFetch(path, { method: 'GET' });
+        const apiPost = (path, body) => authFetch(path, { method: 'POST', body: JSON.stringify(body) });
+        const apiPut = (path, body) => authFetch(path, { method: 'PUT', body: JSON.stringify(body) });
+        const apiPatch = (path, body) => authFetch(path, { method: 'PATCH', body: JSON.stringify(body) });
+        const apiDelete = (path) => authFetch(path, { method: 'DELETE' });
+
+        /* =====================================================================
+         * LOAD INITIAL
+         * ===================================================================== */
+        async function loadInitial() {
+            S.loading = true;
+            render();
+
+            try {
+                const r = await fetch(`${API_BASE}/public/cities`);
+                const d = await r.json();
+                S.cities = d.data || [];
+            } catch (e) { S.cities = []; }
+
+            // Master template kursi (publik)
+            try {
+                const r = await fetch(`${API_BASE}/public/seat-templates`);
+                const d = await r.json();
+                S.seatTemplates = d.data || [];
+            } catch (e) { S.seatTemplates = []; }
+
+            try {
+                const d = await apiGet('/auth/me');
+                const vendors = d.data?.vendors || [];
+
+                if (vendors.length === 0) {
+                    S.vendorStatus = 'none';
+                    S.vendorInfo = null;
+                    S.registerForm.contact_phone = USER.phone || '';
+                    S.registerForm.contact_email = USER.email || '';
+                } else {
+                    // ✅ Prioritas: active > pending > suspended > rejected
+                    const PRIORITY = { active: 4, pending: 3, suspended: 2, rejected: 1 };
+                    const v = vendors
+                        .slice()
+                        .sort((a, b) => (PRIORITY[b.status] || 0) - (PRIORITY[a.status] || 0))[0];
+
+                    S.vendorInfo = v;
+                    S.vendorStatus = v.status || 'none';
+
+                    if (v.status === 'active') {
+                        const vid = v.vendor_id;
+
+                        try { const d = await apiGet(`/vendors/${vid}/routes`); S.routes = d.data || []; } catch (e) { S.routes = []; }
+                        try { const d = await apiGet(`/vendors/${vid}/vehicles`); S.vehicles = d.data || []; } catch (e) { S.vehicles = []; }
+                        try { const d = await apiGet(`/vendors/${vid}/schedules`); S.schedules = d.data || []; } catch (e) { S.schedules = []; }
+                        try { const d = await apiGet(`/vendors/${vid}/schedule-templates`); S.templates = d.data || []; } catch (e) { S.templates = []; }
+                        try { const d = await apiGet(`/vendors/${vid}/facilities`); S.facilities = d.data || []; } catch (e) { S.facilities = []; }
+                        try { const d = await apiGet(`/vendors/${vid}/seat-layouts`); S.seatLayouts = d.data || []; } catch (e) { S.seatLayouts = []; }
+
+                        try {
+                            const d = await apiGet(`/vendors/${vid}`);
+                            const vd = d.data || {};
+                            S.vendorInfo = { ...S.vendorInfo, ...vd };
+                            S.bankAccounts = vd.bank_accounts || [];
+                            S.profileForm = {
+                                name: vd.name || '',
+                                legal_name: vd.legal_name || '',
+                                npwp: vd.npwp || '',
+                                nib: vd.nib || '',
+                                contact_phone: vd.contact_phone || '',
+                                contact_email: vd.contact_email || '',
+                                address: vd.address || '',
+                                logo_url: vd.logo_url || '',
+                                description: vd.description || '',
+                            };
+                        } catch (e) { S.bankAccounts = []; }
+                    }
+                }
+            } catch (e) {
+                console.warn('[loadInitial]', e.message);
+                S.vendorStatus = 'none';
+            }
+
+            S.loading = false;
+            render();
+        }
+
+        /* =====================================================================
+         * REGISTER VENDOR
+         * ===================================================================== */
+        function setPlan(sys) {
+            S.registerForm.payment_system = sys;
+            render();
+        }
+
+        function startReregister() {
+            const v = S.vendorInfo || {};
+            S.vendorStatus = 'none';
+            S.registerForm = {
+                name: v.name || '',
+                legal_name: v.legal_name || '',
+                npwp: v.npwp || '',
+                nib: v.nib || '',
+                contact_phone: v.contact_phone || USER.phone || '',
+                contact_email: v.contact_email || USER.email || '',
+                address: v.address || '',
+                payment_system: v.payment_system || 'commission',
+                markup_percent: v.markup_percent || 10,
+            };
+            S.schedules = [];
+            S.routes = [];
+            S.vehicles = [];
+            S.bankAccounts = [];
+            S.seatLayouts = [];
+            S.facilities = [];
+            S.pickupStops = [];
+            S.dropoffStops = [];
+            S.registering = false;
+            render();
+            scrollTo(0, 0);
+            toast('Silakan perbaiki data dan daftar ulang');
+        }
+
+        async function submitRegister() {
+            const f = S.registerForm;
+            if (!f.name || f.name.trim().length < 3) return toast('Nama vendor minimal 3 karakter');
+            if (!f.contact_phone || f.contact_phone.replace(/\D/g, '').length < 9) return toast('No. HP tidak valid');
+            if (!f.contact_email || !/^\S+@\S+\.\S+$/.test(f.contact_email)) return toast('Email tidak valid');
+            if (!f.payment_system) return toast('Pilih sistem pembayaran');
+
+            S.registering = true;
+            render();
+
+            try {
+                const payload = {
+                    name: f.name.trim(),
+                    legal_name: f.legal_name?.trim() || null,
+                    npwp: f.npwp?.trim() || null,
+                    nib: f.nib?.trim() || null,
+                    contact_phone: f.contact_phone.trim(),
+                    contact_email: f.contact_email.trim(),
+                    address: f.address?.trim() || null,
+                    payment_system: f.payment_system,
+                    markup_percent: Number(f.markup_percent) || 0,
+                };
+                const d = await apiPost('/vendors', payload);
+                S.vendorInfo = d.data;
+                S.vendorStatus = d.data?.status || 'pending';
+                toast('Pendaftaran berhasil! Menunggu verifikasi admin.');
+                render();
+            } catch (e) {
+                toast('Gagal daftar: ' + e.message);
+            } finally {
+                S.registering = false;
+                render();
+            }
+        }
+
+        /* =====================================================================
+         * HELPERS — hitung jam tiba (client-side preview)
+         * ===================================================================== */
+        function computeArrivalPreview(depDate, depTime, durationMin) {
+            if (!depDate || !depTime) return null;
+            const dur = Number(durationMin) || 180;
+            const dep = new Date(`${depDate}T${depTime}:00`);
+            if (isNaN(dep)) return null;
+            const arr = new Date(dep.getTime() + dur * 60000);
+            return arr;
+        }
+
+        function fmtPreview(arr) {
+            if (!arr) return 'Isi tanggal & jam dulu';
+            const sameDay = new Date().toDateString() === arr.toDateString();
+            return `Estimasi tiba: <b>${sameDay ? '' : pad2(arr.getDate()) + '/' + pad2(arr.getMonth() + 1) + ' '}${pad2(arr.getHours())}:${pad2(arr.getMinutes())}</b>`;
+        }
+
+        /* =====================================================================
+         * SEAT CONFIG RESOLVER (dari state form)
+         * ===================================================================== */
+        function buildSeatConfigFromForm(f) {
+            if (f.seat_source === 'template' && f.seat_template_id) {
+                return { type: 'template', template_id: Number(f.seat_template_id) };
+            }
+            if (f.seat_source === 'custom' && f.seat_custom) {
+                const seats = f.seat_custom.split(/[,\s]+/).map(x => x.trim()).filter(Boolean);
+                if (seats.length) return { type: 'custom', seats };
+            }
+            return null;   // vehicle default
+        }
+
+        /* =====================================================================
+         * CRUD: SCHEDULE
+         * ===================================================================== */
+        async function saveSchedule() {
+            const f = S.form;
+            if (!f.route_id) return toast('Pilih rute dulu');
+            if (!f.vehicle_id) return toast('Pilih armada dulu');
+            if (!f.departure_date || !f.departure_time) return toast('Isi tanggal & jam');
+            if (!f.price || Number(f.price) < 1000) return toast('Harga minimal Rp1.000');
+            if (!f.duration_minutes || Number(f.duration_minutes) < 30) return toast('Durasi minimal 30 menit');
+
+            S.saving = true;
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+            const payload = {
+                route_id: Number(f.route_id),
+                vehicle_id: Number(f.vehicle_id),
+                pickup_stop_id: f.pickup_stop_id ? Number(f.pickup_stop_id) : null,
+                dropoff_stop_id: f.dropoff_stop_id ? Number(f.dropoff_stop_id) : null,
+                departure_at: `${f.departure_date} ${f.departure_time}:00`,
+                duration_minutes: Number(f.duration_minutes),
+                price: Number(f.price),
+                original_price: f.original_price ? Number(f.original_price) : null,
+                discount_percent: Number(f.discount_percent) || 0,
+                insurance_available: f.insurance_available ? 1 : 0,
+                insurance_product_id: f.insurance_available ? Number(f.insurance_product_id) : null,
+                direction: f.direction,
+                is_popular: f.is_popular ? 1 : 0,
+            };
+
+            const seatConfig = buildSeatConfigFromForm(f);
+            if (seatConfig) payload.seat_config = seatConfig;
+
+            try {
+                if (f.id) {
+                    await apiPut(`/vendors/${vid}/schedules/${f.id}`, payload);
+                    toast('Jadwal diperbarui');
+                } else {
+                    const d = await apiPost(`/vendors/${vid}/schedules`, payload);
+                    const info = d.data?._info;
+                    if (info && info.payment_system === 'markup') {
+                        toast(`Jadwal ditambah. ${info.seat_count} kursi (${info.seat_source}).`);
+                    } else {
+                        toast(`Jadwal ditambah (${info?.seat_count || 0} kursi)`);
+                    }
+                }
+
+                const list = await apiGet(`/vendors/${vid}/schedules`);
+                S.schedules = list.data || S.schedules;
+                closeModal();
+            } catch (e) {
+                if (e.data?.need_topup) {
+                    toast('Topup expired. Silakan perpanjang topup.');
+                    setTimeout(() => openTopupModal(), 800);
+                } else {
+                    toast('Gagal: ' + e.message);
+                }
+            } finally {
+                S.saving = false;
+                render();
+            }
+        }
+
+        async function publishSchedule(id) {
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                await apiPost(`/vendors/${vid}/schedules/${id}/publish`, {});
+                const s = S.schedules.find(x => x.id === id);
+                if (s) s.status = 'published';
+                toast('Jadwal dipublikasikan');
+                render();
+            } catch (e) {
+                if (e.data?.need_topup) {
+                    toast('Topup expired. Silakan perpanjang topup.');
+                    setTimeout(() => openTopupModal(), 800);
+                } else {
+                    toast('Gagal publish: ' + e.message);
+                }
+            }
+        }
+
+        async function deleteSchedule(id) {
+            if (!confirm('Hapus jadwal ini?')) return;
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                await apiDelete(`/vendors/${vid}/schedules/${id}`);
+                S.schedules = S.schedules.filter(s => s.id !== id);
+                toast('Jadwal dihapus');
+                render();
+            } catch (e) {
+                toast('Gagal hapus: ' + e.message);
+            }
+        }
+
+        /* =====================================================================
+         * CLONE JADWAL
+         * ===================================================================== */
+        function openCloneModal(scheduleId) {
+            const s = S.schedules.find(x => x.id === scheduleId);
+            if (!s) return;
+
+            const depAt = String(s.departure_at || '');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.getFullYear() + '-' + pad2(tomorrow.getMonth() + 1) + '-' + pad2(tomorrow.getDate());
+            const timeStr = depAt.slice(11, 16) || '08:00';
+
+            S.cloneForm = {
+                schedule_id: scheduleId,
+                departure_at: `${tomorrowStr}T${timeStr}`,
+                duration_minutes: s.duration_minutes || 180,
+                _src: s,
+            };
+            S.modal = 'formClone';
+            render();
+        }
+
+        function setCloneDate(offsetDays) {
+            const f = S.cloneForm;
+            if (!f) return;
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            const dateStr = d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+            const timeStr = (f.departure_at || '').slice(11, 16) || '08:00';
+            f.departure_at = `${dateStr}T${timeStr}`;
+            render();
+        }
+
+        async function saveClone() {
+            const f = S.cloneForm;
+            if (!f.departure_at) return toast('Isi tanggal & jam baru');
+            if (!f.duration_minutes || Number(f.duration_minutes) < 30) return toast('Durasi minimal 30 menit');
+
+            S.savingClone = true;
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                const payload = {
+                    departure_at: f.departure_at.replace('T', ' ') + ':00',
+                    duration_minutes: Number(f.duration_minutes),
+                };
+                await apiPost(`/vendors/${vid}/schedules/${f.schedule_id}/clone`, payload);
+                toast('Jadwal baru berhasil dibuat');
+
+                const list = await apiGet(`/vendors/${vid}/schedules`);
+                S.schedules = list.data || S.schedules;
+                closeModal();
+            } catch (e) {
+                if (e.data?.need_topup) {
+                    toast('Topup expired. Silakan perpanjang.');
+                    setTimeout(() => openTopupModal(), 800);
+                } else {
+                    toast('Gagal: ' + e.message);
+                }
+            } finally {
+                S.savingClone = false;
+                render();
+            }
+        }
+
+        /* =====================================================================
+         * TEMPLATE RECURRING
+         * ===================================================================== */
+        function openTemplateForm(tpl = null) {
+            if (tpl) {
+                const days = String(tpl.days_of_week || '1,2,3,4,5,6,7').split(',').map(Number);
+                let seatCfg = tpl.seat_config;
+                if (typeof seatCfg === 'string') {
+                    try { seatCfg = JSON.parse(seatCfg); } catch (e) { seatCfg = null; }
+                }
+                S.templateForm = {
+                    id: tpl.id,
+                    route_id: String(tpl.route_id),
+                    vehicle_id: String(tpl.vehicle_id),
+                    pickup_stop_id: tpl.pickup_stop_id ? String(tpl.pickup_stop_id) : '',
+                    dropoff_stop_id: tpl.dropoff_stop_id ? String(tpl.dropoff_stop_id) : '',
+                    departure_time: String(tpl.departure_time).slice(0, 5),
+                    duration_minutes: tpl.duration_minutes || 180,
+                    price: tpl.price || '',
+                    original_price: tpl.original_price || '',
+                    discount_percent: tpl.discount_percent || 0,
+                    insurance_available: tpl.insurance_available || 0,
+                    insurance_product_id: tpl.insurance_product_id || null,
+                    is_popular: tpl.is_popular || 0,
+                    seat_source: seatCfg?.type === 'template' ? 'template'
+                        : seatCfg?.type === 'custom' ? 'custom' : 'vehicle',
+                    seat_template_id: seatCfg?.template_id ? String(seatCfg.template_id) : '',
+                    seat_custom: seatCfg?.seats ? seatCfg.seats.join(', ') : '',
+                    days_of_week: days,
+                    active_from: tpl.active_from ? String(tpl.active_from).slice(0, 10) : TODAY_STR(),
+                    active_until: tpl.active_until ? String(tpl.active_until).slice(0, 10) : '',
+                    generate_days_ahead: tpl.generate_days_ahead || 30,
+                };
+            } else {
+                S.templateForm = {
+                    id: null, route_id: '', vehicle_id: '',
+                    pickup_stop_id: '', dropoff_stop_id: '',
+                    departure_time: '08:00',
+                    duration_minutes: 180,
+                    price: '', original_price: '', discount_percent: 0,
+                    insurance_available: 0, insurance_product_id: null,
+                    is_popular: 0,
+                    seat_source: 'vehicle',
+                    seat_template_id: '',
+                    seat_custom: '',
+                    days_of_week: [1, 2, 3, 4, 5, 6, 7],
+                    active_from: TODAY_STR(),
+                    active_until: '',
+                    generate_days_ahead: 30,
+                };
+            }
+            S.modal = 'formTemplate';
+            render();
+        }
+
+        function TODAY_STR() {
+            const d = new Date();
+            return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+        }
+
+        function toggleTemplateDay(d) {
+            const arr = S.templateForm.days_of_week || [];
+            const idx = arr.indexOf(d);
+            if (idx >= 0) arr.splice(idx, 1);
+            else arr.push(d);
+            S.templateForm.days_of_week = arr.sort((a, b) => a - b);
+            render();
+        }
+
+        async function saveTemplate() {
+            const f = S.templateForm;
+            if (!f.route_id) return toast('Pilih rute');
+            if (!f.vehicle_id) return toast('Pilih armada');
+            if (!f.departure_time) return toast('Isi jam berangkat');
+            if (!f.price || Number(f.price) < 1000) return toast('Harga minimal Rp1.000');
+            if (!f.active_from) return toast('Isi tanggal mulai');
+            if (!f.days_of_week.length) return toast('Pilih minimal 1 hari');
+
+            S.savingTemplate = true;
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+            const payload = {
+                route_id: Number(f.route_id),
+                vehicle_id: Number(f.vehicle_id),
+                pickup_stop_id: f.pickup_stop_id ? Number(f.pickup_stop_id) : null,
+                dropoff_stop_id: f.dropoff_stop_id ? Number(f.dropoff_stop_id) : null,
+                departure_time: f.departure_time + ':00',
+                duration_minutes: Number(f.duration_minutes) || 180,
+                price: Number(f.price),
+                original_price: f.original_price ? Number(f.original_price) : null,
+                discount_percent: Number(f.discount_percent) || 0,
+                insurance_available: f.insurance_available ? 1 : 0,
+                insurance_product_id: f.insurance_available ? Number(f.insurance_product_id) || 1 : null,
+                is_popular: f.is_popular ? 1 : 0,
+                days_of_week: f.days_of_week.join(','),
+                active_from: f.active_from,
+                active_until: f.active_until || null,
+                generate_days_ahead: Number(f.generate_days_ahead) || 30,
+            };
+
+            const seatConfig = buildSeatConfigFromForm(f);
+            if (seatConfig) payload.seat_config = seatConfig;
+
+            try {
+                if (f.id) {
+                    await apiPut(`/vendors/${vid}/schedule-templates/${f.id}`, payload);
+                    toast('Template diperbarui');
+                } else {
+                    await apiPost(`/vendors/${vid}/schedule-templates`, payload);
+                    toast('Template dibuat');
+                }
+                const list = await apiGet(`/vendors/${vid}/schedule-templates`);
+                S.templates = list.data || S.templates;
+                closeModal();
+            } catch (e) {
+                if (e.data?.need_topup) {
+                    toast('Topup expired. Perpanjang dulu.');
+                    setTimeout(() => openTopupModal(), 800);
+                } else {
+                    toast('Gagal: ' + e.message);
+                }
+            } finally {
+                S.savingTemplate = false;
+                render();
+            }
+        }
+
+        async function deleteTemplate(id) {
+            if (!confirm('Hapus template ini? Jadwal yang sudah digenerate tidak ikut terhapus.')) return;
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                await apiDelete(`/vendors/${vid}/schedule-templates/${id}`);
+                S.templates = S.templates.filter(t => t.id !== id);
+                toast('Template dihapus');
+                render();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            }
+        }
+
+        async function generateFromTemplate(id, daysAhead = 30) {
+            if (!confirm(`Generate jadwal dari template ini untuk ${daysAhead} hari ke depan?`)) return;
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                const d = await apiPost(`/vendors/${vid}/schedule-templates/${id}/generate`, { days_ahead: daysAhead });
+                toast(d.message || 'Generate selesai');
+                const list = await apiGet(`/vendors/${vid}/schedules`);
+                S.schedules = list.data || S.schedules;
+                render();
+            } catch (e) {
+                if (e.data?.need_topup) {
+                    toast('Topup expired. Perpanjang dulu.');
+                    setTimeout(() => openTopupModal(), 800);
+                } else {
+                    toast('Gagal: ' + e.message);
+                }
+            }
+        }
+
+        /* =====================================================================
+         * TOPUP
+         * ===================================================================== */
+        function openTopupModal() {
+            S.topupInfo = null;
+            S.modal = 'formTopup';
+            render();
+        }
+
+        async function requestTopup(method) {
+            const f = S.topupForm || {};
+            const vid = S.vendorInfo.vendor_id;
+
+            S.savingTopup = true;
+            render();
+
+            try {
+                const body = { method };
+                if (method === 'VA') body.bank_code = f.bank_code || '002';
+                const d = await apiPost(`/vendors/${vid}/topup`, body);
+
+                S.topupInfo = d.data;
+                S.modal = 'topupDetail';
+                S.savingTopup = false;
+                render();
+                startTopupPolling();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+                S.savingTopup = false;
+                render();
+            }
+        }
+
+        let topupPollTimer = null;
+        function startTopupPolling() {
+            stopTopupPolling();
+            topupPollTimer = setInterval(async () => {
+                if (!S.topupInfo?.topup_id) { stopTopupPolling(); return; }
+                try {
+                    const vid = S.vendorInfo.vendor_id;
+                    const d = await apiGet(`/vendors/${vid}/topup/history`);
+                    const list = d.data || [];
+                    const current = list.find(t => t.id === S.topupInfo.topup_id);
+                    if (current && current.status === 'paid') {
+                        stopTopupPolling();
+                        toast('✅ Topup berhasil! Vendor aktif kembali.');
+                        closeModal();
+                        loadInitial();
+                    }
+                } catch (e) { /* silent */ }
+            }, 5000);
+        }
+        function stopTopupPolling() {
+            if (topupPollTimer) { clearInterval(topupPollTimer); topupPollTimer = null; }
+        }
+
+        function copyToClipboard(txt) {
+            if (navigator.clipboard) navigator.clipboard.writeText(txt);
+            toast('Disalin');
+        }
+
+        /* =====================================================================
+         * CRUD: VEHICLE
+         * ===================================================================== */
+        function openVehicleForm(v = null) {
+            if (v) {
+                S.vehicleForm = {
+                    id: v.id,
+                    name: v.name || '',
+                    class_name: v.class_name || '',
+                    vehicle_type: v.vehicle_type || 'shuttle',
+                    plate_number: v.plate_number || '',
+                    brand: v.brand || '',
+                    model: v.model || '',
+                    year: v.year || new Date().getFullYear(),
+                    seat_arrangement: v.seat_arrangement || '',
+                    capacity: v.capacity || 8,
+                    seat_layout_id: String(v.seat_layout_template_id || ''),
+                    is_active: v.is_active ?? 1,
+                    facility_ids: v.facility_ids || [],
+                    photos: [],
+                    existingPhotos: v.photos || [],
+                };
+                if (!v.photos && v.id) fetchVehicleDetail(v.id);
+            } else {
+                S.vehicleForm = {
+                    id: null, name: '', class_name: '', vehicle_type: 'shuttle',
+                    plate_number: '', brand: '', model: '', year: new Date().getFullYear(),
+                    seat_arrangement: '', capacity: 8, seat_layout_id: '',
+                    is_active: 1, facility_ids: [], photos: [], existingPhotos: [],
+                };
+            }
+            S.modal = 'formVehicle';
+            render();
+        }
+
+        async function fetchVehicleDetail(vehicleId) {
+            try {
+                const vid = S.vendorInfo.vendor_id;
+                const d = await apiGet(`/vendors/${vid}/vehicles/${vehicleId}`);
+                const v = d.data || {};
+                S.vehicleForm = {
+                    ...S.vehicleForm,
+                    name: v.name || '',
+                    class_name: v.class_name || '',
+                    vehicle_type: v.vehicle_type || 'shuttle',
+                    plate_number: v.plate_number || '',
+                    brand: v.brand || '',
+                    model: v.model || '',
+                    year: v.year || new Date().getFullYear(),
+                    seat_arrangement: v.seat_arrangement || '',
+                    capacity: v.capacity || 8,
+                    seat_layout_id: String(v.seat_layout_template_id || ''),
+                    is_active: v.is_active ?? 1,
+                    facility_ids: v.facility_ids || [],
+                    existingPhotos: v.photos || [],
+                };
+                render();
+            } catch (e) {
+                console.warn('[fetchVehicleDetail]', e.message);
+            }
+        }
+
+        async function saveVehicle() {
+            const f = S.vehicleForm;
+            if (!f.name || f.name.trim().length < 2) return toast('Nama armada minimal 2 karakter');
+            if (!f.class_name || f.class_name.trim().length < 2) return toast('Kelas armada wajib');
+            if (!f.vehicle_type) return toast('Pilih tipe armada');
+            if (!f.capacity || Number(f.capacity) < 1) return toast('Kapasitas minimal 1');
+            if (!f.seat_layout_id) return toast('Pilih denah kursi');
+
+            S.savingVehicle = true;
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+
+            try {
+                const fd = new FormData();
+                fd.append('name', f.name.trim());
+                fd.append('class_name', f.class_name.trim());
+                fd.append('vehicle_type', f.vehicle_type);
+                fd.append('plate_number', f.plate_number?.trim() || '');
+                fd.append('brand', f.brand?.trim() || '');
+                fd.append('model', f.model?.trim() || '');
+                fd.append('year', f.year || '');
+                fd.append('seat_arrangement', f.seat_arrangement?.trim() || '');
+                fd.append('capacity', f.capacity);
+                fd.append('seat_layout_id', f.seat_layout_id);
+                fd.append('is_active', f.is_active ? '1' : '0');
+
+                (f.facility_ids || []).forEach(id => fd.append('facility_ids[]', id));
+                (f.photos || []).forEach(p => fd.append('photos', p));
+
+                const url = f.id
+                    ? `${API_BASE}/vendors/${vid}/vehicles/${f.id}`
+                    : `${API_BASE}/vendors/${vid}/vehicles`;
+                const method = f.id ? 'PATCH' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        'X-User-Id': USER.user_id,
+                        'X-Username': USER.username,
+                        'X-FullName': USER.fullname,
+                        'X-Phone': USER.phone || '',
+                        'X-Email': USER.email || '',
+                    },
+                    body: fd,
+                });
+                const data = await res.json();
+                if (!res.ok || data.success === false) throw new Error(data.message || 'Gagal simpan');
+
+                toast(f.id ? 'Armada diperbarui' : 'Armada ditambahkan');
+                const list = await apiGet(`/vendors/${vid}/vehicles`);
+                S.vehicles = list.data || S.vehicles;
+                closeModal();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            } finally {
+                S.savingVehicle = false;
+                render();
+            }
+        }
+
+        function onVehiclePhotosChange(input) {
+            const files = Array.from(input.files || []);
+            S.vehicleForm.photos = [...(S.vehicleForm.photos || []), ...files];
+            render();
+        }
+        function clearNewPhotos() {
+            S.vehicleForm.photos = [];
+            const input = document.getElementById('vehiclePhotoInput');
+            if (input) input.value = '';
+            render();
+        }
+        function removeNewPhoto(index) {
+            S.vehicleForm.photos = (S.vehicleForm.photos || []).filter((_, i) => i !== index);
+            render();
+        }
+        async function removeExistingVehiclePhoto(photoId) {
+            if (!confirm('Hapus foto ini?')) return;
+            const vid = S.vendorInfo.vendor_id;
+            const vehicleId = S.vehicleForm.id;
+            try {
+                await apiDelete(`/vendors/${vid}/vehicles/${vehicleId}/photos/${photoId}`);
+                S.vehicleForm.existingPhotos = S.vehicleForm.existingPhotos.filter(p => p.id !== photoId);
+                toast('Foto dihapus');
+                render();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            }
+        }
+        async function setVehicleCoverPhoto(photoId) {
+            const vid = S.vendorInfo.vendor_id;
+            const vehicleId = S.vehicleForm.id;
+            try {
+                await apiPatch(`/vendors/${vid}/vehicles/${vehicleId}/photos/${photoId}/cover`, {});
+                S.vehicleForm.existingPhotos = S.vehicleForm.existingPhotos.map(p => ({
+                    ...p, is_cover: p.id === photoId ? 1 : 0,
+                }));
+                toast('Cover diperbarui');
+                render();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            }
+        }
+        function toggleFacility(id) {
+            const arr = S.vehicleForm.facility_ids || [];
+            const idx = arr.indexOf(id);
+            if (idx >= 0) arr.splice(idx, 1);
+            else arr.push(id);
+            S.vehicleForm.facility_ids = arr;
+            render();
+        }
+        async function deleteVehicle(id) {
+            if (!confirm('Nonaktifkan armada ini?')) return;
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                await apiDelete(`/vendors/${vid}/vehicles/${id}`);
+                S.vehicles = S.vehicles.filter(v => v.id !== id);
+                toast('Armada dinonaktifkan');
+                render();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            }
+        }
+
+        /* =====================================================================
+         * CRUD: ROUTE
+         * ===================================================================== */
+        function openRouteForm(r = null) {
+            if (r) {
+                S.routeForm = {
+                    id: r.id,
+                    origin_city_id: String(r.origin_city_id || ''),
+                    destination_city_id: String(r.destination_city_id || ''),
+                    name: r.name || '',
+                };
+            } else {
+                S.routeForm = { id: null, origin_city_id: '', destination_city_id: '', name: '' };
+            }
+            S.modal = 'formRoute';
+            render();
+        }
+
+        async function saveRoute() {
+            const f = S.routeForm;
+            if (!f.origin_city_id) return toast('Pilih kota asal');
+            if (!f.destination_city_id) return toast('Pilih kota tujuan');
+            if (f.origin_city_id === f.destination_city_id) return toast('Kota asal dan tujuan tidak boleh sama');
+
+            S.savingRoute = true;
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+            const payload = {
+                origin_city_id: Number(f.origin_city_id),
+                destination_city_id: Number(f.destination_city_id),
+                name: f.name?.trim() || null,
+            };
+
+            try {
+                if (f.id) {
+                    await apiPut(`/vendors/${vid}/routes/${f.id}`, payload);
+                    toast('Rute diperbarui');
+                } else {
+                    await apiPost(`/vendors/${vid}/routes`, payload);
+                    toast('Rute ditambahkan');
+                }
+                const list = await apiGet(`/vendors/${vid}/routes`);
+                S.routes = list.data || S.routes;
+                closeModal();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            } finally {
+                S.savingRoute = false;
+                render();
+            }
+        }
+
+        async function deleteRoute(id) {
+            if (!confirm('Hapus rute ini?')) return;
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                await apiDelete(`/vendors/${vid}/routes/${id}`);
+                S.routes = S.routes.filter(r => r.id !== id);
+                toast('Rute dihapus');
+                render();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            }
+        }
+
+        /* =====================================================================
+         * CRUD: BANK
+         * ===================================================================== */
+        function openBankForm() {
+            S.bankForm = { id: null, bank_name: '', account_number: '', account_holder: '', is_primary: 0 };
+            S.modal = 'formBank';
+            render();
+        }
+
+        async function saveBank() {
+            const f = S.bankForm;
+            if (!f.bank_name?.trim()) return toast('Nama bank wajib');
+            if (!f.account_number?.trim()) return toast('Nomor rekening wajib');
+            if (!f.account_holder?.trim()) return toast('Nama pemilik rekening wajib');
+
+            S.savingBank = true;
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+            const payload = {
+                bank_name: f.bank_name.trim(),
+                account_number: f.account_number.trim(),
+                account_holder: f.account_holder.trim(),
+                is_primary: f.is_primary ? 1 : 0,
+            };
+
+            try {
+                await apiPost(`/vendors/${vid}/bank-accounts`, payload);
+                toast('Rekening ditambahkan');
+                const d = await apiGet(`/vendors/${vid}`);
+                S.bankAccounts = d.data?.bank_accounts || [];
+                closeModal();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            } finally {
+                S.savingBank = false;
+                render();
+            }
+        }
+
+        /* =====================================================================
+         * EDIT PROFILE
+         * ===================================================================== */
+        function openProfileForm() {
+            S.modal = 'formProfile';
+            render();
+        }
+
+        async function saveProfile() {
+            const f = S.profileForm;
+            if (!f.name?.trim()) return toast('Nama vendor wajib');
+
+            S.savingProfile = true;
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+            const payload = {
+                name: f.name.trim(),
+                legal_name: f.legal_name?.trim() || null,
+                npwp: f.npwp?.trim() || null,
+                nib: f.nib?.trim() || null,
+                contact_phone: f.contact_phone?.trim() || null,
+                contact_email: f.contact_email?.trim() || null,
+                address: f.address?.trim() || null,
+                logo_url: f.logo_url?.trim() || null,
+                description: f.description?.trim() || null,
+            };
+
+            try {
+                await apiPatch(`/vendors/${vid}`, payload);
+                toast('Profil diperbarui');
+                const d = await apiGet(`/vendors/${vid}`);
+                S.vendorInfo = { ...S.vendorInfo, ...d.data };
+                closeModal();
+            } catch (e) {
+                toast('Gagal: ' + e.message);
+            } finally {
+                S.savingProfile = false;
+                render();
+            }
+        }
+
+        /* =====================================================================
+         * STOPS
+         * ===================================================================== */
+        async function loadStopsForRoute(routeId, resetSelection) {
+            if (resetSelection) {
+                S.form.pickup_stop_id = '';
+                S.form.dropoff_stop_id = '';
+            }
+            S.pickupStops = [];
+            S.dropoffStops = [];
+
+            if (!routeId) { render(); return; }
+
+            const route = S.routes.find(r => String(r.id) === String(routeId));
+            if (!route) { render(); return; }
+
+            render();
+
+            const vid = S.vendorInfo.vendor_id;
+            try {
+                const [pu, dr] = await Promise.all([
+                    apiGet(`/vendors/${vid}/stops?city_id=${route.origin_city_id}`),
+                    apiGet(`/vendors/${vid}/stops?city_id=${route.destination_city_id}`),
+                ]);
+                S.pickupStops = pu.data || [];
+                S.dropoffStops = dr.data || [];
+            } catch (e) {
+                toast('Gagal ambil titik naik/turun: ' + e.message);
+            }
+            render();
+        }
+
+        function onRouteChange(routeId) {
+            S.form.route_id = routeId;
+            loadStopsForRoute(routeId, true);
+        }
+
+        /* =====================================================================
+         * MODAL HANDLERS
+         * ===================================================================== */
+        function openForm(schedule = null) {
+            if (!schedule) {
+                if (S.routes.length === 0 && S.vehicles.length === 0) {
+                    toast('Tambah rute dan armada terlebih dahulu sebelum membuat jadwal');
+                    return;
+                }
+                if (S.routes.length === 0) { toast('Tambah rute terlebih dahulu'); return; }
+                if (S.vehicles.length === 0) { toast('Tambah armada terlebih dahulu'); return; }
+            }
+
+            if (schedule) {
+                const depAt = String(schedule.departure_at || '');
+                S.form = {
+                    id: schedule.id,
+                    route_id: String(schedule.route_id || ''),
+                    vehicle_id: String(schedule.vehicle_id || ''),
+                    pickup_stop_id: schedule.pickup_stop_id || '',
+                    dropoff_stop_id: schedule.dropoff_stop_id || '',
+                    departure_date: depAt.slice(0, 10),
+                    departure_time: depAt.slice(11, 16),
+                    duration_minutes: schedule.duration_minutes || 180,
+                    price: schedule.price || '',
+                    original_price: schedule.original_price || '',
+                    discount_percent: schedule.discount_percent || 0,
+                    insurance_available: !!schedule.insurance_available,
+                    insurance_product_id: schedule.insurance_product_id || 1,
+                    direction: schedule.direction || 'pergi',
+                    is_popular: !!schedule.is_popular,
+                    seat_source: 'vehicle',   // edit tidak override seat
+                    seat_template_id: '',
+                    seat_custom: '',
+                };
+            } else {
+                S.form = {
+                    id: null, route_id: '', vehicle_id: '',
+                    pickup_stop_id: '', dropoff_stop_id: '',
+                    departure_date: '', departure_time: '',
+                    duration_minutes: 180,
+                    price: '', original_price: '', discount_percent: 0,
+                    insurance_available: false, insurance_product_id: 1,
+                    direction: 'pergi', is_popular: false,
+                    seat_source: 'vehicle',
+                    seat_template_id: '',
+                    seat_custom: '',
+                };
+            }
+            S.modal = 'formSchedule';
+            render();
+            loadStopsForRoute(S.form.route_id, false);
+        }
+
+        function openCityPick(target) {
+            S.cityPickTarget = target;
+            S.cityPickSearch = '';
+            S.modal = 'pickCity';
+            render();
+            setTimeout(() => { const i = $('#citySearch'); if (i) i.focus(); }, 100);
+        }
+        function openCityPick2(target) {
+            S.cityPickTarget2 = target;
+            S.cityPickSearch = '';
+            S.modal = 'pickCity2';
+            render();
+        }
+        function pickCity(cityId) {
+            const key = S.cityPickTarget;
+            if (key) S.form[key] = String(cityId);
+            S.cityPickTarget = null;
+            S.modal = 'formSchedule';
+            render();
+        }
+        function pickCity2(cityId) {
+            const key = S.cityPickTarget2;
+            if (key) S.routeForm[key] = String(cityId);
+            S.cityPickTarget2 = null;
+            S.modal = 'formRoute';
+            render();
+        }
+
+        function closeModal() {
+            S.modal = null;
+            S.cityPickTarget = null;
+            S.cityPickTarget2 = null;
+            stopTopupPolling();
+            render();
+        }
+
+        const tab = t => {
+            S.tab = t;
+            render();
+            scrollTo(0, 0);
+        };
+
+        /* =====================================================================
+         * RENDER
+         * ===================================================================== */
+        function render() {
+            $('#app').innerHTML = `
+                ${renderHeader()}
+                ${S.vendorStatus === 'active' ? renderTabs() : ''}
+                <div class="content">${renderContent()}</div>
+                ${S.vendorStatus === 'active' ? renderNavFoot() : ''}
+                ${S.modal ? renderModal() : ''}
+            `;
+        }
+
+        function renderHeader() {
+            const initials = (USER.fullname || 'U').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+
+            const statusBadge = {
+                pending: `<div class="hdr-badge">⏳ Pending</div>`,
+                active: `<div class="hdr-badge">✓ Aktif</div>`,
+                rejected: `<div class="hdr-badge">✕ Ditolak</div>`,
+                suspended: `<div class="hdr-badge">⛔ Suspend</div>`,
+                none: `<div class="hdr-badge">Belum Daftar</div>`,
+            }[S.vendorStatus] || `<div class="hdr-badge">···</div>`;
+
+            const statsHtml = S.vendorStatus === 'active' ? `
+                <div class="hdr-stats">
+                    <div><b>${S.schedules.length}</b><span>Jadwal</span></div>
+                    <div><b>${S.templates.length}</b><span>Reguler</span></div>
+                    <div><b>${S.vehicles.length}</b><span>Armada</span></div>
+                </div>
+            ` : '';
+
+            return `
+                <div class="hdr">
+                    <div class="hdr-top">
+                        <div class="avatar">${initials}</div>
+                        <div style="flex:1">
+                            <b>${esc(USER.fullname)}</b>
+                            <span>@${esc(USER.username)}${S.vendorInfo ? ' · ' + esc(S.vendorInfo.name) : ''}</span>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    ${statsHtml}
+                </div>
+            `;
+        }
+
+        function renderTabs() {
+            const t = [
+                { k: 'schedules', l: 'Jadwal', i: 'mdi:calendar-clock' },
+                { k: 'templates', l: 'Reguler', i: 'mdi:calendar-sync' },
+                { k: 'routes', l: 'Rute', i: 'mdi:map-marker-path' },
+                { k: 'vehicles', l: 'Armada', i: 'mdi:bus' },
+                { k: 'profile', l: 'Profil', i: 'mdi:account-circle' }
+            ];
+            return `
+                <div class="tabs">
+                    ${t.map(x => `
+                        <button class="${S.tab === x.k ? 'on' : ''}" onclick="tab('${x.k}')">
+                            ${ic(x.i, 18)}
+                            <span>${x.l}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderContent() {
+            if (S.loading) return renderSkeleton();
+            if (S.vendorStatus === 'none') return renderRegisterPage();
+            if (S.vendorStatus === 'pending') return renderPendingPage();
+            if (S.vendorStatus === 'rejected') return renderRejectedPage();
+            if (S.vendorStatus === 'suspended') return renderSuspendedPage();
+            if (S.tab === 'schedules') return renderSchedules();
+            if (S.tab === 'templates') return renderTemplates();
+            if (S.tab === 'routes') return renderRoutes();
+            if (S.tab === 'vehicles') return renderVehicles();
+            if (S.tab === 'profile') return renderProfile();
+            return '';
+        }
+
+        function renderSkeleton() {
+            return `
+                <div class="card">
+                    <div class="sk" style="width:50%;height:20px;margin-bottom:12px"></div>
+                    <div class="sk" style="width:100%;height:60px;margin-bottom:10px"></div>
+                    <div class="sk" style="width:100%;height:60px"></div>
+                </div>
+            `;
+        }
+
+        /* ============ STATUS PAGES ============ */
+        function renderRegisterPage() {
+            const f = S.registerForm;
+            return `
+                <div class="status-page" style="padding:24px 16px">
+                    <span class="status-icon register">${ic('mdi:store-plus', 72)}</span>
+                    <div class="status-title">Daftar Jadi Mitra Vendor</div>
+                    <div class="status-desc">Bergabung sebagai mitra untuk menjual tiket bus & travel Anda.</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">${ic('mdi:store', 22)} Informasi Usaha</div>
+                    <div class="field">
+                        <label>Nama Usaha / Vendor *</label>
+                        <input type="text" placeholder="Cititrans" value="${esc(f.name)}"
+                               oninput="S.registerForm.name=this.value">
+                    </div>
+                    <div class="field">
+                        <label>Nama Legal (PT/CV)</label>
+                        <input type="text" placeholder="PT Cititrans Indonesia"
+                               value="${esc(f.legal_name)}"
+                               oninput="S.registerForm.legal_name=this.value">
+                    </div>
+                    <div class="row-2">
+                        <div class="field">
+                            <label>NPWP (opsional)</label>
+                            <input type="text" value="${esc(f.npwp)}" oninput="S.registerForm.npwp=this.value">
+                        </div>
+                        <div class="field">
+                            <label>NIB (opsional)</label>
+                            <input type="text" value="${esc(f.nib)}" oninput="S.registerForm.nib=this.value">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">${ic('mdi:card-account-phone', 22)} Kontak</div>
+                    <div class="field">
+                        <label>No. HP / WA *</label>
+                        <input type="tel" value="${esc(f.contact_phone)}" oninput="S.registerForm.contact_phone=this.value">
+                    </div>
+                    <div class="field">
+                        <label>Email *</label>
+                        <input type="email" value="${esc(f.contact_email)}" oninput="S.registerForm.contact_email=this.value">
+                    </div>
+                    <div class="field">
+                        <label>Alamat</label>
+                        <textarea oninput="S.registerForm.address=this.value">${esc(f.address)}</textarea>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">${ic('mdi:cash-multiple', 22)} Sistem Pembayaran *</div>
+                    <div class="card-sub">Pilih cara kerja Anda dengan platform</div>
+
+                    <label class="plan-option ${f.payment_system === 'topup' ? 'on' : ''}" onclick="setPlan('topup')">
+                        <input type="radio" name="ps" value="topup" ${f.payment_system === 'topup' ? 'checked' : ''}>
+                        <div style="flex:1">
+                            <b>💰 Topup Bulanan</b>
+                            <div class="desc">Bayar <b>Rp 50.000/bulan</b> via LinkQu (VA/QRIS).</div>
+                        </div>
+                    </label>
+
+                    <label class="plan-option ${f.payment_system === 'commission' ? 'on' : ''}" onclick="setPlan('commission')">
+                        <input type="radio" name="ps" value="commission" ${f.payment_system === 'commission' ? 'checked' : ''}>
+                        <div style="flex:1">
+                            <b>💼 Bagi Komisi</b>
+                            <div class="desc">Platform ambil komisi per transaksi.</div>
+                        </div>
+                    </label>
+
+                    <label class="plan-option ${f.payment_system === 'markup' ? 'on' : ''}" onclick="setPlan('markup')">
+                        <input type="radio" name="ps" value="markup" ${f.payment_system === 'markup' ? 'checked' : ''}>
+                        <div style="flex:1">
+                            <b>📈 Markup Harga</b>
+                            <div class="desc">Harga jual = harga asli + markup (%).</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="card" style="background:var(--warn-light);border-left:4px solid var(--warn)">
+                    <div style="font-size:12px;color:#8a6d00;line-height:1.6">
+                        ${ic('mdi:information', 16)} Setelah daftar, akun diverifikasi admin dalam 1×24 jam.
+                    </div>
+                </div>
+
+                <button class="btn" onclick="submitRegister()" ${S.registering ? 'disabled' : ''}>
+                    ${S.registering ? 'Mendaftar...' : ic('mdi:check-circle', 20) + ' Daftar Sekarang'}
+                </button>
+            `;
+        }
+
+        function renderPendingPage() {
+            const v = S.vendorInfo || {};
+            const systemLabel = { topup: '💰 Topup', commission: '💼 Komisi', markup: '📈 Markup' }[v.payment_system] || '-';
+            return `
+                <div class="status-page">
+                    <span class="status-icon pending">${ic('mdi:clock-outline', 72)}</span>
+                    <div class="status-title">Menunggu Verifikasi Admin</div>
+                    <div class="status-desc">Pendaftaran Anda sedang ditinjau.</div>
+                    <div class="card">
+                        <div class="info-row"><span>Nama Vendor</span><span>${esc(v.name || '-')}</span></div>
+                        <div class="info-row"><span>Kode</span><span>${esc(v.code || '-')}</span></div>
+                        <div class="info-row"><span>Sistem</span><span>${systemLabel}</span></div>
+                        <div class="info-row"><span>Status</span><span class="badge warn">Pending</span></div>
+                    </div>
+                    <button class="btn btn-outline" onclick="loadInitial()">
+                        ${ic('mdi:refresh', 20)} Refresh Status
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderRejectedPage() {
+            const v = S.vendorInfo || {};
+            return `
+                <div class="status-page">
+                    <span class="status-icon rejected">${ic('mdi:close-circle-outline', 72)}</span>
+                    <div class="status-title">Pendaftaran Ditolak</div>
+                    <div class="status-desc">Perbaiki data dan daftar ulang.</div>
+
+                    <div class="card" style="background:var(--err-light);text-align:left">
+                        <div class="info-row" style="border-bottom:0">
+                            <span style="color:#8a1c1c">Alasan</span>
+                            <span style="color:#8a1c1c">${esc(v.rejected_reason || 'Tidak memenuhi syarat')}</span>
+                        </div>
+                    </div>
+
+                    <div class="card" style="text-align:left">
+                        <div class="info-row"><span>Nama Vendor</span><span>${esc(v.name || '-')}</span></div>
+                        <div class="info-row"><span>Kode</span><span>${esc(v.code || '-')}</span></div>
+                    </div>
+
+                    <button class="btn" onclick="startReregister()" style="margin-bottom:10px">
+                        ${ic('mdi:store-plus', 20)} Daftar Ulang
+                    </button>
+                    <button class="btn btn-outline" onclick="loadInitial()">
+                        ${ic('mdi:refresh', 20)} Refresh Status
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderSuspendedPage() {
+            const v = S.vendorInfo || {};
+            return `
+                <div class="status-page">
+                    <span class="status-icon suspended">${ic('mdi:alert-octagon', 72)}</span>
+                    <div class="status-title">Vendor Disuspend</div>
+                    <div class="card">
+                        <div class="info-row"><span>Nama Vendor</span><span>${esc(v.name || '-')}</span></div>
+                        <div class="info-row"><span>Alasan</span><span>${esc(v.rejected_reason || '-')}</span></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ SCHEDULES ============ */
+        function renderSchedules() {
+            const v = S.vendorInfo || {};
+            const isTopupExpired = v.payment_system === 'topup' && (!v.topup_active_until || new Date(v.topup_active_until) < new Date());
+
+            return `
+                ${isTopupExpired ? `
+                    <div class="card" style="background:var(--err-light);border-left:4px solid var(--err)">
+                        <div class="card-title" style="color:var(--err)">${ic('mdi:alert', 22)} Topup Expired</div>
+                        <div style="font-size:13px;margin:8px 0;color:#8a1c1c">
+                            Masa aktif topup habis. Silakan topup Rp 50.000 untuk aktif kembali.
+                        </div>
+                        <button class="btn btn-err" onclick="openTopupModal()">
+                            ${ic('mdi:cash-plus', 18)} Perpanjang Topup
+                        </button>
+                    </div>
+                ` : ''}
+
+                <div class="card" style="background:linear-gradient(120deg,var(--p-light),#fff);border:1px dashed var(--p)">
+                    <div class="flex-between mb-3">
+                        <div>
+                            <div class="card-title">${ic('mdi:plus-circle', 22)} Tambah Jadwal</div>
+                            <div class="card-sub" style="margin:0">Upload jadwal baru untuk rute Anda</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="openForm()" ${isTopupExpired ? 'disabled' : ''}>
+                        ${ic('mdi:calendar-plus', 20)} Tambah Jadwal Baru
+                    </button>
+                </div>
+
+                <div class="flex-between mb-2" style="padding:4px 4px 0">
+                    <b style="font-size:14px">Daftar Jadwal (${S.schedules.length})</b>
+                </div>
+
+                ${S.schedules.length === 0
+                    ? `<div class="empty">${ic('mdi:calendar-blank', 56)}<p>Belum ada jadwal.</p></div>`
+                    : S.schedules.map(renderScheduleCard).join('')
+                }
+            `;
+        }
+
+        function renderScheduleCard(s) {
+            const statusClass = s.status === 'published' ? 'ok' : s.status === 'draft' ? 'warn' : s.status === 'unpublished' ? 'err' : 'mt';
+            const statusLabel = s.status === 'published' ? 'Publish' : s.status === 'draft' ? 'Draft' : s.status === 'unpublished' ? 'Unpublished' : s.status;
+            const borderClass = s.status === 'published' ? 'published' : s.status === 'draft' ? 'draft' : s.status === 'unpublished' ? 'unpublished' : '';
+            const fromTemplate = !!s.template_id;
+
+            return `
+                <div class="sched ${borderClass} ${fromTemplate ? 'template' : ''}">
+                    <div class="sched-head">
+                        <div>
+                            <b>${esc(s.schedule_code || '-')}</b>
+                            <div class="mt">${esc(s.vehicle_name || s.class_name || '-')}</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+                            <span class="badge ${statusClass}">${esc(statusLabel)}</span>
+                            ${fromTemplate ? `<span class="badge template">${ic('mdi:sync', 10)} Reguler</span>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="sched-route">
+                        <div>
+                            <div class="city">${esc(s.origin_city || '-')}</div>
+                            <div class="time">${fmtTime(s.departure_at)}</div>
+                        </div>
+                        ${ic('mdi:arrow-right', 20)}
+                        <div style="text-align:right">
+                            <div class="city">${esc(s.destination_city || '-')}</div>
+                            <div class="time">${fmtTime(s.arrival_at)}</div>
+                        </div>
+                    </div>
+
+                    <div class="sched-info">
+                        <span>${ic('mdi:calendar', 14)} ${fmtDate(s.departure_at)}</span>
+                        <span>${ic('mdi:seat', 14)} ${s.seats_available}/${s.seats_total}</span>
+                        <span>${ic('mdi:clock', 14)} ${s.duration_minutes || '-'}m</span>
+                        <span>${ic('mdi:cash', 14)} ${P(s.price)}</span>
+                    </div>
+
+                    <div class="sched-actions">
+                        ${s.status !== 'published'
+                    ? `<button class="publish" onclick="publishSchedule(${s.id})">${ic('mdi:check', 14)} Publish</button>`
+                    : `<button style="opacity:.6">${ic('mdi:check-all', 14)} Live</button>`
+                }
+                        <button class="edit" onclick='openForm(${JSON.stringify(s).replace(/'/g, "&#39;")})'>${ic('mdi:pencil', 14)} Edit</button>
+                        <button class="clone" onclick="openCloneModal(${s.id})">${ic('mdi:calendar-plus', 14)} Ulang</button>
+                        <button class="delete" onclick="deleteSchedule(${s.id})">${ic('mdi:delete', 14)} Hapus</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ TEMPLATES (Reguler) ============ */
+        function renderTemplates() {
+            const v = S.vendorInfo || {};
+            const isTopupExpired = v.payment_system === 'topup' && (!v.topup_active_until || new Date(v.topup_active_until) < new Date());
+
+            return `
+                <div class="card" style="background:linear-gradient(120deg,#ede7f6,#fff);border:1px dashed #7b5ea7">
+                    <div class="card-title" style="color:#7b5ea7">${ic('mdi:calendar-sync', 22)} Jadwal Reguler</div>
+                    <div class="card-sub" style="margin:0 0 12px">
+                        Bikin template jadwal harian. Sistem auto-generate 30 hari ke depan.
+                    </div>
+                    <button class="btn" style="background:#7b5ea7" onclick="openTemplateForm()" ${isTopupExpired ? 'disabled' : ''}>
+                        ${ic('mdi:plus-circle', 18)} Buat Template Baru
+                    </button>
+                </div>
+
+                <div class="flex-between mb-2" style="padding:4px 4px 0">
+                    <b style="font-size:14px">Template (${S.templates.length})</b>
+                </div>
+
+                ${S.templates.length === 0
+                    ? `<div class="empty">${ic('mdi:calendar-blank', 56)}<p>Belum ada template</p></div>`
+                    : S.templates.map(tpl => {
+                        const days = String(tpl.days_of_week || '').split(',').map(Number);
+                        const daysLabel = days.length === 7 ? 'Setiap hari' : days.map(d => DAY_NAMES[d - 1] || '').join(', ');
+                        return `
+                            <div class="sched ${tpl.is_active ? 'published' : 'draft'}">
+                                <div class="sched-head">
+                                    <div>
+                                        <b>${esc(tpl.origin_city)} → ${esc(tpl.destination_city)}</b>
+                                        <div class="mt">${esc(tpl.vehicle_name || '-')} • ${fmtTime(tpl.departure_time)}</div>
+                                    </div>
+                                    <span class="badge ${tpl.is_active ? 'ok' : 'mt'}">
+                                        ${tpl.is_active ? 'Aktif' : 'Nonaktif'}
+                                    </span>
+                                </div>
+                                <div class="sched-info">
+                                    <span>${ic('mdi:calendar-week', 14)} ${daysLabel}</span>
+                                    <span>${ic('mdi:clock', 14)} ${tpl.duration_minutes}m</span>
+                                    <span>${ic('mdi:cash', 14)} ${P(tpl.price)}</span>
+                                </div>
+                                <div class="sched-info">
+                                    <span>${ic('mdi:calendar-range', 14)} ${fmtDate(tpl.active_from)}${tpl.active_until ? ' s/d ' + fmtDate(tpl.active_until) : ' (∞)'}</span>
+                                    <span>${ic('mdi:calendar-check', 14)} ${tpl.generated_count || 0} jadwal</span>
+                                </div>
+                                <div class="sched-actions">
+                                    <button class="publish" onclick="generateFromTemplate(${tpl.id}, 30)">
+                                        ${ic('mdi:auto-fix', 14)} Generate 30 Hari
+                                    </button>
+                                    <button class="edit" onclick='openTemplateForm(${JSON.stringify(tpl).replace(/'/g, "&#39;")})'>
+                                        ${ic('mdi:pencil', 14)} Edit
+                                    </button>
+                                    <button class="delete" onclick="deleteTemplate(${tpl.id})">
+                                        ${ic('mdi:delete', 14)} Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')
+                }
+            `;
+        }
+
+        /* ============ ROUTES ============ */
+        function renderRoutes() {
+            return `
+                <div class="card" style="background:linear-gradient(120deg,var(--p-light),#fff);border:1px dashed var(--p)">
+                    <div class="flex-between mb-3">
+                        <div>
+                            <div class="card-title">${ic('mdi:plus-circle', 22)} Tambah Rute</div>
+                            <div class="card-sub" style="margin:0">Daftarkan rute baru</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="openRouteForm()">
+                        ${ic('mdi:map-marker-plus', 20)} Tambah Rute Baru
+                    </button>
+                </div>
+
+                <div class="flex-between mb-2" style="padding:4px 4px 0">
+                    <b style="font-size:14px">Daftar Rute (${S.routes.length})</b>
+                </div>
+
+                ${S.routes.length === 0
+                    ? `<div class="empty">${ic('mdi:map-marker-off', 48)}<p>Belum ada rute</p></div>`
+                    : S.routes.map(r => `
+                        <div class="sched">
+                            <div class="sched-head">
+                                <div>
+                                    <b>${esc(r.name || `${r.origin_city} - ${r.destination_city}`)}</b>
+                                    <div class="mt">${esc(r.origin_city || '-')} → ${esc(r.destination_city || '-')}</div>
+                                </div>
+                                ${r.is_active ? `<span class="badge ok">Aktif</span>` : `<span class="badge mt">Nonaktif</span>`}
+                            </div>
+                            ${r.schedules_count ? `<div class="sched-info"><span>${ic('mdi:calendar', 14)} ${r.schedules_count} jadwal</span></div>` : ''}
+                            <div class="sched-actions">
+                                <button class="edit" onclick='openRouteForm(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
+                                    ${ic('mdi:pencil', 14)} Edit
+                                </button>
+                                <button class="delete" onclick="deleteRoute(${r.id})">
+                                    ${ic('mdi:delete', 14)} Hapus
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')
+                }
+            `;
+        }
+
+        /* ============ VEHICLES ============ */
+        function renderVehicles() {
+            return `
+                <div class="card" style="background:linear-gradient(120deg,var(--p-light),#fff);border:1px dashed var(--p)">
+                    <div class="flex-between mb-3">
+                        <div>
+                            <div class="card-title">${ic('mdi:plus-circle', 22)} Tambah Armada</div>
+                            <div class="card-sub" style="margin:0">Daftarkan kendaraan & upload foto</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="openVehicleForm()">
+                        ${ic('mdi:bus-plus', 20)} Tambah Armada Baru
+                    </button>
+                </div>
+
+                <div class="flex-between mb-2" style="padding:4px 4px 0">
+                    <b style="font-size:14px">Daftar Armada (${S.vehicles.length})</b>
+                </div>
+
+                ${S.vehicles.length === 0
+                    ? `<div class="empty">${ic('mdi:bus-alert', 48)}<p>Belum ada armada</p></div>`
+                    : S.vehicles.map(v => `
+                        <div class="sched">
+                            <div class="sched-head">
+                                <div style="display:flex;gap:12px;align-items:flex-start">
+                                    ${v.cover_photo
+                            ? `<img src="${esc(v.cover_photo)}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0">`
+                            : `<div style="width:60px;height:60px;border-radius:8px;background:var(--p-light);color:var(--p-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic('mdi:bus', 28)}</div>`
+                        }
+                                    <div>
+                                        <b>${esc(v.name)}</b>
+                                        <div class="mt">${esc(v.class_name)}</div>
+                                        <div class="mt" style="font-size:11px">${esc(v.plate_number || '-')} · ${v.capacity} kursi</div>
+                                    </div>
+                                </div>
+                                ${v.is_active ? `<span class="badge ok">Aktif</span>` : `<span class="badge mt">Nonaktif</span>`}
+                            </div>
+                            <div class="sched-actions">
+                                <button class="edit" onclick='openVehicleForm(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
+                                    ${ic('mdi:pencil', 14)} Edit
+                                </button>
+                                <button class="delete" onclick="deleteVehicle(${v.id})">
+                                    ${ic('mdi:delete', 14)} Hapus
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')
+                }
+            `;
+        }
+
+        /* ============ PROFILE ============ */
+        function renderProfile() {
+            const initials = (USER.fullname || 'U').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+            const v = S.vendorInfo || {};
+            const isTopup = v.payment_system === 'topup';
+            const topupActive = isTopup && v.topup_active_until && new Date(v.topup_active_until) > new Date();
+            const systemLabel = { topup: '💰 Topup Bulanan', commission: '💼 Bagi Komisi', markup: '📈 Markup Harga' }[v.payment_system] || '-';
+
+            return `
+                <div class="card" style="text-align:center;padding:24px 16px">
+                    <div class="avatar" style="width:72px;height:72px;font-size:26px;margin:0 auto 12px;background:linear-gradient(120deg,var(--p),var(--p-dark));color:#fff">
+                        ${initials}
+                    </div>
+                    <b style="font-size:18px;display:block">${esc(USER.fullname)}</b>
+                    <span class="mt" style="font-size:13px">@${esc(USER.username)}</span>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">${ic('mdi:account-details', 22)} Informasi Akun</div>
+                    <div class="info-row"><span>Jagel User ID</span><span>${esc(USER.user_id)}</span></div>
+                    <div class="info-row"><span>Username</span><span>${esc(USER.username)}</span></div>
+                    <div class="info-row"><span>Nama Lengkap</span><span>${esc(USER.fullname)}</span></div>
+                    <div class="info-row"><span>No. HP</span><span>${esc(USER.phone)}</span></div>
+                    <div class="info-row"><span>Email</span><span>${esc(USER.email)}</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">${ic('mdi:cash-multiple', 22)} Sistem Pembayaran</div>
+                    <div class="info-row"><span>Sistem Aktif</span><span>${systemLabel}</span></div>
+                    ${v.payment_system === 'commission' ? `
+                        <div class="info-row"><span>Komisi Platform</span><span>${v.commission_percent || 0}%</span></div>
+                    ` : ''}
+                    ${v.payment_system === 'markup' ? `
+                        <div class="info-row"><span>Markup</span><span>${v.markup_percent || 0}%</span></div>
+                    ` : ''}
+                    ${isTopup ? `
+                        <div class="info-row">
+                            <span>Status Topup</span>
+                            <span>${topupActive
+                        ? `<span class="badge ok">Aktif s/d ${fmtDate(v.topup_active_until)}</span>`
+                        : `<span class="badge err">Kadaluwarsa</span>`
+                    }</span>
+                        </div>
+                        <button class="btn ${topupActive ? 'btn-outline' : 'btn-err'}" style="margin-top:12px" onclick="openTopupModal()">
+                            ${ic('mdi:cash-plus', 18)} ${topupActive ? 'Perpanjang Topup' : 'Topup Sekarang Rp 50.000'}
+                        </button>
+                    ` : ''}
+                </div>
+
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:12px">
+                        <div class="card-title" style="margin:0">${ic('mdi:store', 22)} Informasi Vendor</div>
+                        <button class="btn btn-outline btn-sm" onclick="openProfileForm()">
+                            ${ic('mdi:pencil', 14)} Edit
+                        </button>
+                    </div>
+                    <div class="info-row"><span>Vendor ID</span><span>${esc(v.vendor_id || '-')}</span></div>
+                    <div class="info-row"><span>Kode</span><span>${esc(v.code || '-')}</span></div>
+                    <div class="info-row"><span>Nama Vendor</span><span>${esc(v.name || '-')}</span></div>
+                    <div class="info-row"><span>Nama Legal</span><span>${esc(v.legal_name || '-')}</span></div>
+                    <div class="info-row"><span>NPWP</span><span>${esc(v.npwp || '-')}</span></div>
+                    <div class="info-row"><span>NIB</span><span>${esc(v.nib || '-')}</span></div>
+                    <div class="info-row"><span>HP</span><span>${esc(v.contact_phone || '-')}</span></div>
+                    <div class="info-row"><span>Email</span><span>${esc(v.contact_email || '-')}</span></div>
+                    <div class="info-row"><span>Alamat</span><span>${esc(v.address || '-')}</span></div>
+                    <div class="info-row"><span>Status</span><span><span class="badge ok">${esc(v.status || '-')}</span></span></div>
+                </div>
+
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:12px">
+                        <div class="card-title" style="margin:0">${ic('mdi:bank', 22)} Rekening Bank</div>
+                        <button class="btn btn-outline btn-sm" onclick="openBankForm()">
+                            ${ic('mdi:plus', 14)} Tambah
+                        </button>
+                    </div>
+                    ${S.bankAccounts.length === 0
+                    ? `<div class="empty" style="padding:20px 10px">${ic('mdi:bank-off', 36)}<p style="font-size:12px">Belum ada rekening</p></div>`
+                    : S.bankAccounts.map(b => `
+                            <div style="padding:10px 0;border-bottom:1px solid var(--ln)">
+                                <div class="flex-between">
+                                    <b>${esc(b.bank_name)}</b>
+                                    ${b.is_primary ? `<span class="badge ok">Utama</span>` : ''}
+                                </div>
+                                <div class="mt" style="font-size:12px">${esc(b.account_number)} a/n ${esc(b.account_holder)}</div>
+                            </div>
+                        `).join('')
+                }
+                </div>
+            `;
+        }
+
+        function renderNavFoot() {
+            const items = [
+                { k: 'schedules', l: 'Jadwal', i: 'mdi:calendar-clock' },
+                { k: 'templates', l: 'Reguler', i: 'mdi:calendar-sync' },
+                { k: 'routes', l: 'Rute', i: 'mdi:map-marker-path' },
+                { k: 'vehicles', l: 'Armada', i: 'mdi:bus' },
+                { k: 'profile', l: 'Profil', i: 'mdi:account-circle' }
+            ];
+            return `
+                <div class="nav-foot">
+                    ${items.map(x => `
+                        <button class="${S.tab === x.k ? 'on' : ''}" onclick="tab('${x.k}')">
+                            ${ic(x.i, 22)}
+                            <span>${x.l}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderModal() {
+            if (S.modal === 'formSchedule') return renderFormSchedule();
+            if (S.modal === 'formClone') return renderFormClone();
+            if (S.modal === 'formTemplate') return renderFormTemplate();
+            if (S.modal === 'pickCity') return renderPickCity();
+            if (S.modal === 'pickCity2') return renderPickCity2();
+            if (S.modal === 'formVehicle') return renderFormVehicle();
+            if (S.modal === 'formRoute') return renderFormRoute();
+            if (S.modal === 'formBank') return renderFormBank();
+            if (S.modal === 'formProfile') return renderFormProfile();
+            if (S.modal === 'formTopup') return renderFormTopup();
+            if (S.modal === 'topupDetail') return renderTopupDetail();
+            return '';
+        }
+
+        /* ============ TOPUP MODALS ============ */
+        function renderFormTopup() {
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div>
+                                <div class="grab"></div>
+                                <h2>Topup Rp 50.000</h2>
+                            </div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="card" style="background:var(--p-light);margin-bottom:16px">
+                                <div style="font-size:13px;line-height:1.6">
+                                    ${ic('mdi:information', 16)} Topup <b>Rp 50.000</b> untuk aktif 30 hari.
+                                </div>
+                            </div>
+                            <button class="btn" style="margin-bottom:10px" onclick="requestTopup('QRIS')" ${S.savingTopup ? 'disabled' : ''}>
+                                ${ic('mdi:qrcode-scan', 20)} Bayar QRIS
+                            </button>
+                            <button class="btn btn-outline" onclick="requestTopup('VA')" ${S.savingTopup ? 'disabled' : ''}>
+                                ${ic('mdi:bank', 20)} Virtual Account (BRI)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTopupDetail() {
+            const info = S.topupInfo || {};
+            const isVA = info.method === 'VA';
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>Pembayaran Topup</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="card" style="background:var(--p-light)">
+                                <div style="font-size:13px;text-align:center;line-height:1.6">
+                                    Total: <b style="font-size:20px;color:var(--p-dark)">${P(info.amount || 50000)}</b>
+                                </div>
+                            </div>
+                            ${isVA ? `
+                                <div class="card" style="text-align:center">
+                                    <div class="mt" style="font-size:12px">Nomor Virtual Account</div>
+                                    <div style="font-size:24px;letter-spacing:2px;font-weight:700;margin:12px 0">${esc(info.va_number || '-')}</div>
+                                    <button class="btn btn-outline btn-sm" onclick="copyToClipboard('${esc(info.va_number || '')}')">
+                                        ${ic('mdi:content-copy', 14)} Salin Nomor
+                                    </button>
+                                </div>
+                            ` : `
+                                <div class="card" style="text-align:center">
+                                    <div class="mt" style="font-size:12px">Scan QRIS</div>
+                                    ${info.qris_url
+                    ? `<img src="${esc(info.qris_url)}" style="width:220px;height:220px;object-fit:contain;border-radius:8px;margin:12px auto;display:block;background:#fff">`
+                    : `<div class=sk style="width:220px;height:220px;margin:12px auto"></div>`
+                }
+                                </div>
+                            `}
+                            <div class="card">
+                                <div class="info-row"><span>Berlaku sampai</span><span>${fmtDateTime(info.expired_at)}</span></div>
+                                <div class="info-row"><span>Periode aktif</span><span>${fmtDate(info.period_end)}</span></div>
+                            </div>
+                            <div class="card" style="background:var(--warn-light);border-left:4px solid var(--warn)">
+                                <div style="font-size:12px;color:#8a6d00;line-height:1.6">
+                                    ${ic('mdi:information', 16)} Setelah pembayaran diterima, vendor otomatis aktif.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Tutup</button>
+                            <button class="btn" onclick="loadInitial();closeModal()">
+                                ${ic('mdi:refresh', 18)} Cek Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ SEAT PICKER (preview grid) ============ */
+        function renderSeatPreview(seatSource, templateId, customText) {
+            let grid = null;
+            if (seatSource === 'template' && templateId) {
+                const tpl = S.seatTemplates.find(t => String(t.id) === String(templateId));
+                if (tpl && tpl.grid) {
+                    grid = typeof tpl.grid === 'string' ? JSON.parse(tpl.grid) : tpl.grid;
+                }
+            }
+            if (grid) {
+                return `
+                    <div class="seat-picker">
+                        ${grid.map(row => `
+                            <div class="seat-row">
+                                ${(row.cells || []).map(cell => {
+                    if (cell === 'driver') return `<div class="seat-cell driver">${ic('mdi:steering', 16)}</div>`;
+                    if (cell === 'empty' || cell == null || cell === '') return `<div class="seat-cell empty"></div>`;
+                    return `<div class="seat-cell seat">${esc(cell)}</div>`;
+                }).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            if (seatSource === 'custom' && customText) {
+                const seats = customText.split(/[,\s]+/).map(x => x.trim()).filter(Boolean);
+                return `
+                    <div class="seat-picker" style="grid-template-columns:repeat(4,1fr)">
+                        ${seats.map(s => `<div class="seat-cell seat">${esc(s)}</div>`).join('')}
+                    </div>
+                `;
+            }
+            return `<div class="mt" style="font-size:11px;margin-top:6px">Kursi akan diambil dari denah kendaraan yang dipilih.</div>`;
+        }
+
+        /* ============ FORM SCHEDULE ============ */
+        function renderFormSchedule() {
+            const f = S.form;
+            const v = S.vendorInfo || {};
+            const isMarkup = v.payment_system === 'markup';
+            const markupPct = Number(v.markup_percent || 0);
+
+            const arrPreview = computeArrivalPreview(f.departure_date, f.departure_time, f.duration_minutes);
+            const durLabel = `${Math.floor((Number(f.duration_minutes) || 180) / 60)}j ${(Number(f.duration_minutes) || 180) % 60}m`;
+
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div>
+                                <div class="grab"></div>
+                                <h2>${f.id ? 'Edit Jadwal' : 'Tambah Jadwal'}</h2>
+                            </div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="field">
+                                <label>Rute</label>
+                                <select onchange="onRouteChange(this.value)">
+                                    <option value="">-- Pilih Rute --</option>
+                                    ${S.routes.map(r => `
+                                        <option value="${r.id}" ${String(f.route_id) === String(r.id) ? 'selected' : ''}>
+                                            ${esc(r.name || `${r.origin_city} - ${r.destination_city}`)}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Armada</label>
+                                <select onchange="S.form.vehicle_id=this.value; render()">
+                                    <option value="">-- Pilih Armada --</option>
+                                    ${S.vehicles.map(v => `
+                                        <option value="${v.id}" ${String(f.vehicle_id) === String(v.id) ? 'selected' : ''}>
+                                            ${esc(v.name)} — ${esc(v.class_name)} (${v.capacity} kursi)
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Tanggal Berangkat</label>
+                                    <input type="date" value="${esc(f.departure_date)}"
+                                           onchange="S.form.departure_date=this.value; render()">
+                                </div>
+                                <div class="field">
+                                    <label>Jam Berangkat</label>
+                                    <input type="time" value="${esc(f.departure_time)}"
+                                           onchange="S.form.departure_time=this.value; render()">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Durasi Perjalanan (menit) *</label>
+                                <input type="number" min="30" max="1440" step="15"
+                                       value="${esc(f.duration_minutes || 180)}"
+                                       onchange="S.form.duration_minutes=this.value; render()">
+                                <div class="mt" style="font-size:11px;margin-top:6px;padding:8px;background:var(--bg);border-radius:6px">
+                                    ${ic('mdi:clock-check', 12)} ${fmtPreview(arrPreview)} (${durLabel})
+                                </div>
+                            </div>
+
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Titik Naik</label>
+                                    <select onchange="S.form.pickup_stop_id=this.value" ${!f.route_id ? 'disabled' : ''}>
+                                        <option value="">
+                                            ${!f.route_id ? '-- Pilih rute dulu --' : (S.pickupStops.length ? '-- Pilih --' : '-- Tidak ada --')}
+                                        </option>
+                                        ${S.pickupStops.map(s => `
+                                            <option value="${s.id}" ${String(f.pickup_stop_id) === String(s.id) ? 'selected' : ''}>${esc(s.name)}</option>
+                                        `).join('')}
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Titik Turun</label>
+                                    <select onchange="S.form.dropoff_stop_id=this.value" ${!f.route_id ? 'disabled' : ''}>
+                                        <option value="">
+                                            ${!f.route_id ? '-- Pilih rute dulu --' : (S.dropoffStops.length ? '-- Pilih --' : '-- Tidak ada --')}
+                                        </option>
+                                        ${S.dropoffStops.map(s => `
+                                            <option value="${s.id}" ${String(f.dropoff_stop_id) === String(s.id) ? 'selected' : ''}>${esc(s.name)}</option>
+                                        `).join('')}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- SUMBER KURSI -->
+                            ${!f.id ? `
+                                <div class="field">
+                                    <label>Sumber Kursi</label>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                                        <button type="button" class="chip ${f.seat_source === 'vehicle' ? 'on' : ''}"
+                                                onclick="S.form.seat_source='vehicle'; render()">Pakai Kendaraan</button>
+                                        <button type="button" class="chip ${f.seat_source === 'template' ? 'on' : ''}"
+                                                onclick="S.form.seat_source='template'; render()">Template</button>
+                                        <button type="button" class="chip ${f.seat_source === 'custom' ? 'on' : ''}"
+                                                onclick="S.form.seat_source='custom'; render()">Custom</button>
+                                    </div>
+                                </div>
+                                ${f.seat_source === 'template' ? `
+                                    <div class="field">
+                                        <label>Pilih Template Kursi</label>
+                                        <select onchange="S.form.seat_template_id=this.value; render()">
+                                            <option value="">-- Pilih Template --</option>
+                                            ${S.seatTemplates.map(t => `
+                                                <option value="${t.id}" ${String(f.seat_template_id) === String(t.id) ? 'selected' : ''}>
+                                                    ${esc(t.name)} (${t.total_seats} kursi)
+                                                </option>
+                                            `).join('')}
+                                        </select>
+                                    </div>
+                                ` : ''}
+                                ${f.seat_source === 'custom' ? `
+                                    <div class="field">
+                                        <label>Nomor Kursi (pisah dengan koma)</label>
+                                        <input type="text" placeholder="1, 2, 3, 4, 5, 6"
+                                               value="${esc(f.seat_custom)}"
+                                               oninput="S.form.seat_custom=this.value; render()">
+                                    </div>
+                                ` : ''}
+                                ${renderSeatPreview(f.seat_source, f.seat_template_id, f.seat_custom)}
+                            ` : `
+                                <div class="card" style="background:var(--bg);padding:10px;margin-bottom:12px">
+                                    <div class="mt" style="font-size:11px">
+                                        ${ic('mdi:information', 12)} Edit tidak mengubah kursi. Kalau mau ganti kursi, hapus & buat jadwal baru.
+                                    </div>
+                                </div>
+                            `}
+
+                            <div class="field">
+                                <label>Harga Jual (Rp) *</label>
+                                <input type="number" min="1000" step="1000" value="${esc(f.price)}"
+                                       onchange="S.form.price=this.value" placeholder="250000">
+                                ${isMarkup ? `
+                                    <div class="mt" style="font-size:11px;margin-top:6px;padding:8px;background:var(--warn-light);border-radius:6px;line-height:1.5">
+                                        ${ic('mdi:information', 12)} Sistem <b>Markup ${markupPct}%</b> — harga input = harga asli.
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="field">
+                                <label>Harga Coret (opsional)</label>
+                                <input type="number" min="0" step="1000" value="${esc(f.original_price)}"
+                                       onchange="S.form.original_price=this.value" placeholder="300000">
+                            </div>
+
+                            <div class="field">
+                                <label>Diskon (%)</label>
+                                <input type="number" min="0" max="100" value="${esc(f.discount_percent)}"
+                                       onchange="S.form.discount_percent=this.value" placeholder="0">
+                            </div>
+
+                            <div class="field">
+                                <label>Arah</label>
+                                <select onchange="S.form.direction=this.value">
+                                    <option value="pergi" ${f.direction === 'pergi' ? 'selected' : ''}>Pergi</option>
+                                    <option value="pulang" ${f.direction === 'pulang' ? 'selected' : ''}>Pulang</option>
+                                </select>
+                            </div>
+
+                            <div class="field" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:8px">
+                                <input type="checkbox" style="width:20px;height:20px;accent-color:var(--p)"
+                                       ${f.insurance_available ? 'checked' : ''}
+                                       onchange="S.form.insurance_available=this.checked">
+                                <label style="margin:0;flex:1">Sediakan asuransi perjalanan</label>
+                            </div>
+
+                            <div class="field" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:8px">
+                                <input type="checkbox" style="width:20px;height:20px;accent-color:var(--p)"
+                                       ${f.is_popular ? 'checked' : ''}
+                                       onchange="S.form.is_popular=this.checked">
+                                <label style="margin:0;flex:1">Tandai sebagai jadwal populer</label>
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+                            <button class="btn" onclick="saveSchedule()" ${S.saving ? 'disabled' : ''}>
+                                ${S.saving ? 'Menyimpan...' : ic('mdi:content-save', 18) + ' Simpan'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ FORM CLONE ============ */
+        function renderFormClone() {
+            const f = S.cloneForm || {};
+            const src = f._src || {};
+            const depAt = String(src.departure_at || '');
+
+            const depValue = f.departure_at || '';
+            const arrPreview = depValue
+                ? computeArrivalPreview(depValue.slice(0, 10), depValue.slice(11, 16), f.duration_minutes)
+                : null;
+
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>Jadwal Ulang</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="card" style="background:var(--bg);margin-bottom:16px">
+                                <div class="mt" style="font-size:11px;margin-bottom:6px">Jadwal sumber</div>
+                                <div style="font-weight:600">${esc(src.origin_city || '-')} → ${esc(src.destination_city || '-')}</div>
+                                <div class="mt" style="font-size:12px;margin-top:4px">
+                                    ${esc(src.vehicle_name || src.class_name || '-')} • ${fmtDate(depAt)} ${fmtTime(depAt)}
+                                </div>
+                                <div class="mt" style="font-size:12px;margin-top:4px">
+                                    Harga: ${P(src.price)} • ${src.seats_total || 0} kursi
+                                </div>
+                            </div>
+
+                            <div class="card" style="background:var(--p-light);margin-bottom:16px">
+                                <div style="font-size:13px;line-height:1.6">
+                                    ${ic('mdi:information', 16)}
+                                    Jadwal baru akan dibuat dengan rute, armada, harga, & T&C yang sama.
+                                    <b>Semua kursi kosong</b>.
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Tanggal & Jam Berangkat Baru *</label>
+                                <input type="datetime-local" value="${esc(depValue)}"
+                                       onchange="S.cloneForm.departure_at=this.value; render()">
+                            </div>
+
+                            <div class="field">
+                                <label>Tanggal Populer</label>
+                                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                                    <button type="button" class="chip" onclick="setCloneDate(0)">Hari ini</button>
+                                    <button type="button" class="chip" onclick="setCloneDate(1)">Besok</button>
+                                    <button type="button" class="chip" onclick="setCloneDate(2)">+2 hari</button>
+                                    <button type="button" class="chip" onclick="setCloneDate(7)">+1 minggu</button>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Durasi Perjalanan (menit)</label>
+                                <input type="number" min="30" max="1440" step="15"
+                                       value="${esc(f.duration_minutes || 180)}"
+                                       onchange="S.cloneForm.duration_minutes=this.value; render()">
+                                <div class="mt" style="font-size:11px;margin-top:6px;padding:8px;background:var(--bg);border-radius:6px">
+                                    ${ic('mdi:clock-check', 12)} ${fmtPreview(arrPreview)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+                            <button class="btn" onclick="saveClone()" ${S.savingClone ? 'disabled' : ''}>
+                                ${S.savingClone ? 'Membuat...' : ic('mdi:content-save', 18) + ' Buat Jadwal'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ FORM TEMPLATE RECURRING ============ */
+        function renderFormTemplate() {
+            const f = S.templateForm || {};
+
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>${f.id ? 'Edit Template' : 'Template Reguler'}</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="card" style="background:#ede7f6;margin-bottom:16px">
+                                <div style="font-size:12px;line-height:1.6;color:#4a2a75">
+                                    ${ic('mdi:information', 16)}
+                                    Jadwal akan auto-generate tiap hari sesuai template ini.
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Rute *</label>
+                                <select onchange="S.templateForm.route_id=this.value">
+                                    <option value="">-- Pilih Rute --</option>
+                                    ${S.routes.map(r => `
+                                        <option value="${r.id}" ${String(f.route_id) === String(r.id) ? 'selected' : ''}>
+                                            ${esc(r.name || `${r.origin_city} - ${r.destination_city}`)}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Armada *</label>
+                                <select onchange="S.templateForm.vehicle_id=this.value">
+                                    <option value="">-- Pilih Armada --</option>
+                                    ${S.vehicles.map(v => `
+                                        <option value="${v.id}" ${String(f.vehicle_id) === String(v.id) ? 'selected' : ''}>
+                                            ${esc(v.name)} — ${esc(v.class_name)}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Jam Berangkat *</label>
+                                    <input type="time" value="${esc(f.departure_time)}"
+                                           onchange="S.templateForm.departure_time=this.value">
+                                </div>
+                                <div class="field">
+                                    <label>Durasi (menit) *</label>
+                                    <input type="number" min="30" max="1440" step="15"
+                                           value="${esc(f.duration_minutes || 180)}"
+                                           onchange="S.templateForm.duration_minutes=this.value">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Hari Operasional *</label>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                                    ${[1, 2, 3, 4, 5, 6, 7].map(d => {
+                const on = (f.days_of_week || []).includes(d);
+                return `<button type="button" class="day-chip ${on ? 'on' : ''}"
+                                                        onclick="toggleTemplateDay(${d})">${DAY_NAMES[d - 1]}</button>`;
+            }).join('')}
+                                </div>
+                            </div>
+
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Mulai Tanggal *</label>
+                                    <input type="date" value="${esc(f.active_from)}"
+                                           onchange="S.templateForm.active_from=this.value">
+                                </div>
+                                <div class="field">
+                                    <label>Sampai (opsional)</label>
+                                    <input type="date" value="${esc(f.active_until)}"
+                                           onchange="S.templateForm.active_until=this.value">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Harga Jual (Rp) *</label>
+                                <input type="number" value="${esc(f.price)}"
+                                       onchange="S.templateForm.price=this.value" placeholder="150000">
+                            </div>
+
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Harga Coret</label>
+                                    <input type="number" value="${esc(f.original_price)}"
+                                           onchange="S.templateForm.original_price=this.value">
+                                </div>
+                                <div class="field">
+                                    <label>Diskon (%)</label>
+                                    <input type="number" min="0" max="100" value="${esc(f.discount_percent)}"
+                                           onchange="S.templateForm.discount_percent=this.value">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Sumber Kursi</label>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                                    <button type="button" class="chip ${f.seat_source === 'vehicle' ? 'on' : ''}"
+                                            onclick="S.templateForm.seat_source='vehicle'; render()">Pakai Kendaraan</button>
+                                    <button type="button" class="chip ${f.seat_source === 'template' ? 'on' : ''}"
+                                            onclick="S.templateForm.seat_source='template'; render()">Template</button>
+                                    <button type="button" class="chip ${f.seat_source === 'custom' ? 'on' : ''}"
+                                            onclick="S.templateForm.seat_source='custom'; render()">Custom</button>
+                                </div>
+                            </div>
+                            ${f.seat_source === 'template' ? `
+                                <div class="field">
+                                    <label>Pilih Template Kursi</label>
+                                    <select onchange="S.templateForm.seat_template_id=this.value; render()">
+                                        <option value="">-- Pilih Template --</option>
+                                        ${S.seatTemplates.map(t => `
+                                            <option value="${t.id}" ${String(f.seat_template_id) === String(t.id) ? 'selected' : ''}>
+                                                ${esc(t.name)} (${t.total_seats} kursi)
+                                            </option>
+                                        `).join('')}
+                                    </select>
+                                </div>
+                            ` : ''}
+                            ${f.seat_source === 'custom' ? `
+                                <div class="field">
+                                    <label>Nomor Kursi (pisah dengan koma)</label>
+                                    <input type="text" placeholder="1, 2, 3, 4, 5, 6"
+                                           value="${esc(f.seat_custom)}"
+                                           oninput="S.templateForm.seat_custom=this.value; render()">
+                                </div>
+                            ` : ''}
+
+                            <div class="field" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:8px">
+                                <input type="checkbox" style="width:20px;height:20px;accent-color:var(--p)"
+                                       ${f.insurance_available ? 'checked' : ''}
+                                       onchange="S.templateForm.insurance_available=this.checked?1:0">
+                                <label style="margin:0;flex:1">Sediakan asuransi</label>
+                            </div>
+
+                            <div class="field" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:8px">
+                                <input type="checkbox" style="width:20px;height:20px;accent-color:var(--p)"
+                                       ${f.is_popular ? 'checked' : ''}
+                                       onchange="S.templateForm.is_popular=this.checked?1:0">
+                                <label style="margin:0;flex:1">Tandai jadwal populer</label>
+                            </div>
+
+                            <div class="field">
+                                <label>Generate ke Depan (hari)</label>
+                                <input type="number" min="7" max="90" value="${esc(f.generate_days_ahead || 30)}"
+                                       onchange="S.templateForm.generate_days_ahead=this.value">
+                                <div class="mt" style="font-size:11px;margin-top:4px">
+                                    Sistem akan generate jadwal untuk N hari ke depan dari tanggal mulai.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+                            <button class="btn" style="background:#7b5ea7" onclick="saveTemplate()" ${S.savingTemplate ? 'disabled' : ''}>
+                                ${S.savingTemplate ? 'Menyimpan...' : ic('mdi:content-save', 18) + ' Simpan Template'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ FORM VEHICLE ============ */
+        function renderFormVehicle() {
+            const f = S.vehicleForm;
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>${f.id ? 'Edit Armada' : 'Tambah Armada'}</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="field">
+                                <label>Nama Armada *</label>
+                                <input type="text" placeholder="Toyota Hiace Premio"
+                                       value="${esc(f.name)}" oninput="S.vehicleForm.name=this.value">
+                            </div>
+                            <div class="field">
+                                <label>Kelas / Class Name *</label>
+                                <input type="text" placeholder="Shuttle Executive 1+1"
+                                       value="${esc(f.class_name)}" oninput="S.vehicleForm.class_name=this.value">
+                            </div>
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Tipe *</label>
+                                    <select onchange="S.vehicleForm.vehicle_type=this.value">
+                                        <option value="shuttle" ${f.vehicle_type === 'shuttle' ? 'selected' : ''}>Shuttle</option>
+                                        <option value="mobil" ${f.vehicle_type === 'mobil' ? 'selected' : ''}>Mobil</option>
+                                        <option value="hiace" ${f.vehicle_type === 'hiace' ? 'selected' : ''}>Hiace</option>
+                                        <option value="minibus" ${f.vehicle_type === 'minibus' ? 'selected' : ''}>Minibus</option>
+                                        <option value="bus" ${f.vehicle_type === 'bus' ? 'selected' : ''}>Bus</option>
+                                        <option value="sleeper" ${f.vehicle_type === 'sleeper' ? 'selected' : ''}>Sleeper</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Kapasitas *</label>
+                                    <input type="number" min="1" value="${esc(f.capacity)}"
+                                           onchange="S.vehicleForm.capacity=this.value">
+                                </div>
+                            </div>
+                           <div class="field">
+    <label>Denah Kursi *</label>
+    <select onchange="S.vehicleForm.seat_layout_id=this.value">
+        <option value="">-- Pilih Denah --</option>
+        ${S.seatTemplates.map(t => `
+            <option value="${t.id}" ${String(f.seat_layout_id) === String(t.id) ? 'selected' : ''}>
+                ${esc(t.name)} • ${t.total_seats} kursi
+            </option>
+        `).join('')}
+    </select>
+    <div class="mt" style="font-size:11px;margin-top:4px">
+        ${ic('mdi:information', 12)} Denah kursi standar sistem. Pilih sesuai tipe kendaraan.
+    </div>
+</div>
+                            <div class="field">
+                                <label>Nomor Plat</label>
+                                <input type="text" placeholder="B 1234 XYZ"
+                                       value="${esc(f.plate_number)}" oninput="S.vehicleForm.plate_number=this.value">
+                            </div>
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Merek</label>
+                                    <input type="text" placeholder="Toyota" value="${esc(f.brand)}"
+                                           oninput="S.vehicleForm.brand=this.value">
+                                </div>
+                                <div class="field">
+                                    <label>Model</label>
+                                    <input type="text" placeholder="Hiace Premio" value="${esc(f.model)}"
+                                           oninput="S.vehicleForm.model=this.value">
+                                </div>
+                            </div>
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>Tahun</label>
+                                    <input type="number" min="2000" max="2100" value="${esc(f.year)}"
+                                           onchange="S.vehicleForm.year=this.value">
+                                </div>
+                                <div class="field">
+                                    <label>Konfigurasi Kursi</label>
+                                    <input type="text" placeholder="1-1 atau 2-2"
+                                           value="${esc(f.seat_arrangement)}"
+                                           oninput="S.vehicleForm.seat_arrangement=this.value">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Fasilitas</label>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:var(--bg);border-radius:8px">
+                                    ${S.facilities.length === 0
+                    ? '<span class="mt">Belum ada fasilitas master</span>'
+                    : S.facilities.map(fac => {
+                        const checked = (f.facility_ids || []).includes(fac.id);
+                        return `
+                                                <label class="facility-chip ${checked ? 'on' : ''}">
+                                                    <input type="checkbox" style="display:none" ${checked ? 'checked' : ''}
+                                                           onchange="toggleFacility(${fac.id})">
+                                                    ${checked ? ic('mdi:check', 12) : ''}
+                                                    ${esc(fac.name)}
+                                                </label>
+                                            `;
+                    }).join('')
+                }
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Foto Armada (Maks 10)</label>
+                                ${(f.existingPhotos || []).length ? `
+                                    <div style="margin-bottom:12px">
+                                        <div class="mt" style="font-size:11px;margin-bottom:6px">
+                                            Foto Tersimpan (${f.existingPhotos.length})
+                                        </div>
+                                        <div class="photo-grid">
+                                            ${f.existingPhotos.map(p => `
+                                                <div class="photo-item">
+                                                    <img src="${esc(p.url)}" alt="foto">
+                                                    ${p.is_cover ? `<span class="tag">Cover</span>` : ''}
+                                                    <button type="button" class="btn-x"
+                                                            onclick="removeExistingVehiclePhoto(${p.id})">✕</button>
+                                                    ${!p.is_cover ? `
+                                                        <button type="button" class="btn-cover"
+                                                                onclick="setVehicleCoverPhoto(${p.id})">Set Cover</button>
+                                                    ` : ''}
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <input type="file" accept="image/*" multiple id="vehiclePhotoInput"
+                                       onchange="onVehiclePhotosChange(this)"
+                                       style="border:1px dashed var(--p);padding:14px;text-align:center;cursor:pointer;background:var(--p-light);border-radius:8px">
+
+                                ${(f.photos || []).length ? `
+                                    <div style="margin-top:12px">
+                                        <div class="mt" style="font-size:11px;margin-bottom:6px">
+                                            Foto Baru (${f.photos.length})
+                                        </div>
+                                        <div class="photo-grid">
+                                            ${f.photos.map((file, idx) => `
+                                                <div class="photo-item">
+                                                    <img src="${URL.createObjectURL(file)}" alt="preview">
+                                                    <span class="tag new">Baru</span>
+                                                    <button type="button" class="btn-x"
+                                                            onclick="removeNewPhoto(${idx})">✕</button>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                        <button type="button" class="btn btn-outline btn-sm"
+                                                style="width:100%;margin-top:8px"
+                                                onclick="clearNewPhotos()">
+                                            ${ic('mdi:close', 14)} Batalkan Semua Foto Baru
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="field" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:8px">
+                                <input type="checkbox" style="width:20px;height:20px;accent-color:var(--p)"
+                                       ${f.is_active ? 'checked' : ''}
+                                       onchange="S.vehicleForm.is_active=this.checked?1:0">
+                                <label style="margin:0;flex:1">Armada aktif</label>
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+                            <button class="btn" onclick="saveVehicle()" ${S.savingVehicle ? 'disabled' : ''}>
+                                ${S.savingVehicle ? 'Menyimpan...' : ic('mdi:content-save', 18) + ' Simpan'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ FORM ROUTE ============ */
+        function renderFormRoute() {
+            const f = S.routeForm;
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>${f.id ? 'Edit Rute' : 'Tambah Rute'}</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="field">
+                                <label>Kota Asal *</label>
+                                <button type="button" class="btn btn-outline btn-sm" style="width:100%"
+                                        onclick="openCityPick2('origin_city_id')">
+                                    ${f.origin_city_id ? esc(S.cities.find(c => c.id == f.origin_city_id)?.name || '-') : 'Pilih Kota Asal'}
+                                </button>
+                            </div>
+                            <div class="field">
+                                <label>Kota Tujuan *</label>
+                                <button type="button" class="btn btn-outline btn-sm" style="width:100%"
+                                        onclick="openCityPick2('destination_city_id')">
+                                    ${f.destination_city_id ? esc(S.cities.find(c => c.id == f.destination_city_id)?.name || '-') : 'Pilih Kota Tujuan'}
+                                </button>
+                            </div>
+                            <div class="field">
+                                <label>Nama Rute (opsional)</label>
+                                <input type="text" placeholder="Jakarta - Bandung"
+                                       value="${esc(f.name)}" oninput="S.routeForm.name=this.value">
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+                            <button class="btn" onclick="saveRoute()" ${S.savingRoute ? 'disabled' : ''}>
+                                ${S.savingRoute ? 'Menyimpan...' : ic('mdi:content-save', 18) + ' Simpan'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ FORM BANK ============ */
+        function renderFormBank() {
+            const f = S.bankForm;
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>Tambah Rekening Bank</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="field">
+                                <label>Nama Bank *</label>
+                                <input type="text" placeholder="BCA / Mandiri / BNI"
+                                       value="${esc(f.bank_name)}" oninput="S.bankForm.bank_name=this.value">
+                            </div>
+                            <div class="field">
+                                <label>Nomor Rekening *</label>
+                                <input type="text" placeholder="1234567890"
+                                       value="${esc(f.account_number)}" oninput="S.bankForm.account_number=this.value">
+                            </div>
+                            <div class="field">
+                                <label>Nama Pemilik Rekening *</label>
+                                <input type="text" placeholder="PT Cititrans Indonesia"
+                                       value="${esc(f.account_holder)}" oninput="S.bankForm.account_holder=this.value">
+                            </div>
+                            <div class="field" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg);border-radius:8px">
+                                <input type="checkbox" style="width:20px;height:20px;accent-color:var(--p)"
+                                       ${f.is_primary ? 'checked' : ''}
+                                       onchange="S.bankForm.is_primary=this.checked?1:0">
+                                <label style="margin:0;flex:1">Jadikan rekening utama</label>
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+                            <button class="btn" onclick="saveBank()" ${S.savingBank ? 'disabled' : ''}>
+                                ${S.savingBank ? 'Menyimpan...' : ic('mdi:content-save', 18) + ' Simpan'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ FORM PROFILE ============ */
+        function renderFormProfile() {
+            const f = S.profileForm;
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>Edit Profil Vendor</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="field">
+                                <label>Nama Vendor *</label>
+                                <input type="text" value="${esc(f.name)}" oninput="S.profileForm.name=this.value">
+                            </div>
+                            <div class="field">
+                                <label>Nama Legal</label>
+                                <input type="text" value="${esc(f.legal_name)}" oninput="S.profileForm.legal_name=this.value">
+                            </div>
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>NPWP</label>
+                                    <input type="text" value="${esc(f.npwp)}" oninput="S.profileForm.npwp=this.value">
+                                </div>
+                                <div class="field">
+                                    <label>NIB</label>
+                                    <input type="text" value="${esc(f.nib)}" oninput="S.profileForm.nib=this.value">
+                                </div>
+                            </div>
+                            <div class="row-2">
+                                <div class="field">
+                                    <label>No. HP</label>
+                                    <input type="tel" value="${esc(f.contact_phone)}" oninput="S.profileForm.contact_phone=this.value">
+                                </div>
+                                <div class="field">
+                                    <label>Email</label>
+                                    <input type="email" value="${esc(f.contact_email)}" oninput="S.profileForm.contact_email=this.value">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Alamat</label>
+                                <textarea oninput="S.profileForm.address=this.value">${esc(f.address)}</textarea>
+                            </div>
+                            <div class="field">
+                                <label>URL Logo</label>
+                                <input type="url" placeholder="https://..." value="${esc(f.logo_url)}"
+                                       oninput="S.profileForm.logo_url=this.value">
+                            </div>
+                            <div class="field">
+                                <label>Deskripsi</label>
+                                <textarea oninput="S.profileForm.description=this.value">${esc(f.description)}</textarea>
+                            </div>
+                        </div>
+                        <div class="sheet-foot">
+                            <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+                            <button class="btn" onclick="saveProfile()" ${S.savingProfile ? 'disabled' : ''}>
+                                ${S.savingProfile ? 'Menyimpan...' : ic('mdi:content-save', 18) + ' Simpan'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* ============ PICK CITY ============ */
+        function renderPickCity() { return renderPickCityGeneric('pickCity'); }
+        function renderPickCity2() { return renderPickCityGeneric('pickCity2'); }
+
+        function renderPickCityGeneric(mode) {
+            const q = S.cityPickSearch.toLowerCase();
+            const list = q ? S.cities.filter(c => c.name.toLowerCase().includes(q)) : S.cities;
+            const pickFn = mode === 'pickCity' ? 'pickCity' : 'pickCity2';
+
+            return `
+                <div class="ov" onclick="if(event.target===this) closeModal()">
+                    <div class="sheet" style="max-height:80vh">
+                        <div class="sheet-head">
+                            <div><div class="grab"></div><h2>Pilih Kota</h2></div>
+                            <button onclick="closeModal()">${ic('mdi:close', 24)}</button>
+                        </div>
+                        <div class="sheet-body">
+                            <div class="field">
+                                <input id="citySearch" type="text" placeholder="Cari kota..."
+                                       value="${esc(S.cityPickSearch)}"
+                                       oninput="S.cityPickSearch=this.value; render(); setTimeout(()=>document.getElementById('citySearch').focus(), 30)">
+                            </div>
+                            ${list.length === 0
+                    ? `<div class="empty">${ic('mdi:map-marker-off', 48)}<p>Kota tidak ditemukan</p></div>`
+                    : list.map(c => `
+                                    <div onclick="${pickFn}(${c.id})"
+                                         style="padding:14px 4px;border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:12px;cursor:pointer">
+                                        ${ic('mdi:map-marker', 20)}
+                                        <div>
+                                            <b>${esc(c.name)}</b>
+                                            ${c.province ? `<div class="mt" style="font-size:12px">${esc(c.province)}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')
+                }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /* =====================================================================
+         * INIT
+         * ===================================================================== */
+        render();
+        loadInitial();
+    </script>
+</body>
+
+</html>
