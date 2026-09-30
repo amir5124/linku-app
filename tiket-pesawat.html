@@ -1754,7 +1754,7 @@
                         <!-- Biaya Payment Gateway (akan muncul setelah pilih metode) -->
                         <div x-show="paymentGatewayFee > 0"
                             class="flex justify-between text-xs py-1 border-b border-slate-200 text-orange-600">
-                            <span>Biaya {{ method === 'QRIS' ? 'QRIS' : 'Transfer' }}</span>
+                            <span>Biaya</span>
                             <span class="font-bold">
                                 + Rp <span x-text="paymentGatewayFee.toLocaleString('id-ID')"></span>
                             </span>
