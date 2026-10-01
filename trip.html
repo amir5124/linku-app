@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Trip Ibu Kota Nusantara</title>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url(https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap);
+
+        body {
+            font-family: "Baloo 2", sans-serif
+        }
+
+        /* Timeline rundown */
+        .timeline {
+            position: relative;
+            padding-left: 2.75rem
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 1.1rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #ec4899, #24b3ae);
+            border-radius: 2px
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.25rem
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -2.75rem;
+            top: 0;
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 9999px;
+            background: #fff;
+            border: 2px solid #ec4899;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ec4899;
+            font-size: 1.1rem
+        }
+
+        input[type=number] {
+            width: 100%;
+            margin: 0;
+            outline: none;
+            padding: 8px;
+            height: 40px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            background-color: #fff;
+            border: none;
+            box-shadow: 0 0 3px rgb(0 0 0 / .2)
+        }
+
+        button[type="submit"] {
+            background-color: #24b3ae;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer
+        }
+
+        button {
+            border: none !important
+        }
+
+        .video-slider-btn:active,
+        .video-slider-btn:focus {
+            outline: none
+        }
+
+        .method {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: border 0.3s ease
+        }
+
+        .method:hover {
+            border-color: #24b3ae
+        }
+
+        .method label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin: 0
+        }
+
+        .method img {
+            width: 40px;
+            height: auto
+        }
+
+        h6 {
+            font-weight: 700;
+            margin-top: 16px
+        }
+
+        .payment-container {
+            background-color: #fff;
+            top: 0;
+            min-height: 100%;
+            box-shadow: 0 4px 10px rgb(0 0 0 / .1)
+        }
+
+        .bank-logo img {
+            width: 100%;
+            height: 20px;
+            object-fit: contain
+        }
+
+        .bank-details {
+            flex-grow: 1;
+            margin-left: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center
+        }
+
+        .bank-details p {
+            font-size: 20px;
+            color: #24B3AE
+        }
+
+        .summary {
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .total-payment {
+            font-size: 20px;
+            font-weight: 700;
+            color: #24b3ae
+        }
+
+        .bg-pembayaran {
+            background-color: #24b3ae;
+            height: 50px;
+            font-size: 14px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2
+        }
+
+        .bg-va {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 8px;
+            box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 2px 2px rgb(0 0 0 / .12), 2px 0 2px rgb(0 0 0 / .1), -2px 0 2px rgb(0 0 0 / .1)
+        }
+
+        .bg-copy {
+            background-color: #24B3AE;
+            height: 25px;
+            width: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0
+            }
+
+            100% {
+                background-position: 200% 0
+            }
+        }
+
+        #downloadQR {
+            background-color: #24B3AE;
+            color: #fff;
+            border: none;
+            padding: 5px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 antialiased">
+    <main id="utamaHal" class="max-w-4xl mx-auto lg:p-12">
+        <article class="bg-white rounded-2xl shadow-md overflow-hidden">
+
+            <!-- HEADER -->
+            <header class="p-6 sm:p-8 border-b">
+                <h1 class="text-2xl sm:text-3xl font-semibold text-slate-800">
+                    Trip Ibu Kota Nusantara (IKN)
+                </h1>
+
+                <!-- Slider: ganti URL gambar di array IMAGES (script di bawah) -->
+                <div class="relative max-w-2xl mx-auto mt-6">
+                    <div class="overflow-hidden rounded-xl bg-slate-100">
+                        <img id="sliderImg" src="" alt="Open Trip IKN" class="w-full h-auto block mx-auto">
+                    </div>
+                    <button type="button" id="prevSlide"
+                        class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg hover:bg-opacity-70">&#10094;</button>
+                    <button type="button" id="nextSlide"
+                        class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg hover:bg-opacity-70">&#10095;</button>
+                </div>
+
+                <p class="mt-4 text-slate-600 leading-relaxed">
+                    Jelajahi megahnya Ibu Kota Nusantara dalam satu hari perjalanan yang nyaman bersama
+                    <strong>LinkU</strong>. Didampingi driver berpengalaman yang menguasai wilayah IKN,
+                    lengkap dengan dokumentasi perjalanan.
+                </p>
+
+                <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
+                    <div class="flex items-center gap-2">
+                        <iconify-icon icon="mdi:clock-outline" class="text-teal-500"></iconify-icon>
+                        <span>Durasi: 1 Hari (06.00 – 17.00 WITA)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <iconify-icon icon="mdi:map-marker" class="text-teal-500"></iconify-icon>
+                        <span>Keberangkatan dari Balikpapan</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <iconify-icon icon="mdi:account-group" class="text-teal-500"></iconify-icon>
+                        <span>Maksimal 14 orang</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- HARGA -->
+            <section class="p-6 sm:p-8 bg-slate-50">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800">
+                    <iconify-icon icon="mdi:tag-heart" width="25" height="25" class="text-pink-500"></iconify-icon>
+                    Harga Open Trip
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-pink-100 shadow-sm ring-2 ring-pink-400 relative">
+                        <span
+                            class="absolute -top-2 -right-2 bg-pink-500 text-white text-[10px] px-2 py-1 rounded-full">POPULER</span>
+                        <div class="text-pink-600 font-bold">Open Trip IKN</div>
+                        <div class="text-xs text-slate-500 mb-2">Harga mulai / orang</div>
+                        <div class="text-lg font-extrabold text-slate-800 tracking-tight">Rp 250.000</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RUNDOWN -->
+            <section class="p-6 sm:p-8 border-t">
+                <h2 class="text-lg font-medium mb-5 flex items-center gap-2 text-slate-800">
+                    <iconify-icon icon="mdi:timeline-clock" width="25" height="25" class="text-teal-600"></iconify-icon>
+                    Rundown Perjalanan
+                </h2>
+
+                <div class="timeline text-sm">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"><iconify-icon icon="mdi:bus"></iconify-icon></div>
+                        <div class="font-bold text-teal-700">06.00 – 08.00 WITA</div>
+                        <p class="text-slate-600">Keberangkatan dari Balikpapan menuju kawasan IKN. Menikmati udara
+                            segar dan pemandangan hutan Kalimantan di pagi hari.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"><iconify-icon icon="mdi:bank"></iconify-icon></div>
+                        <div class="font-bold text-teal-700">08.00 – 11.30 WITA</div>
+                        <p class="text-slate-600">Jelajah Kawasan Inti Pusat Pemerintahan (KIPP) IKN. Kunjungan ke
+                            titik strategis seperti Istana IKN, Plaza Seremoni, dan Taman Kusuma Bangsa.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"><iconify-icon icon="mdi:camera"></iconify-icon></div>
+                        <div class="font-bold text-teal-700">11.30 – 12.30 WITA</div>
+                        <p class="text-slate-600">Perjalanan menuju Goa Tapak Raja, singgah berfoto di Bendungan
+                            Sepaku Semoi – spot favorit berlatar alam dan infrastruktur monumental.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"><iconify-icon icon="mdi:image-filter-hdr"></iconify-icon></div>
+                        <div class="font-bold text-teal-700">12.30 – 14.30 WITA</div>
+                        <p class="text-slate-600">Eksplorasi Goa Tapak Raja dan makan siang (masing-masing peserta).
+                        </p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"><iconify-icon icon="mdi:coffee"></iconify-icon></div>
+                        <div class="font-bold text-teal-700">14.30 – 15.00 WITA</div>
+                        <p class="text-slate-600">Waktu bebas / istirahat bagi peserta.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot"><iconify-icon icon="mdi:home-map-marker"></iconify-icon></div>
+                        <div class="font-bold text-teal-700">15.00 – 17.00 WITA</div>
+                        <p class="text-slate-600">Perjalanan kembali ke Balikpapan.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FASILITAS & PEMBAYARAN -->
+            <section class="p-6 sm:p-8 border-t">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-slate-800">
+                            <iconify-icon icon="mdi:check-circle" width="25" height="25"
+                                class="text-teal-600"></iconify-icon>
+                            Paket Termasuk
+                        </h2>
+                        <ul class="mt-3 space-y-2 text-sm text-slate-700">
+                            <li class="flex items-center gap-2">🚐 Transportasi nyaman (Hiace/Commuter)</li>
+                            <li class="flex items-center gap-2">🛣️ Tol Balikpapan – IKN</li>
+                            <li class="flex items-center gap-2">🎟️ Tiket masuk destinasi</li>
+                            <li class="flex items-center gap-2">💧 Air mineral</li>
+                            <li class="flex items-center gap-2">🧑‍✈️ Driver berpengalaman &amp; menguasai wilayah IKN
+                            </li>
+                            <li class="flex items-center gap-2">📸 Dokumentasi perjalanan</li>
+                        </ul>
+                        <p class="mt-3 text-xs text-slate-500">*Makan siang ditanggung masing-masing peserta.</p>
+                    </div>
+
+                    <div class="bg-teal-50 p-6 rounded-2xl border border-teal-100">
+                        <h2 class="text-lg font-medium mb-3 flex items-center gap-2 text-teal-800">
+                            <iconify-icon icon="mdi:credit-card-check" width="25" height="25"></iconify-icon>
+                            Pembayaran Praktis
+                        </h2>
+                        <p class="text-sm text-teal-700 mb-4">Bayar mudah lewat:</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-center gap-2 text-sm font-semibold text-teal-900">
+                                <iconify-icon icon="mdi:checkbox-marked-circle"></iconify-icon> QRIS
+                            </li>
+                            <li class="flex items-center gap-2 text-sm font-semibold text-teal-900">
+                                <iconify-icon icon="mdi:checkbox-marked-circle"></iconify-icon> Virtual Account (BRI,
+                                Mandiri, BNI, BSI, dll)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-5 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <div class="flex items-start">
+                        <svg class="h-5 w-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-bold text-blue-900 uppercase tracking-wider">Syarat &amp; Ketentuan:
+                            </h3>
+                            <ul class="mt-2 text-sm text-blue-800 space-y-1 list-disc list-inside">
+                                <li>Open trip <span class="font-bold">maksimal 14 orang</span> per keberangkatan</li>
+                                <li>Pembayaran <span class="font-bold">Rp 250.000</span> / orang</li>
+                                <li>Peserta berkumpul di titik jemput sebelum <span class="font-bold">06.00
+                                        WITA</span></li>
+                                <li>Makan siang ditanggung masing-masing peserta</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800">
+                    📌 <strong>Kuota Terbatas!</strong> Hanya 14 seat per keberangkatan. Info &amp; pemesanan:
+                    <a href="https://wa.me/6281347423737" class="font-bold underline">081347423737</a>
+                </div>
+
+                <br><br><br>
+
+                <!-- BAR BAWAH -->
+                <div
+                    class="fixed bottom-0 left-0 right-0 bg-white p-4 flex items-center justify-between gap-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] border-t z-40">
+                    <div>
+                        <div class="text-xs text-slate-500 leading-none">Harga mulai / orang</div>
+                        <div class="text-pink-600 font-bold text-xl">Rp 250.000</div>
+                    </div>
+                    <button id="orderBtn"
+                        class="inline-flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg">
+                        Pesan Sekarang
+                    </button>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <!-- MODAL FORM -->
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
+        <div class="bg-white rounded-xl max-w-lg w-full shadow-xl overflow-hidden">
+            <div class="p-5 border-b flex items-center justify-between">
+                <h3 class="font-semibold text-slate-800">Formulir Pemesanan - OPEN TRIP IKN</h3>
+                <button id="closeModal" type="button" class="text-slate-500 hover:text-slate-700">✕</button>
+            </div>
+            <form id="orderForm" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-600">Nama</label>
+                    <input name="name" required type="text"
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200" />
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-600">No. HP / WA</label>
+                    <input name="phone" required type="tel" placeholder="0812..."
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm text-slate-600">Tanggal Keberangkatan</label>
+                        <input name="date" id="bookingDate" type="date" required
+                            class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 cursor-pointer" />
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-600">Jumlah Peserta (maks. 14)</label>
+                        <div class="flex items-center mt-1 border rounded-md overflow-hidden w-full">
+                            <button type="button" id="minusBtn"
+                                class="px-3 py-2 bg-slate-50 hover:bg-slate-100 border-r text-slate-600 font-bold">-</button>
+                            <input name="pax" id="paxInput" type="number" min="1" max="14" value="1" readonly
+                                class="w-full text-center text-sm focus:outline-none bg-white" />
+                            <button type="button" id="plusBtn"
+                                class="px-3 py-2 bg-slate-50 hover:bg-slate-100 border-l text-slate-600 font-bold">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-600">Titik Jemput / Catatan</label>
+                    <textarea name="note" rows="3" placeholder="Contoh: dijemput di Klandasan"
+                        class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200"></textarea>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 rounded-md px-3 py-2 text-sm">
+                    <span class="text-slate-600">Total</span>
+                    <span id="totalPreview" class="font-bold text-pink-600">Rp 250.000</span>
+                </div>
+
+                <div class="flex items-center justify-end gap-3">
+                    <button type="button" id="cancelBtn"
+                        class="px-4 py-2 rounded-md border text-sm hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="submit"
+                        class="px-4 py-2 rounded-md bg-teal-600 text-white text-sm hover:bg-teal-700 transition-colors shadow-sm">
+                        Pesan Trip
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PILIH METODE PEMBAYARAN -->
+    <div id="paymentMethodsContainer" class="m-3" style="display: none;">
+        <p style="font-size:16px; font-weight: bold; text-align: center; margin-top: 12px;">Pilih Metode Pembayaran</p>
+        <h6>Scan QR</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="qris" data-method="qris">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684336/Logo_QRIS.svg_szprhw.png"
+                    alt="QRIS" height="30">
+                QRIS
+            </label>
+        </div>
+
+        <h6>Virtual Account</h6>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="002" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png" alt="BRI"
+                    height="30">
+                Bank BRI
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="008" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png"
+                    alt="Mandiri" height="30">
+                Bank Mandiri
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="009" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png"
+                    alt="BNI" height="30">
+                Bank BNI
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="451" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png" alt="BSI"
+                    height="30">
+                Bank BSI
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="022" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png"
+                    alt="CIMB" height="30">
+                Bank CIMB
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="011" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png"
+                    alt="DANAMON" height="30">
+                Bank Danamon
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="013" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg"
+                    alt="Permata" height="30">
+                Bank Permata
+            </label>
+        </div>
+        <div class="method">
+            <label>
+                <input type="radio" name="payment" value="028" data-method="va">
+                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png" alt="OCBC"
+                    height="30">
+                Bank OCBC
+            </label>
+        </div>
+
+        <br><br>
+
+        <div class="video-slider-btn"
+            style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);">
+            <button onclick="createPayment()" type="button"
+                style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #24b3ae; color: white; padding: 12px; border-radius: 5px; outline: none;">
+                LANJUTKAN
+            </button>
+        </div>
+    </div>
+
+    <!-- HALAMAN VA -->
+    <div id="vaPage" class="hidden payment-container">
+        <div class="bg-pembayaran">
+            <div class="flex items-center">
+                <p class="text-lg ml-5 mb-0 text-white">Pembayaran</p>
+            </div>
+        </div>
+
+        <div class="px-4 mt-3">
+            <p class="text-sm font-bold text-gray-700 mt-16">Jumlah yang harus dibayar</p>
+            <p class="total-payment mt-3 text-base font-semibold"></p>
+
+            <div class="flex items-center justify-between mt-3">
+                <p class="text-sm font-bold text-gray-700">Total Harga</p>
+                <p class="text-sm">
+                    <span class="inline-block w-8">Rp</span>
+                    <span class="total-harga inline-block min-w-[70px] text-right"></span>
+                </p>
+            </div>
+
+            <p class="text-sm font-bold text-gray-700 mt-8">Metode Pembayaran</p>
+
+            <div class="bg-va mt-5">
+                <div class="flex items-center">
+                    <div class="bank-logo" style="width:90px">
+                        <img src="" alt="bank" class="ml-3">
+                    </div>
+                    <p class="bank-name ml-3"></p>
+                </div>
+
+                <hr class="my-2 border-gray-300">
+                <p class="text-xs font-medium text-gray-700 ml-3 mt-2">Nomor Virtual Account</p>
+                <div class="flex items-center justify-between mt-2">
+                    <div class="bank-details">
+                        <p id="vaDana" class="font-semibold"></p>
+                    </div>
+                    <div class="bg-copy mt-2 p-1 rounded cursor-pointer mr-2" onclick="copyVaCode()">
+                        <iconify-icon icon="ion:copy" class="w-4 h-4 text-white"
+                            title="Salin Nomor Rekening"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panduan-pembayaran-va"></div>
+
+            <button onclick="goBackToInputs()" class="absolute top-2 right-2 z-10 text-white">
+                <iconify-icon icon="mingcute:close-fill" width="26" height="26"></iconify-icon>
+            </button>
+        </div>
+
+        <center>
+            <div id="countdown"
+                class="text-center text-lg font-bold bg-teal-100 text-teal-700 px-4 py-2 rounded-lg shadow-md w-fit mx-auto mt-5">
+            </div>
+        </center>
+        <br><br><br>
+
+        <div class="fixed bottom-0 left-0 w-full bg-white p-2 z-[998] shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
+            <button onclick="handleManualCheck(this)" type="button"
+                class="w-[calc(100%-20px)] mx-auto block bg-teal-500 text-white py-3 rounded-md">
+                Cek Status Pembayaran
+            </button>
+        </div>
+    </div>
+
+    <!-- HALAMAN QRIS -->
+    <div id="qrisPage" style="display: none;" class="payment-container px-3">
+        <div class="bg-pembayaran">
+            <p style="font-size: 20px; margin-left: 20px; margin-bottom: 0;">Pembayaran</p>
+        </div>
+        <button onclick="goBackToInputs()" class="absolute top-2 right-2 z-10 text-white">
+            <iconify-icon icon="mingcute:close-fill" width="26" height="26"></iconify-icon>
+        </button>
+
+        <p class="text-slate-700 pt-16 text-center">Silakan scan QRIS berikut untuk melakukan pembayaran:</p>
+        <div id="qrShimmer"
+            style="width: 250px; height: 250px; margin: 16px auto; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;">
+        </div>
+        <div style="display: flex; justify-content: center; margin: 20px 0;">
+            <img id="qrisImage" src="" alt="QRIS" width="250" height="250" style="display: none;">
+        </div>
+
+        <center>
+            <button id="downloadQR" type="button" style="display: none;">Unduh QR</button>
+        </center>
+
+        <div class="summary">
+            <p style="font-size:18px;">Total Pembayaran:</p>
+            <p class="total-payment"></p>
+        </div>
+
+        <div id="panduan-pembayaran-qris"></div>
+
+        <center>
+            <div id="countdown-qris"
+                class="text-center text-lg font-bold bg-teal-100 text-teal-700 px-4 py-2 rounded-lg shadow-md w-fit mx-auto mt-5">
+            </div>
+        </center>
+        <br><br><br>
+
+        <div class="fixed bottom-0 left-0 w-full bg-white p-2 z-[998] shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
+            <button onclick="handleManualCheck(this)" type="button"
+                class="w-[calc(100%-20px)] mx-auto block bg-teal-500 text-white py-3 rounded-md">
+                Cek Status Pembayaran
+            </button>
+        </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loadingOverlay"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999] hidden">
+        <div class="flex flex-col items-center">
+            <svg class="animate-spin h-10 w-10 text-white mb-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="text-white text-lg font-medium">Memproses pembayaran...</p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        // ================== KONFIGURASI TRIP ==================
+        const TRIP_NAME = "OPEN TRIP IKN";
+        const PRICE_PER_PAX = 250000;
+        const MAX_PAX = 14;
+        const API_BASE = "https://wisata.siappgo.id";
+
+        // Ganti dengan URL gambar flyer / foto IKN kamu (boleh lebih dari satu)
+        const IMAGES = [
+            "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1790887987/WhatsApp_Image_2026-10-02_at_00.33.54_im3fl5.jpg"
+        ];
+
+        // ================== FIREBASE ==================
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8P9au26mC8xx8UcjNsm-NMW5JUgTHUBU",
+            authDomain: "linku-3ca65.firebaseapp.com",
+            databaseURL: "https://linku-3ca65-default-rtdb.firebaseio.com",
+            projectId: "linku-3ca65",
+            storageBucket: "linku-3ca65.appspot.com",
+            messagingSenderId: "759194220603",
+            appId: "1:759194220603:web:33e2327dfa94af2552841e"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+
+        // ================== ELEMEN ==================
+        const orderBtn = document.getElementById('orderBtn');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const orderForm = document.getElementById('orderForm');
+        const utamaHal = document.getElementById('utamaHal');
+        const paymentMethodsContainer = document.getElementById('paymentMethodsContainer');
+        const paxInput = document.getElementById('paxInput');
+        const plusBtn = document.getElementById('plusBtn');
+        const minusBtn = document.getElementById('minusBtn');
+        const totalPreview = document.getElementById('totalPreview');
+
+        const rupiah = (n) => "Rp " + Number(n).toLocaleString("id-ID");
+
+        function openModal() { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        function hideModal() { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+
+        orderBtn.addEventListener('click', openModal);
+        closeModal.addEventListener('click', hideModal);
+        cancelBtn.addEventListener('click', hideModal);
+
+        // Tanggal minimal = hari ini
+        document.getElementById('bookingDate').setAttribute('min', new Date().toISOString().split('T')[0]);
+
+        // Nilai default (di-replace oleh aplikasi LinkU)
+        const defaultNama = "{nama}";
+        const defaultHP = "{hp}";
+        orderForm.name.value = defaultNama.startsWith("{") ? "" : defaultNama;
+        orderForm.phone.value = defaultHP.startsWith("{") ? "" : defaultHP;
+
+        // Counter peserta
+        function updateTotal() {
+            totalPreview.textContent = rupiah((parseInt(paxInput.value) || 1) * PRICE_PER_PAX);
+        }
+        plusBtn.addEventListener('click', () => {
+            const val = parseInt(paxInput.value);
+            if (val < MAX_PAX) { paxInput.value = val + 1; updateTotal(); }
+            else swal("Kuota Penuh", "Maksimal " + MAX_PAX + " peserta per keberangkatan.", "info");
+        });
+        minusBtn.addEventListener('click', () => {
+            const val = parseInt(paxInput.value);
+            if (val > 1) { paxInput.value = val - 1; updateTotal(); }
+        });
+        orderForm.addEventListener('reset', () => { paxInput.value = 1; updateTotal(); });
+
+        // Submit form -> pilih metode pembayaran
+        orderForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            modal.style.display = 'none';
+            utamaHal.style.display = 'none';
+            paymentMethodsContainer.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Kembali dari halaman pembayaran
+        function goBackToInputs() {
+            stopPolling();
+            ["vaPage", "qrisPage", "paymentMethodsContainer"].forEach(id => {
+                document.getElementById(id).style.display = "none";
+            });
+            modal.style.display = '';
+            hideModal();
+            utamaHal.style.display = "block";
+        }
+
+        // ================== POLLING STATUS ==================
+        let activePartnerReff = "";
+        let pollingInterval = null;
+
+        function startPolling(partnerReff) {
+            if (!partnerReff) return;
+            activePartnerReff = partnerReff;
+            try { localStorage.setItem('last_partner_reff', partnerReff); } catch (e) { }
+
+            stopPolling();
+            pollingInterval = setInterval(() => cekStatusPembayaranOtomatis(activePartnerReff), 5000);
+            setTimeout(() => stopPolling(), 15 * 60 * 1000);
+        }
+
+        function stopPolling() {
+            if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+        }
+
+        async function handleManualCheck(btn) {
+            const originalText = btn.innerHTML;
+            let partnerReff = activePartnerReff;
+
+            if (!partnerReff) {
+                try { partnerReff = localStorage.getItem('last_partner_reff'); } catch (e) { }
+            }
+            if (!partnerReff) {
+                swal("Peringatan", "Data transaksi tidak ditemukan, silakan pesan ulang.", "warning");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = "⏳ Mengecek...";
+            try { await cekStatusPembayaranOtomatis(partnerReff, true); } catch (err) { console.error(err); }
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+
+        async function cekStatusPembayaranOtomatis(partnerReff, manual = false) {
+            try {
+                const response = await fetch(`${API_BASE}/check-status/${partnerReff}`);
+                if (!response.ok) return;
+                const resData = await response.json();
+
+                const isPaid = resData.rc === '00' && resData.data &&
+                    (resData.data.status_trx === 'success' || resData.data.status_paid === 'paid');
+
+                if (isPaid) {
+                    stopPolling();
+                    ["qrisPage", "vaPage", "paymentMethodsContainer"].forEach(id => {
+                        document.getElementById(id).style.display = "none";
+                    });
+                    utamaHal.style.display = "block";
+
+                    swal({
+                        title: "Pembayaran Berhasil!",
+                        text: "Terima kasih, pesanan Open Trip IKN Anda telah diproses. Kami akan menghubungi Anda via WhatsApp.",
+                        icon: "success",
+                        button: "Selesai",
+                        closeOnClickOutside: false
+                    });
+                } else if (manual) {
+                    swal("Belum Masuk", "Pembayaran belum kami terima. Silakan coba lagi sesaat kemudian.", "info");
+                }
+            } catch (err) {
+                console.error("Error polling:", err);
+            }
+        }
+
+        // ================== BUAT PEMBAYARAN ==================
+        async function createPayment() {
+            const selectedRadio = document.querySelector('input[name="payment"]:checked');
+            if (!selectedRadio) {
+                swal("Warning!", "Silahkan pilih metode pembayaran terlebih dahulu", "warning");
+                return;
+            }
+
+            const formValues = Object.fromEntries(new FormData(orderForm).entries());
+            const method = selectedRadio.dataset.method;
+            const bankCode = selectedRadio.value;
+
+            const paxCount = Math.min(parseInt(paxInput.value) || 1, MAX_PAX);
+            const totalAmount = paxCount * PRICE_PER_PAX;
+
+            let endpoint = "";
+            const payload = {
+                amount: totalAmount,
+                date: formValues.date,
+                name: TRIP_NAME,
+                note: formValues.note || "",
+                pax: paxCount.toString(),
+                phone: formValues.phone,
+                customer_id: "{userid}",
+                customer_name: "{username}",
+                customer_email: "bocahangon64@gmail.com",
+                customer_phone: formValues.phone
+            };
+
+            if (method === "va") {
+                endpoint = API_BASE + "/create-va";
+                payload.metode_pembayaran = "VA";
+                payload.bank_code = bankCode;
+            } else {
+                endpoint = API_BASE + "/create-qris";
+                payload.metode_pembayaran = "QRIS";
+            }
+
+            document.getElementById("loadingOverlay").classList.remove("hidden");
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const res = await response.json();
+                console.log("Response:", res);
+
+                if (res.partner_reff) {
+                    startPolling(res.partner_reff);
+
+                    // ---- VA ----
+                    if (method === "va" && res.response_code === "00") {
+                        paymentMethodsContainer.style.display = "none";
+                        const vaPage = document.getElementById("vaPage");
+                        vaPage.style.display = "block";
+
+                        vaPage.querySelector(".total-payment").textContent = rupiah(res.amount);
+                        vaPage.querySelector(".total-harga").textContent = Number(res.amount).toLocaleString("id-ID");
+
+                        const bankLogoMap = {
+                            "BANK BRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png",
+                            "BANK MANDIRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png",
+                            "BANK BNI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png",
+                            "BANK BSI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png",
+                            "BANK CIMB NIAGA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png",
+                            "DANAMON": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png",
+                            "BANK PERMATA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg",
+                            "BANK OCBC": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png"
+                        };
+
+                        const mobileBankingSteps = {
+                            "BANK BRI": ["Login ke aplikasi BRImo.", "Pilih menu BRIVA.", "Masukkan nomor Virtual Account.", "Masukkan nominal jika diperlukan.", "Konfirmasi dan selesaikan pembayaran."],
+                            "BANK MANDIRI": ["Login ke aplikasi Livin' by Mandiri.", "Pilih menu Bayar.", "Pilih Multi Payment.", "Pilih penyedia jasa dan masukkan nomor Virtual Account.", "Konfirmasi dan bayar."],
+                            "DANAMON": ["Login ke aplikasi D-Bank PRO.", "Pilih Transfer > Virtual Account.", "Masukkan nomor VA dan jumlah pembayaran.", "Konfirmasi detail dan selesaikan pembayaran."],
+                            "BANK PERMATA": ["Login ke PermataMobile X.", "Pilih menu Bayar > Virtual Account.", "Masukkan nomor Virtual Account.", "Cek detail pembayaran lalu konfirmasi dan bayar."],
+                            "BANK BNI": ["Login ke aplikasi BNI Mobile Banking.", "Pilih menu Transfer.", "Pilih Virtual Account Billing.", "Masukkan nomor VA dan pilih Lanjut.", "Periksa informasi dan konfirmasi pembayaran."],
+                            "BANK BSI": ["Login ke aplikasi BSI Mobile.", "Pilih menu Bayar.", "Pilih Virtual Account.", "Masukkan nomor VA dan pilih Sumber Dana.", "Periksa detail pembayaran dan konfirmasi."]
+                        };
+
+                        const bankLogo = vaPage.querySelector(".bank-logo img");
+                        const bankName = vaPage.querySelector(".bank-name");
+                        if (bankLogo) bankLogo.src = bankLogoMap[res.bank_name] || "https://via.placeholder.com/80x40?text=Bank";
+                        if (bankName) bankName.textContent = res.bank_name;
+
+                        document.getElementById("vaDana").textContent = res.virtual_account;
+
+                        const panduan = document.getElementById("panduan-pembayaran-va");
+                        panduan.innerHTML = "";
+                        if (mobileBankingSteps[res.bank_name]) {
+                            const steps = mobileBankingSteps[res.bank_name].map(s => `<li class="mb-1">${s}</li>`).join("");
+                            panduan.innerHTML = `
+                                <div class="mt-4 p-4 bg-slate-50 rounded-lg">
+                                    <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran ${res.bank_name}</h3>
+                                    <ol class="list-decimal pl-5 text-sm text-gray-700">${steps}</ol>
+                                </div>`;
+                        }
+                        startCountdown('countdown', 15);
+                    }
+
+                    // ---- QRIS ----
+                    if (method === "qris" && res.response_code === "00") {
+                        paymentMethodsContainer.style.display = "none";
+                        const qrisPage = document.getElementById("qrisPage");
+                        qrisPage.style.display = "block";
+
+                        qrisPage.querySelector(".total-payment").textContent = rupiah(res.amount);
+
+                        const qrImage = document.getElementById("qrisImage");
+                        qrImage.src = res.imageqris;
+                        qrImage.style.display = "block";
+                        document.getElementById("qrShimmer").style.display = "none";
+
+                        const downloadBtn = document.getElementById("downloadQR");
+                        downloadBtn.style.display = "block";
+                        downloadBtn.onclick = () => {
+                            const link = document.createElement('a');
+                            link.href = `${API_BASE}/download-qr/${res.partner_reff}`;
+                            link.target = "_blank";
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+
+                        document.getElementById("panduan-pembayaran-qris").innerHTML = `
+                            <div class="mt-2 p-4 bg-slate-50 rounded-lg">
+                                <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran QRIS</h3>
+                                <ol class="list-decimal pl-5 text-sm text-gray-700 space-y-1">
+                                    <li>Buka aplikasi e-Wallet atau Mobile Banking Anda.</li>
+                                    <li>Pilih menu <strong>Scan / Bayar</strong>.</li>
+                                    <li>Scan kode QR di atas atau gunakan hasil download.</li>
+                                    <li>Periksa nominal dan selesaikan pembayaran.</li>
+                                </ol>
+                            </div>`;
+                        startCountdown('countdown-qris', 15);
+                    }
+                } else {
+                    swal("Gagal", res.response_desc || "Gagal membuat pembayaran", "error");
+                }
+            } catch (error) {
+                console.error("Gagal membuat pembayaran:", error);
+                swal("Error", "Terjadi kesalahan jaringan atau server.", "error");
+            } finally {
+                document.getElementById("loadingOverlay").classList.add("hidden");
+            }
+        }
+
+        function copyVaCode() {
+            const code = document.getElementById('vaDana')?.innerText;
+            if (!code || code.trim() === "") { swal("Gagal", "Nomor Rekening tidak ditemukan", "error"); return; }
+            const tmp = document.createElement('input');
+            document.body.appendChild(tmp);
+            tmp.value = code;
+            tmp.select();
+            document.execCommand('copy');
+            document.body.removeChild(tmp);
+            swal({ title: 'Berhasil Disalin !', text: 'Nomor Rekening telah disalin.', icon: 'success' });
+        }
+
+        // Countdown umum (VA & QRIS)
+        const countdownTimers = {};
+        function startCountdown(elId, minutes) {
+            let time = minutes * 60;
+            const el = document.getElementById(elId);
+            clearInterval(countdownTimers[elId]);
+            el.classList.remove("bg-red-100", "text-red-700");
+            el.classList.add("bg-teal-100", "text-teal-700");
+
+            countdownTimers[elId] = setInterval(() => {
+                const m = String(Math.floor(time / 60)).padStart(2, '0');
+                const s = String(time % 60).padStart(2, '0');
+                el.textContent = `⏳ Berakhir dalam ${m}:${s}`;
+
+                if (time <= 0) {
+                    clearInterval(countdownTimers[elId]);
+                    el.textContent = "❌ Waktu Berakhir";
+                    el.classList.remove("bg-teal-100", "text-teal-700");
+                    el.classList.add("bg-red-100", "text-red-700");
+                }
+                time--;
+            }, 1000);
+        }
+
+        // ================== SLIDER ==================
+        let currentSlide = 0;
+        const sliderImg = document.getElementById('sliderImg');
+        const prevSlide = document.getElementById('prevSlide');
+        const nextSlide = document.getElementById('nextSlide');
+
+        function showSlide(i) { sliderImg.src = IMAGES[i]; }
+        prevSlide.onclick = () => { currentSlide = (currentSlide - 1 + IMAGES.length) % IMAGES.length; showSlide(currentSlide); };
+        nextSlide.onclick = () => { currentSlide = (currentSlide + 1) % IMAGES.length; showSlide(currentSlide); };
+        if (IMAGES.length < 2) { prevSlide.style.display = "none"; nextSlide.style.display = "none"; }
+        showSlide(0);
+        updateTotal();
+    </script>
+</body>
+
+</html>
