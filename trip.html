@@ -801,16 +801,48 @@
             btn.innerHTML = originalText;
         }
 
+        // async function cekStatusPembayaranOtomatis(partnerReff, manual = false) {
+        //     try {
+        //         const response = await fetch(`${API_BASE}/check-status/${partnerReff}`);
+        //         if (!response.ok) return;
+        //         const resData = await response.json();
+
+        //         const isPaid = resData.rc === '00' && resData.data &&
+        //             (resData.data.status_trx === 'success' || resData.data.status_paid === 'paid');
+
+        //         if (isPaid) {
+        //             stopPolling();
+        //             ["qrisPage", "vaPage", "paymentMethodsContainer"].forEach(id => {
+        //                 document.getElementById(id).style.display = "none";
+        //             });
+        //             utamaHal.style.display = "block";
+
+        //             swal({
+        //                 title: "Pembayaran Berhasil!",
+        //                 text: "Terima kasih, pesanan Open Trip IKN Anda telah diproses. Kami akan menghubungi Anda via WhatsApp.",
+        //                 icon: "success",
+        //                 button: "Selesai",
+        //                 closeOnClickOutside: false
+        //             });
+        //         } else if (manual) {
+        //             swal("Belum Masuk", "Pembayaran belum kami terima. Silakan coba lagi sesaat kemudian.", "info");
+        //         }
+        //     } catch (err) {
+        //         console.error("Error polling:", err);
+        //     }
+        // }
+
         async function cekStatusPembayaranOtomatis(partnerReff, manual = false) {
             try {
-                const response = await fetch(`${API_BASE}/check-status/${partnerReff}`);
+                // ✅ Polling ke backend sendiri (Firebase), bukan LinkQu
+                const response = await fetch(`${API_BASE}/check-local-status/${partnerReff}`);
                 if (!response.ok) return;
+
                 const resData = await response.json();
+                console.log("📊 Local Status:", resData);
 
-                const isPaid = resData.rc === '00' && resData.data &&
-                    (resData.data.status_trx === 'success' || resData.data.status_paid === 'paid');
-
-                if (isPaid) {
+                // Cek apakah sudah SUKSES
+                if (resData.success && resData.is_paid === true) {
                     stopPolling();
                     ["qrisPage", "vaPage", "paymentMethodsContainer"].forEach(id => {
                         document.getElementById(id).style.display = "none";
@@ -854,11 +886,10 @@
                 name: TRIP_NAME,
                 note: formValues.note || "",
                 pax: paxCount.toString(),
-                phone: formValues.phone,
-                customer_id: "{userid}",
-                customer_name: "{username}",
+                customer_name: formValues.name,        // ✅ dari input "Nama"
+                customer_phone: formValues.phone,      // ✅ dari input "No. HP / WA"
                 customer_email: "bocahangon64@gmail.com",
-                customer_phone: formValues.phone
+                customer_id: `CUST-${Date.now()}`      // ✅ generate unik
             };
 
             if (method === "va") {
