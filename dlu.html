@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencarian Jadwal DLU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased" x-data="shipDluApp()">
+
+    <div
+        class="fixed top-0 inset-x-0 bg-white text-slate-800 p-4 z-50 shadow-sm flex items-center gap-4 max-w-md mx-auto">
+        <button @click="goBack()" class="p-1 hover:bg-slate-100 rounded-full transition-colors">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+        </button>
+        <h2 class="font-semibold text-lg" x-text="stage === 'search' ? 'Dharma Lautan Utama' : 'Pilih Jadwal'"></h2>
+        <div class="ml-auto">
+            <i data-lucide="more-vertical" class="w-6 h-6"></i>
+        </div>
+    </div>
+
+    <div x-show="loading"
+        class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex items-center justify-center max-w-md mx-auto"
+        x-cloak>
+        <div class="text-center">
+            <div
+                class="w-12 h-12 border-4 border-[#24b3ae] border-t-transparent rounded-full animate-spin mx-auto mb-4">
+            </div>
+            <p class="text-xs font-bold text-slate-600 uppercase tracking-widest" x-text="loadingText"></p>
+        </div>
+    </div>
+
+    <main class="max-w-md mx-auto min-h-screen bg-white pt-20 px-4 pb-10 shadow-xl">
+
+        <template x-if="stage === 'search'">
+            <div class="space-y-2">
+                <div class="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 shadow-sm">
+
+                    <div @click="showOriginModal = true; searchCityQuery = ''"
+                        class="p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition">
+                        <i data-lucide="map-pin" class="w-6 h-6 text-slate-400"></i>
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400">Dari</label>
+                            <div class="font-medium text-slate-700" x-text="selectedOriginName"></div>
+                        </div>
+                    </div>
+
+                    <div @click="showDestModal = true; searchCityQuery = ''"
+                        class="p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition border-t">
+                        <i data-lucide="map-pin" class="w-6 h-6 text-slate-400"></i>
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400">Ke</label>
+                            <div class="font-medium text-slate-700" x-text="selectedDestName"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex items-center gap-4">
+                        <i data-lucide="calendar" class="w-6 h-6 text-slate-400"></i>
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400">Tanggal Berangkat</label>
+                            <input type="date" x-model="search.departDate" :min="new Date().toISOString().split('T')[0]"
+                                class="w-full bg-transparent font-medium text-slate-700 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex items-center gap-4 border-b border-slate-50">
+                        <i data-lucide="layers" class="w-6 h-6 text-slate-400"></i>
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400">Jenis Tiket</label>
+                            <select x-model="search.ticketTypeID"
+                                class="w-full bg-transparent font-medium text-slate-700 outline-none appearance-none">
+                                <template x-for="tkt in ticketTypes" :key="tkt.id">
+                                    <option :value="tkt.id" x-text="tkt.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+
+
+
+                    <div class="p-4 flex items-center gap-4">
+                        <i data-lucide="layers" class="w-6 h-6 text-slate-400"></i>
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400">Kelas</label>
+                            <select x-model="search.classID"
+                                class="w-full bg-transparent font-medium text-slate-700 outline-none appearance-none">
+                                <option value="0">Semua Kelas</option>
+                                <template x-for="cls in classTypes" :key="cls.id">
+                                    <option :value="cls.id" x-text="cls.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+
+                    <template x-if="search.ticketTypeID !== '1'">
+                        <div class="p-4 flex items-center gap-4 border-t border-slate-100">
+                            <i data-lucide="truck" class="w-6 h-6 text-slate-400"></i>
+                            <div class="flex-1">
+                                <label class="block text-xs text-slate-400">Jenis Kendaraan</label>
+                                <select x-model="search.vehicleID"
+                                    class="w-full bg-transparent font-medium text-slate-700 outline-none appearance-none">
+                                    <option value="0">Semua Kelas</option>
+                                    <template x-for="vhc in vehicleTypes" :key="vhc.id">
+                                        <option :value="vhc.id" x-text="vhc.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                        </div>
+                    </template>
+
+                    <div class="p-4 flex items-center gap-4 border-t border-slate-100">
+                        <i data-lucide="door-closed" class="w-6 h-6 text-slate-400"></i>
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400">Jenis Kamar</label>
+                            <select x-model="search.roomClassID"
+                                class="w-full bg-transparent font-medium text-slate-700 outline-none appearance-none">
+                                <option value="0">Semua Jenis Kamar</option>
+                                <template x-for="rm in roomClasses" :key="rm.id">
+                                    <option :value="rm.id" x-text="rm.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button @click="getSchedules"
+                        class="w-full bg-[#24b3ae] text-white py-4 rounded-xl font-bold text-base shadow-lg active:scale-[0.98] transition-all">
+                        Cari Kapal Laut
+                    </button>
+                </div>
+
+
+            </div>
+        </template>
+
+        <template x-if="stage === 'results'">
+            <div class="space-y-0 -mx-4">
+                <div
+                    class="px-4 py-3 bg-white border-b border-slate-100 flex justify-between items-center sticky top-0 z-50">
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[13px] font-bold text-slate-800" x-text="originName"></span>
+                            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
+                            <span class="text-[13px] font-bold text-slate-800" x-text="destinationName"></span>
+                        </div>
+                        <span class="text-[11px] text-slate-500" x-text="formatDateFull(search.departDate)"></span>
+                    </div>
+                    <button @click="stage = 'search'"
+                        class="text-[#24b3ae] text-xs font-bold px-3 py-1 bg-cyan-50 rounded-lg active:scale-95 transition">
+                        Ubah
+                    </button>
+                </div>
+
+                <div
+                    class="flex bg-white border-b border-slate-200 sticky top-[52px] z-40 shadow-sm overflow-x-auto no-scrollbar">
+                    <template x-for="date in availableDates" :key="date">
+                        <button @click="search.departDate = date; getSchedules()"
+                            :class="search.departDate === date ? 'border-[#24b3ae] text-[#24b3ae] bg-cyan-50/30' : 'border-transparent text-slate-400 hover:text-slate-600'"
+                            class="flex-1 min-w-[80px] py-3 text-center border-b-2 transition-all duration-200 flex flex-col items-center">
+                            <span class="text-[10px] font-bold uppercase" x-text="formatDateShort(date)"></span>
+                        </button>
+                    </template>
+                </div>
+
+                <div class="p-4 space-y-6 pb-32">
+                    <template x-for="item in scheduleList.filter(s => s.departDateTime.startsWith(search.departDate))"
+                        :key="item.shipNumber + item.departDateTime">
+
+                        <div class="space-y-0 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-4 relative">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-[#24b3ae]"></div>
+
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 bg-cyan-50 rounded-lg">
+                                            <i data-lucide="ship" class="w-4 h-4 text-[#24b3ae]"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-sm" x-text="item.shipName"></h3>
+                                            <p class="text-[10px] text-slate-400" x-text="item.shipNumber"></p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span
+                                            class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold"
+                                            x-text="item.routeInfo.split('-').length > 2 ? 'Transit' : 'Langsung'"></span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <p class="text-[10px] text-slate-400 font-medium">Keberangkatan</p>
+                                        <p class="text-xs font-bold text-slate-700" x-text="originName"></p>
+                                        <p class="text-[11px] text-[#24b3ae] font-bold mt-1"
+                                            x-text="item.departDateTime.split('T')[1].substring(0,5)"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[10px] text-slate-400 font-medium">Tiba (Estimasi)</p>
+                                        <p class="text-xs font-bold text-slate-700" x-text="destinationName"></p>
+                                        <p class="text-[11px] text-slate-500 font-bold mt-1"
+                                            x-text="item.arrivalDateTime.split('T')[1].substring(0,5)"></p>
+                                    </div>
+                                </div>
+
+                                <div class="pt-3 border-t border-dashed border-slate-200">
+                                    <p class="text-[10px] text-slate-400 font-medium mb-1">Rute Perjalanan</p>
+                                    <p class="text-[11px] font-medium text-slate-600 italic"
+                                        x-text="item.routeInfo.trim()"></p>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50/50 divide-y divide-slate-100">
+                                <template x-for="(fare, index) in item.Fares" :key="fare.Classes + fare.PaxType">
+                                    <div class="p-4 flex justify-between items-center">
+                                        <div class="flex-1 pr-4">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="text-[10px] font-black text-slate-400 uppercase tracking-wider"
+                                                    x-text="fare.Classes"></span>
+                                                <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                <span class="text-xs text-slate-600 font-medium"
+                                                    x-text="fare.PaxType"></span>
+                                            </div>
+                                            <p x-show="fare.Availability === 0"
+                                                class="text-[10px] font-bold text-red-500 mt-0.5"
+                                                x-text="fare.AvailabilityInfo || 'PENUH'"></p>
+                                        </div>
+
+                                        <div
+                                            class="flex items-center gap-3 bg-white rounded-full px-2 py-1 shadow-sm border border-slate-100">
+                                            <button @click="updateQty(item.shipNumber, index, -1)"
+                                                :disabled="fare.Availability === 0"
+                                                :class="fare.Availability === 0 ? 'opacity-40 cursor-not-allowed' : 'active:bg-slate-200'"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-50 text-slate-600 transition">
+                                                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                            <span class="text-xs font-bold min-w-[20px] text-center"
+                                                x-text="fare.count || 0"></span>
+                                            <button @click="updateQty(item.shipNumber, index, 1, fare)"
+                                                :disabled="fare.Availability === 0"
+                                                :class="fare.Availability === 0 ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#24b3ae] text-white active:scale-90 shadow-md shadow-cyan-100'"
+                                                class="w-7 h-7 flex items-center justify-center rounded-full transition">
+                                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div x-show="scheduleList.filter(s => s.departDateTime.startsWith(search.departDate)).length === 0"
+                        class="py-20 text-center flex flex-col items-center">
+                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="calendar-x" class="w-10 h-10 text-slate-300"></i>
+                        </div>
+                        <p class="text-slate-800 font-bold">Tidak ada jadwal</p>
+                        <p class="text-slate-400 text-xs mt-1">Silakan pilih tanggal lain di atas</p>
+                    </div>
+                </div>
+
+                <div x-show="getTotalSelected() > 0" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+                    class="fixed bottom-0 inset-x-0 max-w-md mx-auto bg-white p-4 border-t border-slate-100 shadow-[0_-10px_25px_rgba(0,0,0,0.1)] z-[60] flex items-center justify-between rounded-t-2xl">
+                    <div>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total Bayar</p>
+                        <p class="text-lg font-black text-[#24b3ae]" x-text="formatCurrency(getTotalPrice())"></p>
+                        <p class="text-[9px] text-slate-400" x-text="`${getTotalSelected()} Tiket Terpilih`"></p>
+                    </div>
+                    <button @click="goToPassengerForm()"
+                        class="bg-[#24b3ae] text-white px-10 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-cyan-100 active:scale-95 transition-all">
+                        Lanjutkan
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="stage === 'passenger_form'">
+            <div class="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                <!-- Ringkasan Pembayaran -->
+                <div class="space-y-4">
+                    <div
+                        class="bg-gradient-to-br from-[#24b3ae] to-[#1d9692] p-6 rounded-[15px] text-white shadow-xl shadow-cyan-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Total Pembayaran
+                                Akhir</span>
+                            <i data-lucide="credit-card" class="w-5 h-5 opacity-80"></i>
+                        </div>
+                        <p class="text-3xl font-black" x-text="formatCurrency(totalFinal)"></p>
+                        <div class="mt-2 text-[10px] opacity-70 italic" x-show="serviceFee > 0">
+                            *Termasuk biaya layanan <span x-text="formatCurrency(serviceFee)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Input Service Fee -->
+                    <div class="bg-white border border-slate-200 rounded-[15px] p-5 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm">
+                            <i data-lucide="plus-circle" class="w-4 h-4 text-[#24b3ae]"></i>
+                            Biaya Layanan / Admin (Opsional)
+                        </h3>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">Rp</span>
+                            <input type="number" x-model="serviceFee" placeholder="0"
+                                class="w-full p-4 pl-12 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold focus:border-[#24b3ae] outline-none transition-all"
+                                @input="serviceFee = $event.target.value < 0 ? 0 : $event.target.value">
+                        </div>
+                        <p class="text-[9px] text-slate-400 mt-2 px-1">*Biaya ini akan ditambahkan ke total tagihan dan
+                            disimpan ke sistem.</p>
+                    </div>
+                </div>
+
+                <!-- Data Kontak Pemesan -->
+                <div class="bg-white border border-[#24b3ae] rounded-[15px] p-5 mb-6 shadow-sm">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="contact" class="w-5 h-5 text-[#24b3ae]"></i>
+                        Data Kontak Pemesan (Untuk Kirim Tiket)
+                    </h3>
+                    <div class="space-y-4">
+                        <input type="text" x-model="bookingResponse.bookerData.name" placeholder="NAMA PEMESAN"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold uppercase">
+
+                        <input type="text" x-model="bookingResponse.bookerData.id" placeholder="NO. IDENTITAS / KTP"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
+
+                        <input type="text" x-model="bookingResponse.bookerData.city" placeholder="KOTA / KABUPATEN"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold uppercase">
+
+                        <input type="email" x-model="bookingResponse.bookerData.email" placeholder="EMAIL"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
+
+                        <input type="number" x-model="bookingResponse.bookerData.phone" placeholder="NO. WHATSAPP"
+                            class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold">
+                    </div>
+                </div>
+
+                <!-- Data Penumpang -->
+                <div class="space-y-4" x-show="passengerDetails.length > 0">
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2 px-1">
+                        <i data-lucide="users" class="w-5 h-5 text-[#24b3ae]"></i>
+                        Data Penumpang & Fasilitas
+                    </h3>
+
+                    <template x-for="(pax, index) in passengerDetails" :key="index">
+                        <div
+                            class="bg-white border border-slate-200 rounded-[15px] overflow-hidden shadow-sm hover:border-[#24b3ae] transition-all">
+                            <div
+                                class="bg-slate-50 px-5 py-3 border-b border-slate-200 flex justify-between items-center">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-black text-[#24b3ae] uppercase tracking-wider"
+                                        x-text="pax.paxInfo"></span>
+                                    <span class="text-[10px] font-bold text-slate-400"
+                                        x-text="'Penumpang ' + (index + 1)"></span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <!-- Toggle Sama dengan Pemesan (Hanya Penumpang Pertama) -->
+                                    <template x-if="index === 0">
+                                        <label class="flex items-center gap-2 cursor-pointer group">
+                                            <span
+                                                class="text-[9px] font-bold text-slate-500 group-hover:text-[#24b3ae] transition-colors">SAMA
+                                                DENGAN PEMESAN</span>
+                                            <div class="relative">
+                                                <input type="checkbox" class="sr-only" @change="if($event.target.checked) { 
+                                                pax.name = bookingResponse.bookerData.name; 
+                                                pax.id = bookingResponse.bookerData.id; 
+                                                pax.city = bookingResponse.bookerData.city;
+                                                pax.phone = bookingResponse.bookerData.phone;
+                                            }">
+                                                <div class="w-8 h-4 bg-slate-300 rounded-full shadow-inner"></div>
+                                                <div
+                                                    class="dot absolute w-2 h-2 bg-white rounded-full left-1 top-1 transition-all">
+                                                </div>
+                                            </div>
+                                            <style>
+                                                input:checked~.dot {
+                                                    transform: translateX(100%);
+                                                    background-color: #24b3ae;
+                                                }
+
+                                                input:checked~div:first-of-type {
+                                                    background-color: #ccf0ee;
+                                                }
+                                            </style>
+                                        </label>
+                                    </template>
+
+                                    <template x-if="pax.sourceType === 'VEHICLE'">
+                                        <span
+                                            class="bg-orange-100 text-orange-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Driver</span>
+                                    </template>
+                                    <template x-if="pax.sourceType === 'ROOM'">
+                                        <span
+                                            class="bg-purple-100 text-purple-600 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase">Fasilitas
+                                            Kamar</span>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="p-5 space-y-5">
+                                <!-- Kolom Golongan -->
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Gol.
+                                        Penumpang</label>
+                                    <select x-model="pax.paxGroup"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]">
+                                        <option value="1">Dewasa</option>
+                                        <option value="2">Anak</option>
+                                        <option value="3">Bayi</option>
+                                        <template x-if="pax.sourceType === 'ROOM'">
+                                            <option value="1">Dewasa - Kamar</option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <!-- Kolom Nama -->
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Nama
+                                        Lengkap (Sesuai KTP)</label>
+                                    <input type="text" x-model="pax.name"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae] uppercase"
+                                        placeholder="NAMA LENGKAP">
+                                </div>
+
+                                <!-- Kolom Gender -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Jenis Kelamin
+                                    </label>
+                                    <select x-model="pax.gender"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none appearance-none focus:border-[#24b3ae]">
+                                        <option value="L">Laki-laki (L)</option>
+                                        <option value="P">Perempuan (P)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Kolom Tgl Lahir -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Tgl Lahir
+                                    </label>
+                                    <input type="date" x-model="pax.dob"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]">
+                                </div>
+
+                                <!-- Kolom NIK -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        NIK (No. Identitas)
+                                    </label>
+                                    <input type="text" x-model="pax.id"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]"
+                                        placeholder="16 DIGIT NIK">
+                                </div>
+
+                                <!-- Kolom Kota -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Kota / Kab
+                                    </label>
+                                    <input type="text" x-model="pax.city"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase focus:border-[#24b3ae]"
+                                        placeholder="SURABAYA">
+                                </div>
+
+                                <!-- Kolom Catatan -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        Keterangan / Catatan
+                                    </label>
+                                    <input type="text" x-model="pax.note"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none uppercase focus:border-[#24b3ae]"
+                                        placeholder="CATATAN">
+                                </div>
+
+                                <!-- Kolom WA -->
+                                <div class="mb-4">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">
+                                        No. WhatsApp
+                                    </label>
+                                    <input type="number" x-model="pax.phone"
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-[15px] text-sm font-bold outline-none focus:border-[#24b3ae]"
+                                        placeholder="081234xxx">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Detail Kendaraan -->
+                <template x-if="bookingResponse.listVehicle && bookingResponse.listVehicle.length > 0">
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2 px-1">
+                            <i data-lucide="truck" class="w-5 h-5 text-orange-500"></i>
+                            Detail Kendaraan
+                        </h3>
+
+                        <template x-for="(vhc, vIdx) in bookingResponse.listVehicle" :key="'v-'+vIdx">
+                            <div class="bg-orange-50 border border-orange-200 rounded-[15px] p-5 space-y-5">
+                                <div class="flex items-center gap-2 border-b border-orange-200 pb-3">
+                                    <span class="text-xs font-black text-orange-700 uppercase"
+                                        x-text="vhc.vehicleInfo"></span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">No.
+                                            Polisi</label>
+                                        <input type="text" x-model="vhc.regNo"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase focus:border-orange-500 outline-none"
+                                            placeholder="KH 1234 ABC">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-orange-400 uppercase mb-1.5 block px-1">Nama
+                                            Pemilik</label>
+                                        <input type="text" x-model="vhc.ownerName"
+                                            class="w-full p-4 bg-white border border-orange-200 rounded-[15px] text-sm font-bold uppercase focus:border-orange-500 outline-none"
+                                            placeholder="SESUAI STNK">
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-3 pt-4">
+                    <button @click="openPaymentModal()"
+                        class="w-full bg-[#24b3ae] text-white py-5 rounded-[15px] font-black uppercase text-sm shadow-lg shadow-cyan-100 transform active:scale-95 transition-all flex justify-center items-center gap-2">
+                        <span>Lanjutkan ke Pembayaran</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <button @click="stage = 'results'; window.scrollTo(0,0)"
+                        class="w-full text-slate-400 py-2 text-xs font-bold uppercase tracking-widest hover:text-red-500 transition-colors">
+                        Batal dan Kembali
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="stage === 'issued_success'">
+            <div class="space-y-6">
+                <div class="text-center py-6">
+                    <div
+                        class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                        <i data-lucide="check-circle" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight">Pembayaran Berhasil</h3>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                        x-text="'Kode Booking: ' + issuedResponse.bookingNumber"></p>
+                </div>
+
+                <div class="px-2">
+                    <button @click="viewEticket(issuedResponse.bookingNumber)"
+                        class="w-full bg-[#e03f7d] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"
+                        :disabled="loading">
+                        <i data-lucide="qr-code" class="w-5 h-5"></i>
+                        <span x-text="loading ? 'MEMPROSES...' : 'DOWNLOAD E-TIKET'"></span>
+                    </button>
+                </div>
+
+                <div class="bg-white border-2 border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+                    <div class="p-5 bg-slate-50 border-b border-slate-100">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nama Kapal</p>
+                                <p class="text-sm font-black text-[#0194f3]" x-text="issuedResponse.shipName"></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">No Reff</p>
+                                <p class="text-sm font-black text-slate-800" x-text="issuedResponse.numCode"></p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 pt-3 border-t border-slate-200/50">
+                            <div class="flex-1">
+                                <p class="text-[8px] font-black text-slate-400 uppercase">Asal</p>
+                                <p class="text-[10px] font-bold text-slate-700" x-text="issuedResponse.originName"></p>
+                            </div>
+                            <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300"></i>
+                            <div class="flex-1 text-right">
+                                <p class="text-[8px] font-black text-slate-400 uppercase">Tujuan</p>
+                                <p class="text-[10px] font-bold text-slate-700" x-text="issuedResponse.destinationName">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <template x-for="(pax, index) in issuedResponse.paxBookingDetails" :key="index">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 relative overflow-hidden">
+                                <i data-lucide="ticket"
+                                    class="absolute -right-2 -bottom-2 w-16 h-16 text-slate-200/50 -rotate-12"></i>
+
+                                <div class="relative z-10">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <p class="text-xs font-black text-slate-800 uppercase" x-text="pax.paxName">
+                                            </p>
+                                            <p class="text-[9px] font-bold text-slate-400 uppercase"
+                                                x-text="pax.paxType + ' | ' + (pax.paxGender === 'L' ? 'Laki-laki' : 'Perempuan': '')">
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="block text-[9px] font-black text-blue-600 uppercase"
+                                                x-text="pax.cabin && pax.cabin !== '0' ? 'Kamar: ' + pax.cabin : 'Deck: ' + pax.deck"></span>
+                                            <span class="block text-[8px] font-bold text-slate-400 uppercase"
+                                                x-text="'Bed: ' + pax.bed"></span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="flex items-center justify-between pt-2 border-t border-dashed border-slate-200">
+                                        <div>
+                                            <p class="text-[8px] font-black text-slate-400 uppercase">No. Tiket</p>
+                                            <p class="text-[10px] font-bold text-slate-600" x-text="pax.ticketNumber">
+                                            </p>
+                                        </div>
+                                        <div
+                                            class="bg-green-100 text-green-700 text-[8px] px-2 py-1 rounded-md font-black uppercase">
+                                            Berhasil
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="p-5 bg-slate-800">
+                        <div class="flex justify-between items-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pembayaran
+                            </p>
+                            <p class="text-lg font-black text-white"
+                                x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(Number(issuedResponse.ticketPrice) + Number(serviceFee))">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button @click="stage = 'search'; window.scrollTo(0,0)"
+                        class="w-full bg-[#24b3ae] text-white py-5 rounded-2xl font-black uppercase text-sm shadow-lg shadow-blue-100 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        Selesai & Kembali ke Beranda
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        </div>
+
+        <div x-show="toast.show" x-transition x-cloak
+            class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest px-6 py-3 rounded-full shadow-2xl z-[200]">
+            <span x-text="toast.message"></span>
+        </div>
+
+        <template x-if="showOriginModal || showDestModal">
+            <div class="fixed inset-0 z-[100] flex flex-col bg-white overflow-hidden">
+                <div class="flex items-center p-4 border-b">
+                    <button @click="showOriginModal = false; showDestModal = false" class="p-2">
+                        <i data-lucide="arrow-left" class="w-6 h-6 text-slate-600"></i>
+                    </button>
+                    <h3 class="flex-1 font-bold text-lg text-center" x-text="showOriginModal ? 'Asal' : 'Tujuan'"></h3>
+                    <div class="w-10"></div>
+                </div>
+
+                <div class="p-4 bg-slate-50">
+                    <div class="relative flex items-center">
+                        <i data-lucide="search" class="absolute left-3 w-5 h-5 text-slate-400"></i>
+                        <input type="text" x-model="searchCityQuery" placeholder="Cari nama kota / pelabuhan..."
+                            class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto">
+                    <template x-if="showOriginModal">
+                        <div class="divide-y divide-slate-100">
+                            <template x-for="port in filteredOrigins" :key="port.originPort">
+                                <div @click="search.originPort = port.originPort; showOriginModal = false"
+                                    class="p-4 hover:bg-slate-50 active:bg-slate-100 cursor-pointer flex items-center gap-3">
+                                    <i data-lucide="anchor" class="w-4 h-4 text-slate-400"></i>
+                                    <span class="text-slate-700 font-medium" x-text="port.originName"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="showDestModal">
+                        <div class="divide-y divide-slate-100">
+                            <template x-for="port in filteredDestinations" :key="port.destinationPort">
+                                <div @click="search.destinationPort = port.destinationPort; showDestModal = false"
+                                    class="p-4 hover:bg-slate-50 active:bg-slate-100 cursor-pointer flex items-center gap-3">
+                                    <i data-lucide="anchor" class="w-4 h-4 text-slate-400"></i>
+                                    <span class="text-slate-700 font-medium" x-text="port.destinationName"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <div x-show="showOriginModal ? filteredOrigins.length === 0 : filteredDestinations.length === 0"
+                        class="p-10 text-center text-slate-400">
+                        <p>Kota tidak ditemukan</p>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <div x-show="showConfirmModal" class="fixed inset-0 z-[150] bg-white flex flex-col"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full"
+            x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" x-cloak>
+
+            <div class="px-6 flex items-center justify-between"
+                style="background-color: #24b3ae; height: 60px; min-height: 60px;">
+                <div>
+                    <template x-if="paymentStep === 'main'">
+                        <h3 class="text-lg font-black text-white tracking-tighter uppercase">Metode Pembayaran</h3>
+                    </template>
+                    <template x-if="paymentStep === 'va_list'">
+                        <div class="flex items-center gap-3">
+                            <button @click="paymentStep = 'main'"
+                                class="p-2 -ml-2 hover:bg-white/20 rounded-full transition-colors text-white">
+                                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            </button>
+                            <h3 class="text-lg font-black text-white tracking-tighter uppercase">Pilih Bank VA</h3>
+                        </div>
+                    </template>
+                    <template x-if="paymentStep === 'show_va' || paymentStep === 'show_qris'">
+                        <div class="flex items-center gap-3">
+                            <button @click="paymentStep = 'main'"
+                                class="p-2 -ml-2 hover:bg-white/20 rounded-full transition-colors text-white">
+                                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            </button>
+                            <h3 class="text-lg font-black text-white tracking-tighter uppercase">Detail Pembayaran
+                            </h3>
+                        </div>
+                    </template>
+                </div>
+                <button @click="showConfirmModal = false" class="text-white/80 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="p-4 bg-[#e03f7d] text-white text-center">
+                <p class="text-white text-xs uppercase tracking-[0.2em] mb-1">Total yang harus dibayar</p>
+                <div class="text-4xl font-black">
+                    Rp <span
+                        x-text="totalBayar > 0 ? new Intl.NumberFormat('id-ID').format(totalBayar) : (totalBayarDisplay > 0 ? new Intl.NumberFormat('id-ID').format(totalBayarDisplay) : '0')"></span>
+                </div>
+
+                <template x-if="loading">
+                    <p class="text-[10px] animate-pulse">Memperbarui harga...</p>
+                </template>
+
+                <p class="text-[10px] text-white mt-1 italic" x-show="!loading">
+                    *Sudah termasuk potongan cashback komisi 50%
+                </p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6">
+
+                <div x-show="paymentStep === 'main'" class="grid gap-4 max-w-md mx-auto">
+                    <button @click="selectPayment('QRIS')"
+                        class="flex items-center p-6 border-2 border-slate-100 hover:border-orange-500 rounded-none transition-all group text-left shadow-sm">
+                        <div
+                            class="w-14 h-14 bg-orange-100 text-orange-600 flex items-center justify-center mr-5 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                            <i data-lucide="qr-code" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <div class="font-black text-lg text-slate-800">QRIS</div>
+                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wider">OVO, Dana,
+                                GoPay,
+                                ShopeePay</div>
+                        </div>
+                    </button>
+
+                    <button @click="paymentStep = 'va_list'; $nextTick(() => lucide.createIcons())"
+                        class="flex items-center p-6 border-2 border-slate-100 hover:border-blue-500 rounded-none transition-all group text-left shadow-sm">
+                        <div
+                            class="w-14 h-14 bg-blue-100 text-blue-600 flex items-center justify-center mr-5 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                            <i data-lucide="landmark" class="w-8 h-8"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-black text-lg text-slate-800">VIRTUAL ACCOUNT</div>
+                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wider">Transfer Bank
+                                Otomatis</div>
+                        </div>
+                        <i data-lucide="chevron-right"
+                            class="w-6 h-6 text-slate-300 group-hover:text-blue-500 transition-colors"></i>
+                    </button>
+                </div>
+
+                <div x-show="paymentStep === 'va_list'" class="grid gap-2 max-w-md mx-auto">
+                    <template x-for="bank in bankList" :key="bank.code">
+                        <button @click="selectPayment('VA', bank.code)"
+                            class="flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-all text-left">
+                            <div class="flex items-center">
+                                <div
+                                    class="w-10 h-10 bg-slate-100 text-slate-600 flex items-center justify-center mr-4">
+                                    <i data-lucide="landmark" class="w-5 h-5"></i>
+                                </div>
+                                <span class="font-bold text-slate-700 uppercase tracking-tight"
+                                    x-text="'Virtual Account ' + bank.name"></span>
+                            </div>
+
+                        </button>
+                    </template>
+                </div>
+
+                <div x-show="paymentStep === 'show_qris'" class="text-center p-6 max-w-md mx-auto">
+                    <div class="mb-4">
+                        <h4 class="font-black text-xl text-slate-800 uppercase italic">Scan QRIS Untuk Bayar</h4>
+                        <p class="text-sm text-slate-500">Silakan scan kode QR di bawah menggunakan aplikasi
+                            pembayaran
+                            favorit Anda.</p>
+                    </div>
+
+                    <div class="bg-white p-4 border-4 border-slate-900 inline-block mb-4 shadow-xl">
+                        <template x-if="qrisImage">
+                            <img :src="qrisImage" alt="QRIS Code" class="w-64 h-64 mx-auto">
+                        </template>
+                        <template x-if="!qrisImage">
+                            <div class="w-64 h-64 flex items-center justify-center bg-slate-100">Generating QR...
+                            </div>
+                        </template>
+                        <div class="mt-2 border-t pt-2 flex justify-center">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" class="h-6">
+                        </div>
+                    </div>
+
+                    <div class="mb-6 space-y-2 text-left bg-slate-50 p-4 border border-slate-200">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Total Tagihan</span>
+                            <span class="font-bold text-slate-800"
+                                x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBayar)"></span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-orange-600 italic">
+                            <span>*Termasuk Biaya Admin QRIS (0.7%)</span>
+                            <span x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(additionalAdminFee)"></span>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 p-4 border-l-4 border-amber-500 text-left mb-6">
+                        <div class="text-amber-800 font-bold text-sm mb-1 uppercase italic">Instruksi:</div>
+                        <ul class="text-xs text-amber-700 space-y-1 font-medium">
+                            <li>1. Buka aplikasi (Gopay, Dana, OVO, dll)</li>
+                            <li>2. Pilih menu 'Scan' atau 'Bayar'</li>
+                            <li>3. Scan QR Code di atas</li>
+                            <li>4. Masukkan PIN dan selesaikan pembayaran</li>
+                        </ul>
+                    </div>
+
+                    <button @click="downloadQR(qrisImage, currentPartnerReff)"
+                        class="w-full py-3 bg-slate-800 text-white font-black uppercase text-sm tracking-widest flex items-center justify-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Simpan QR Ke Galeri
+                    </button>
+                </div>
+
+                <div x-show="paymentStep === 'show_va'" class="p-6 max-w-md mx-auto">
+                    <div class="text-center mb-8">
+                        <div
+                            class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="landmark" class="w-10 h-10"></i>
+                        </div>
+                        <h4 class="font-black text-xl text-slate-800 uppercase">Nomor Virtual Account</h4>
+                        <p class="text-sm text-slate-500">Transfer tepat ke nomor rekening di bawah ini</p>
+                    </div>
+
+                    <div
+                        class="bg-slate-100 p-5 rounded-none border-2 border-dashed border-slate-300 text-center mb-6 relative">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                            Nomor Rekening VA
+                        </div>
+
+                        <div class="text-2xl font-black text-blue-700 tracking-normal" x-text="vaNumber"></div>
+
+                        <button
+                            @click="navigator.clipboard.writeText(vaNumber); showToast('Nomor VA berhasil disalin!', 'success')"
+                            class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white px-4 py-2 border shadow-sm rounded-full text-[10px] font-black uppercase flex items-center gap-2 hover:bg-blue-50 transition-colors">
+                            <i data-lucide="copy" class="w-3 h-3 text-blue-600"></i> Salin Nomor
+                        </button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm border-b pb-2">
+                            <span class="text-slate-500 font-medium">Metode Pembayaran</span>
+                            <span class="font-black text-slate-800 uppercase" x-text="'VA ' + vaBankName"></span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b pb-2">
+                            <span class="text-slate-500 font-medium">Biaya Admin</span>
+                            <span class="font-bold text-slate-800"
+                                x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(additionalAdminFee)"></span>
+                        </div>
+                        <div class="flex justify-between text-sm border-b pb-2">
+                            <span class="text-slate-500 font-medium">Total Tagihan</span>
+                            <span class="font-black text-orange-600"
+                                x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBayar)"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 bg-blue-50 p-4 border-l-4 border-blue-500">
+                        <p class="text-[11px] text-blue-800 leading-relaxed">
+                            <strong>INFO:</strong> Pembayaran Anda akan terdeteksi secara otomatis. Harap simpan
+                            bukti
+                            transfer jika diperlukan sewaktu-waktu.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-6 text-center bg-slate-50 border-t">
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+                    Pembayaran akan divalidasi secara otomatis oleh sistem
+
+                </p>
+            </div>
+        </div>
+
+        </div>
+
+        <script>
+            function shipDluApp() {
+                return {
+                    stage: 'search',
+
+                    passengerDetails: [],
+                    loading: false,
+                    loadingText: 'Memuat...',
+                    routes: { origins: [], destinations: [] },
+                    classTypes: [],
+                    vehicleTypes: [],
+                    ticketTypes: [],
+                    roomClasses: [],
+                    scheduleList: [],
+                    bookingResponse: null,
+                    issuedResponse: null,
+                    selectedShip: null,
+                    selectedFareData: '',
+                    toast: { show: false, message: '' },
+                    search: {
+                        originPort: '',
+                        destinationPort: '',
+                        classID: '0',
+                        vehicleID: '0',
+                        ticketTypeID: '0',
+                        roomClassID: '0',
+                        departDate: (() => {
+                            const d = new Date();
+                            d.setDate(d.getDate() + 2); // Tambah 1 hari
+                            return d.toISOString().split('T')[0];
+                        })(),
+                        adultMale: 1,
+                        adultFemale: 0,
+                        child: 0,
+                        infant: 0
+                    },
+                    bookingResponse: {
+                        bookerData: {
+                            name: '',
+                            phone: '',
+                            email: '',
+                            city: ''
+                        }
+                    },
+                    showOriginModal: false,
+                    showDestModal: false,
+                    searchCityQuery: '',
+                    availableDates: [],
+                    scheduleList: [],
+                    serviceFee: 0,
+                    showConfirmModal: false,
+                    paymentStep: 'main',
+                    totalBayar: 0,
+                    additionalAdminFee: 0,
+                    qrisImage: '',
+                    vaNumber: '',
+                    vaBankName: '',
+                    currentPartnerReff: '',
+                    pendingNumCode: '',
+                    internalBookingId: null,
+                    paymentInterval: null,
+                    bankList: [
+                        { code: '014', name: 'BCA' },
+                        { code: '002', name: 'BRI' },
+                        { code: '008', name: 'MANDIRI' },
+                        { code: '009', name: 'BNI' },
+                        { code: '013', name: 'PERMATA' },
+                        { code: '022', name: 'CIMB NIAGA' },
+                        { code: '011', name: 'DANAMON' },
+                        { code: '451', name: 'BSI (Bank Syariah Indonesia)' },
+                        { code: '213', name: 'BTPN / JENIUS' },
+                        { code: '050', name: 'STANDARD CHARTERED' },
+                        { code: '031', name: 'CITIBANK' },
+                    ],
+
+                    generateDateTabs(startDate) {
+                        const dates = [];
+                        for (let i = 0; i < 6; i++) { // 6 iterasi = Hari ini + 5 hari ke depan
+                            const d = new Date(startDate);
+                            d.setDate(d.getDate() + i);
+                            dates.push(d.toISOString().split('T')[0]);
+                        }
+                        this.availableDates = dates;
+                    },
+                    // Letakkan di dalam return { ... } Alpine kamu
+                    formatDateFull(dateStr) {
+                        if (!dateStr) return '';
+                        const d = new Date(dateStr);
+                        return d.toLocaleDateString('id-ID', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    },
+
+                    formatDateShort(dateStr) {
+                        if (!dateStr) return '';
+                        const d = new Date(dateStr);
+                        const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
+                        const month = d.toLocaleDateString('id-ID', { month: 'short' });
+                        return `${day} ${month}`;
+                    },
+
+                    formatDateRange(start, end) {
+                        if (!start) return '-';
+                        const s = start.split('T')[1].substring(0, 5);
+                        const e = end ? end.split('T')[1].substring(0, 5) : '';
+                        return e ? `${s} - ${e}` : s;
+                    },
+
+                    // Getter untuk memfilter jadwal yang tampil sesuai tab yang diklik
+                    get filteredSchedules() {
+                        return this.scheduleList.filter(item => {
+                            // Asumsi item.departDateTime formatnya "2026-04-09T10:00:00"
+                            return item.departDateTime.startsWith(this.search.departDate);
+                        });
+                    },
+
+                    get filteredOrigins() {
+                        return this.routes.origins.filter(p =>
+                            p.originName.toLowerCase().includes(this.searchCityQuery.toLowerCase())
+                        );
+                    },
+                    get filteredDestinations() {
+                        return this.routes.destinations.filter(p =>
+                            p.destinationName.toLowerCase().includes(this.searchCityQuery.toLowerCase())
+                        );
+                    },
+
+                    // Helper untuk mendapatkan nama kota yang terpilih saat ini
+                    get selectedOriginName() {
+                        const found = this.routes.origins.find(p => p.originPort == this.search.originPort);
+                        return found ? found.originName : 'Pilih Kota Asal';
+                    },
+                    get selectedDestName() {
+                        const found = this.routes.destinations.find(p => p.destinationPort == this.search.destinationPort);
+                        return found ? found.destinationName : 'Pilih Kota Tujuan';
+                    },
+
+                    async init() {
+                        this.loading = true;
+                        this.loadingText = 'Loading...';
+                        try {
+                            const baseUrl = 'https://darma.siappgo.id/api/shipdlu';
+                            const [resRoute, resClass, resVehicle, resTicket, resRoom] = await Promise.all([
+                                fetch(`${baseUrl}/route`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
+                                fetch(`${baseUrl}/class-types`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
+                                fetch(`${baseUrl}/vehicle-types`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
+                                fetch(`${baseUrl}/ticket-types`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
+                                fetch(`${baseUrl}/room-classes`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                            ]);
+
+                            const dataRoute = await resRoute.json();
+                            if (dataRoute.status === "SUCCESS") {
+                                this.routes.origins = dataRoute.origins;
+                                this.routes.destinations = dataRoute.destinations;
+                            }
+                            const dataClass = await resClass.json();
+                            if (dataClass.status === "SUCCESS") this.classTypes = dataClass.shipclasses;
+                            const dataVehicle = await resVehicle.json();
+                            if (dataVehicle.status === "SUCCESS") this.vehicleTypes = dataVehicle.shipVehicleTypes;
+                            const dataTicket = await resTicket.json();
+                            if (dataTicket.status === "SUCCESS") this.ticketTypes = dataTicket.shipPaxTypes;
+                            const dataRoom = await resRoom.json();
+                            if (dataRoom.status === "SUCCESS") this.roomClasses = dataRoom.shipRoomClasses;
+
+                        } catch (e) {
+                            this.showToast("Gagal memuat API");
+                        } finally {
+                            this.loading = false;
+                            this.$nextTick(() => lucide.createIcons());
+                        }
+                        this.$watch('search.departDate', (value) => {
+                            this.$nextTick(() => {
+                                if (typeof lucide !== 'undefined') {
+                                    lucide.createIcons();
+                                }
+                            });
+                        });
+                    },
+
+                    updateQty(shipNumber, fareIndex, delta, fare = null) {
+                        const ship = this.scheduleList.find(s => s.shipNumber === shipNumber);
+                        if (!ship || !ship.Fares[fareIndex]) return;
+
+                        const target = ship.Fares[fareIndex];
+
+                        // Cegah tambah tiket kalau kuota habis
+                        if (delta > 0 && target.Availability === 0) {
+                            this.showToast(target.AvailabilityInfo || 'Kuota tiket ini sudah penuh');
+                            return;
+                        }
+
+                        let currentCount = target.count || 0;
+                        let newCount = currentCount + delta;
+
+                        // Batasi agar tidak kurang dari 0 dan tidak melebihi kuota tersedia
+                        if (newCount >= 0 && (delta < 0 || newCount <= target.Availability)) {
+                            target.count = newCount;
+                        } else if (delta > 0 && newCount > target.Availability) {
+                            this.showToast(`Sisa kuota hanya ${target.Availability} tiket`);
+                        }
+                    },
+
+                    getTotalSelected() {
+                        let total = 0;
+                        this.scheduleList.forEach(ship => {
+                            ship.Fares.forEach(fare => {
+                                total += (fare.count || 0);
+                            });
+                        });
+                        return total;
+                    },
+
+                    getTotalPrice() {
+                        let total = 0;
+                        this.scheduleList.forEach(ship => {
+                            ship.Fares.forEach(fare => {
+                                total += (fare.count || 0) * fare.Price;
+                            });
+                        });
+                        return total;
+                    },
+
+                    // --- FUNGSI 1: Persiapan Form (Logic Utama untuk Bongkar listPax, listRoom, listVehicle) ---
+                    preparePassengerForms() {
+                        this.passengerDetails = [];
+                        const res = this.bookingResponse;
+                        if (!res) return;
+
+                        // 1. Ambil Penumpang Reguler (Kursi)
+                        if (res.listPax && res.listPax.length > 0) {
+                            res.listPax.forEach((pax, index) => {
+                                this.passengerDetails.push(this.createNewPaxObject(pax, 'REGULAR', index));
+                            });
+                        }
+
+                        // 2. Ambil Penumpang di DALAM Kamar
+                        if (res.listRoom && res.listRoom.length > 0) {
+                            res.listRoom.forEach((room, rIdx) => {
+                                if (room.paxes && room.paxes.length > 0) {
+                                    room.paxes.forEach((pax, pIdx) => {
+                                        const roomLabel = room.info || 'Kamar';
+                                        this.passengerDetails.push(
+                                            this.createNewPaxObject(pax, 'ROOM', pIdx, rIdx, `${roomLabel} - Bed ${pIdx + 1}`)
+                                        );
+                                    });
+                                }
+                            });
+                        }
+
+                        // 3. Ambil Penumpang/Driver di DALAM Kendaraan
+                        if (res.listVehicle && res.listVehicle.length > 0) {
+                            res.listVehicle.forEach((vhc, vIdx) => {
+                                if (vhc.paxes && vhc.paxes.length > 0) {
+                                    vhc.paxes.forEach((pax, pIdx) => {
+                                        const vhcLabel = vhc.vehicleInfo || 'Kendaraan';
+                                        this.passengerDetails.push(
+                                            this.createNewPaxObject(pax, 'VEHICLE', pIdx, vIdx, `Driver: ${vhcLabel}`)
+                                        );
+                                    });
+                                }
+                            });
+                        }
+                    },
+
+                    // --- FUNGSI 2: Helper Pembuat Object (Konsistensi Data) ---
+                    createNewPaxObject(pax, source, pIdx, parentIdx = 0, label = null) {
+                        return {
+                            sourceType: source,
+                            parentIndex: parentIdx,
+                            paxIndex: pIdx,
+                            paxInfo: label || pax.paxInfo || 'Penumpang',
+                            name: '',
+                            gender: 'L',
+                            dob: '1990-01-01',
+                            id: '',
+                            city: 'BALIKPAPAN',
+                            email: '',
+                            phone: '', // Pastikan ini ada
+                            note: '',  // Tambahkan note untuk menampung input tambahan jika perlu
+
+                            paxGroup: String(pax.paxGroup || "1"),
+                            paxType: String(pax.paxType || "1"),
+                            paxClass: String(pax.paxClass || "1"),
+                            price: Number(pax.price || 0),
+                            admin: Number(pax.admin || 0)
+                        };
+                    },
+
+                    // --- FUNGSI 3: Aksi Klik Tombol Lanjutkan ---
+                    async goToPassengerForm() {
+                        console.group("🛳️ Proses Booking & Form");
+
+                        // 1. Ambil Jadwal Terpilih
+                        const selectedItem = this.scheduleList.find(item =>
+                            item.Fares && item.Fares.some(f => f.count > 0)
+                        );
+
+                        if (!selectedItem) {
+                            this.showToast("Silakan pilih minimal satu tiket.");
+                            console.groupEnd();
+                            return;
+                        }
+
+                        this.selectedShip = selectedItem;
+
+                        // 2. Mapping Fares dari count yang diinput user
+                        const selectedFares = selectedItem.Fares
+                            .filter(f => f.count > 0)
+                            .map(f => ({
+                                count: f.count,
+                                // Gunakan f.Data (Capital D) sesuai response API yang Anda kirim
+                                data: f.Data || f.data || ""
+                            }));
+
+                        // Validasi Tambahan: Pastikan tidak ada data yang kosong sebelum fetch
+                        if (selectedFares.some(f => f.data === "")) {
+                            console.error("Payload Error: Data string pipa kosong!", selectedFares);
+                            this.showToast("Terjadi kesalahan mapping data tiket.");
+                            return;
+                        }
+
+                        this.loading = true;
+                        this.loadingText = 'Mengunci Kursi...';
+
+                        try {
+                            const payload = {
+                                shipNumber: String(selectedItem.shipNumber),
+                                originPort: String(selectedItem.originCode || this.search.originPort),
+                                destinationPort: String(selectedItem.destCode || this.search.destinationPort),
+                                departDate: selectedItem.departDateTime,
+                                fares: selectedFares
+                            };
+
+                            const res = await fetch('https://darma.siappgo.id/api/shipdlu/select-schedule', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+
+                            const data = await res.json();
+
+                            if (data.status === "SUCCESS") {
+                                // Simpan response mentah dari API
+                                this.bookingResponse = {
+                                    ...data,
+                                    fares: selectedFares
+                                };
+
+                                // Inisialisasi Booker Data jika belum ada
+                                if (!this.bookingResponse.bookerData) {
+                                    this.bookingResponse.bookerData = { name: '', phone: '', email: '', city: 'BALIKPAPAN' };
+                                }
+
+                                // 🚀 POINT UTAMA: Panggil fungsi pemetaan form yang baru
+                                this.preparePassengerForms();
+
+                                // Pindah Stage & Scroll ke atas
+                                this.stage = 'passenger_form';
+                                window.scrollTo(0, 0);
+
+                            } else {
+                                throw new Error(data.respMessage || "Gagal mengunci jadwal");
+                            }
+                        } catch (e) {
+                            console.error("Error:", e);
+                            this.showToast(e.message || "Gangguan koneksi ke server");
+                        } finally {
+                            this.loading = false;
+                            console.groupEnd();
+                            this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
+                        }
+                    },
+
+                    getPaxList(data) {
+                        const source = data || this.bookingResponse;
+                        if (!source) return [];
+
+                        // Prioritas 1: Jika ada di listRoom (Kamar)
+                        if (source.listRoom?.length > 0) {
+                            return source.listRoom[0].paxes || [];
+                        }
+                        // Prioritas 2: Jika ada di listVehicle (Kendaraan)
+                        if (source.listVehicle?.length > 0) {
+                            return source.listVehicle[0].paxes || [];
+                        }
+                        // Prioritas 3: Penumpang Biasa
+                        if (source.listPax?.length > 0) {
+                            return source.listPax;
+                        }
+                        return [];
+                    },
+
+                    async getSchedules() {
+                        console.group("🚀 Debugging Get Schedules");
+
+                        // 1. Validasi awal
+                        if (!this.search.originPort || !this.search.destinationPort || !this.search.departDate) {
+                            console.warn("⚠️ Validasi Gagal: Data pencarian belum lengkap.");
+                            this.showToast("Lengkapi rute dan tanggal keberangkatan");
+                            console.groupEnd();
+                            return;
+                        }
+
+                        this.loading = true;
+                        this.loadingText = 'Mencari Jadwal...';
+
+                        // Jangan reset availableDates di sini agar tab tidak hilang saat diklik
+                        this.scheduleList = [];
+
+                        try {
+                            // Tentukan range pencarian (H+0 sampai H+5)
+                            const start = new Date(this.search.departDate);
+                            const end = new Date(this.search.departDate);
+                            end.setDate(start.getDate() + 5);
+
+                            // Logika Vehicle ID
+                            let finalVehicleID = this.search.vehicleID || '0';
+                            if (this.search.ticketTypeID === '1') {
+                                finalVehicleID = '0';
+                            }
+
+                            const payload = {
+                                originPort: String(this.search.originPort),
+                                destinationPort: String(this.search.destinationPort),
+                                departStartDate: start.toISOString().split('T')[0] + "T00:00:00",
+                                departEndDate: end.toISOString().split('T')[0] + "T23:59:59",
+                                paxClass: this.search.classID || "0",
+                                ticketType: String(this.search.ticketTypeID),
+                                vehicleType: String(finalVehicleID),
+                                roomClass: this.search.roomClassID || "0"
+                            };
+
+                            console.log("📤 Payload Terkirim:", JSON.stringify(payload, null, 2));
+
+                            const res = await fetch('https://darma.siappgo.id/api/shipdlu/schedule', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+
+                            if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
+                            const data = await res.json();
+
+                            if (data.status === "SUCCESS") {
+                                this.scheduleList = data.schedules || [];
+
+                                // LOGIKA TAB: Hanya update availableDates jika saat ini masih kosong 
+                                // atau jika user melakukan pencarian baru (bukan sekedar klik tab)
+                                if (this.availableDates.length === 0 || this.stage === 'search') {
+                                    const dateArray = [];
+                                    for (let i = 0; i <= 5; i++) {
+                                        const tempDate = new Date(this.search.departDate);
+                                        tempDate.setDate(tempDate.getDate() + i);
+                                        dateArray.push(tempDate.toISOString().split('T')[0]);
+                                    }
+                                    this.availableDates = dateArray;
+                                }
+
+                                // Mapping Nama Pelabuhan (Hanya jika belum ada)
+                                if (!this.originName || this.stage === 'search') {
+                                    const origin = this.routes.origins.find(o => o.originPort === this.search.originPort);
+                                    const dest = this.routes.destinations.find(d => d.destinationPort === this.search.destinationPort);
+                                    this.originName = origin ? origin.originName : this.search.originPort;
+                                    this.destinationName = dest ? dest.destinationName : this.search.destinationPort;
+                                }
+
+                                this.stage = 'results';
+                            } else {
+                                this.showToast(data.respMessage || "Jadwal tidak ditemukan");
+                            }
+                        } catch (e) {
+                            console.error("💥 Error:", e.message);
+                            this.showToast("Gagal terhubung ke server");
+                        } finally {
+                            this.loading = false;
+                            console.groupEnd();
+                            this.$nextTick(() => {
+                                if (typeof lucide !== 'undefined') lucide.createIcons();
+                            });
+                        }
+                    },
+
+                    get totalFinal() {
+                        const basePrice = this.bookingResponse ? (this.bookingResponse.totalPrice || 0) : 0;
+                        return basePrice + Number(this.serviceFee || 0);
+                    },
+
+
+                    // ==========================================
+                    // TOMBOL HTML
+                    // ==========================================
+                    // <button @click="openPaymentModal()" ...>
+                    //     Lanjutkan ke Pembayaran
+                    // </button>
+
+
+                    // ==========================================
+                    // STEP 1: Klik tombol → buat DRAFT → buka modal
+                    // ==========================================
+                    async openPaymentModal() {
+                        this.loading = true;
+                        this.loadingText = 'Menyiapkan Pesanan...';
+
+                        try {
+                            const booker = this.bookingResponse.bookerData || {};
+                            const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
+
+                            if (!booker.name && regularPaxes.length > 0) {
+                                booker.name = regularPaxes[0].name;
+                                booker.phone = regularPaxes[0].phone;
+                                booker.email = regularPaxes[0].email || booker.email;
+                            }
+
+                            // Simpan DRAFT ke DB → dapat booking_id integer
+                            const resDraft = await fetch('https://darma.siappgo.id/api/shipdlu/dlu-bookings/draft', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    bookerData: {
+                                        name: (booker.name || "").toUpperCase().trim(),
+                                        phone: booker.phone || "",
+                                        email: booker.email || ""
+                                    },
+                                    routeData: {
+                                        shipName: this.selectedShip.shipName || "",
+                                        originName: this.selectedShip.originName || this.search.originPort || "",
+                                        destinationName: this.selectedShip.destName || this.search.destinationPort || "",
+                                        departDate: this.selectedShip.departDateTime || "",
+                                        ticketPrice: this.bookingResponse.totalPrice || 0
+                                    },
+                                    serviceFee: this.serviceFee,
+                                    username: 'amir'
+                                })
+                            });
+
+                            const dataDraft = await resDraft.json();
+
+                            if (dataDraft.status !== "SUCCESS") {
+                                throw new Error(dataDraft.message || "Gagal menyiapkan pesanan. Coba lagi.");
+                            }
+
+                            // Simpan ID integer dari DB untuk dipakai di createPayment & finalize
+                            this.internalBookingId = dataDraft.booking_id;
+                            this.totalBayar = dataDraft.total_bayar || this.totalFinal;
+
+                            // Buka modal pilih metode pembayaran
+                            this.showConfirmModal = true;
+                            this.paymentStep = 'main';
+                            this.$nextTick(() => lucide.createIcons());
+
+                        } catch (e) {
+                            this.showToast(e.message || "Gagal menyiapkan pesanan", "error");
+                        } finally {
+                            this.loading = false;
+                        }
+                    },
+
+
+                    // ==========================================
+                    // STEP 2: Pilih metode → buat invoice payment
+                    // ==========================================
+                    async selectPayment(method, bankCode = null) {
+                        this.isLoading = true;
+
+                        const booker = this.bookingResponse.bookerData || {};
+                        const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
+                        let fullName = booker.name || (regularPaxes.length > 0 ? regularPaxes[0].name : 'Guest');
+                        fullName = fullName.replace(/[^a-zA-Z ]/g, "").trim();
+
+                        // Hitung biaya admin payment gateway
+                        const adminFeeMapping = {
+                            '014': 3000, // BCA
+                            '002': 3000, // BRI
+                            '008': 3000, // MANDIRI
+                            '009': 3000, // BNI
+                            '013': 3000, // PERMATA
+                            '022': 3000, // CIMB
+                            '011': 3000, // DANAMON
+                            '451': 3000, // BSI
+                            '213': 3000, // BTPN
+                            '050': 3000, // STANDARD CHARTERED
+                            '031': 3000  // CITIBANK
+                        };
+                        this.additionalAdminFee = (method === 'QRIS')
+                            ? Math.ceil(this.totalBayar * 0.007)
+                            : (adminFeeMapping[bankCode] || 2500);
+
+                        const finalAmount = this.totalBayar + this.additionalAdminFee;
+
+                        const payload = {
+                            booking_id: this.internalBookingId,   // ← integer ID dari DB (bukan string random)
+                            amount: finalAmount,
+                            customer_name: fullName || "Guest",
+                            customer_phone: booker.phone || "",
+                            customer_email: booker.email || "",
+                            method: method,
+                            bank_code: bankCode,
+                            admin_fee_applied: this.additionalAdminFee
+                        };
+
+                        try {
+                            const response = await fetch('https://darma.siappgo.id/api/dlu-payments/create', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+
+                            const res = await response.json();
+
+                            if (res.status === "SUCCESS" || res.status === "Success") {
+                                this.currentPartnerReff = res.partner_reff;
+
+                                if (method === 'QRIS') {
+                                    this.qrisImage = res.data.imageqris;
+                                    this.paymentStep = 'show_qris';
+                                } else {
+                                    this.vaNumber = res.data.virtual_account;
+                                    this.vaBankName = bankCode === '014' ? 'BCA' : bankCode === '002' ? 'BRI' : 'BNI';
+                                    this.paymentStep = 'show_va';
+                                }
+
+                                this.$nextTick(() => lucide.createIcons());
+
+                                // Mulai polling cek status
+                                this.startPollingStatus(res.partner_reff);
+
+                            } else {
+                                this.showToast(res.message || "Gagal membuat invoice pembayaran", "error");
+                            }
+
+                        } catch (err) {
+                            this.showToast("Koneksi gagal saat membuat pembayaran", "error");
+                        } finally {
+                            this.isLoading = false;
+                        }
+                    },
+
+
+                    // ==========================================
+                    // STEP 3: Polling status tiap 5 detik
+                    // ==========================================
+                    startPollingStatus(reff) {
+                        if (this.paymentInterval) clearInterval(this.paymentInterval);
+
+                        this.paymentInterval = setInterval(async () => {
+                            try {
+                                const response = await fetch(
+                                    `https://darma.siappgo.id/api/dlu-payments/check-status/${reff}`
+                                );
+                                const result = await response.json();
+
+                                if (result.status === "SUCCESS" || result.status === "SETTLED") {
+                                    clearInterval(this.paymentInterval);
+                                    this.paymentInterval = null;
+
+                                    this.showToast("Pembayaran Berhasil! Menerbitkan tiket...", "success");
+                                    this.showConfirmModal = false;
+
+                                    // Lanjut proses issued
+                                    await this.confirmBookingAndIssued();
+                                }
+
+                            } catch (e) {
+                                console.error("Polling Error:", e);
+                            }
+                        }, 5000);
+                    },
+
+
+                    // ==========================================
+                    // STEP 4: Price → Issued → Finalize DB + Email
+                    // (dipanggil otomatis setelah polling SETTLED)
+                    // ==========================================
+                    async confirmBookingAndIssued() {
+                        this.loading = true;
+                        this.loadingText = 'Memproses Pesanan...';
+
+                        try {
+                            const userID = this.bookingResponse.userID;
+                            const accessToken = this.bookingResponse.accessToken;
+
+                            if (!userID || !accessToken) {
+                                throw new Error("Sesi tidak valid. Silakan ulangi pencarian.");
+                            }
+
+                            const getCleanDate = (str) => {
+                                if (!str || str.startsWith('0001')) return "1990-01-01T00:00:00";
+                                const datePart = str.includes('T') ? str.split('T')[0] : str;
+                                return datePart + "T00:00:00";
+                            };
+
+                            const regularPaxes = this.passengerDetails.filter(p => p.sourceType === 'REGULAR');
+                            const booker = this.bookingResponse.bookerData || {};
+
+                            if (!booker.name && regularPaxes.length > 0) {
+                                booker.name = regularPaxes[0].name;
+                                booker.phone = regularPaxes[0].phone;
+                            }
+
+                            // ── Susun Payload Vendor ───────────────────────────────────
+                            let finalPayload = {
+                                userID: userID,
+                                accessToken: accessToken,
+                                shipNumber: String(this.selectedShip.shipNumber),
+                                originPort: String(this.selectedShip.originCode || this.search.originPort),
+                                destinationPort: String(this.selectedShip.destCode || this.search.destinationPort),
+                                departDate: getCleanDate(this.selectedShip.departDateTime),
+                                fares: this.bookingResponse.fares,
+                                service_fee: Number(this.serviceFee || 0),
+
+                                name: (booker.name || "").toUpperCase().trim(),
+                                gender: booker.gender || "L",
+                                id: String(booker.id || ""),
+                                email: booker.email || "",
+                                phone: booker.phone || "",
+                                city: (booker.city || "SURABAYA").toUpperCase().trim(),
+
+                                bookerData: {
+                                    name: (booker.name || "").toUpperCase().trim(),
+                                    gender: booker.gender || "L",
+                                    id: String(booker.id || ""),
+                                    email: booker.email || "",
+                                    phone: booker.phone || "",
+                                    city: (booker.city || "SURABAYA").toUpperCase().trim()
+                                },
+
+                                listPax: regularPaxes.map(p => ({
+                                    name: (p.name || "").toUpperCase().trim(),
+                                    gender: p.gender === "P" ? "P" : "L",
+                                    dob: getCleanDate(p.dob),
+                                    id: String(p.id || ""),
+                                    city: (p.city || booker.city || "SURABAYA").toUpperCase().trim(),
+                                    note: (p.note || "").toUpperCase().trim(),
+                                    phone: p.phone || booker.phone || "",
+                                    paxGroup: String(p.paxGroup || "1"),
+                                    paxType: String(p.paxType || "1"),
+                                    paxClass: String(p.paxClass || "1"),
+                                    paxInfo: p.paxInfo || "",
+                                    price: Number(p.price || 0),
+                                    admin: Number(p.admin || 0)
+                                })),
+
+                                listRoom: [],
+                                listVehicle: []
+                            };
+
+                            // ── Kamar ─────────────────────────────────────────────────
+                            if (this.bookingResponse.listRoom?.length > 0) {
+                                finalPayload.listRoom = this.bookingResponse.listRoom.map((room, rIdx) => ({
+                                    info: room.info,
+                                    roomClass: room.roomClass,
+                                    price: Number(room.price || 0),
+                                    admin: Number(room.admin || 0),
+                                    paxes: this.passengerDetails
+                                        .filter(p => p.sourceType === 'ROOM' && p.parentIndex === rIdx)
+                                        .map(p => ({
+                                            name: (p.name || "").toUpperCase().trim(),
+                                            gender: p.gender === "P" ? "P" : "L",
+                                            dob: getCleanDate(p.dob),
+                                            id: String(p.id || ""),
+                                            city: (p.city || booker.city || "SURABAYA").toUpperCase().trim(),
+                                            note: (p.note || "").toUpperCase().trim(),
+                                            phone: p.phone || booker.phone || "",
+                                            paxGroup: String(p.paxGroup || "1"),
+                                            admin: Number(p.admin || 0)
+                                        }))
+                                }));
+                            }
+
+                            // ── Kendaraan ─────────────────────────────────────────────
+                            if (this.bookingResponse.listVehicle?.length > 0) {
+                                finalPayload.listVehicle = this.bookingResponse.listVehicle.map((v, vIdx) => {
+                                    const driver = this.passengerDetails.find(
+                                        p => p.sourceType === 'VEHICLE' && p.parentIndex === vIdx
+                                    );
+                                    return {
+                                        ownerName: (v.ownerName || "").toUpperCase().trim(),
+                                        regNo: (v.regNo || "").toUpperCase().trim(),
+                                        city: (v.city || booker.city || "SURABAYA").toUpperCase().trim(),
+                                        note: (v.note || "").toUpperCase().trim(),
+                                        price: Number(v.price || 0),
+                                        admin: Number(v.admin || 0),
+                                        vehicleTax: Number(v.vehicleTax || 0),
+                                        vehicleFare: Number(v.vehicleFare || 0),
+                                        vehicleType: String(v.vehicleType),
+                                        vehicleInfo: v.vehicleInfo,
+                                        driverName: driver ? (driver.name || "").toUpperCase().trim() : "",
+                                        driverId: driver ? String(driver.id || "") : "",
+                                        driverPhone: driver ? (driver.phone || booker.phone) : booker.phone,
+                                        driverGender: driver ? driver.gender : "L",
+                                        driverBirthDate: driver ? getCleanDate(driver.dob) : "1990-01-01T00:00:00"
+                                    };
+                                });
+                            }
+
+                            // ── STEP A: Validasi Harga Vendor ──────────────────────────
+                            this.loadingText = 'Memvalidasi Harga...';
+                            const resPrice = await fetch('https://darma.siappgo.id/api/shipdlu/price', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(finalPayload)
+                            });
+
+                            const dataPrice = await resPrice.json();
+                            if (dataPrice.status !== "SUCCESS") {
+                                throw new Error(dataPrice.respMessage || "Gagal verifikasi harga terbaru.");
+                            }
+
+                            finalPayload.totalPrice = Number(dataPrice.totalPrice) + Number(this.serviceFee || 0);
+                            finalPayload.salesPrice = Number(dataPrice.salesPrice) + Number(this.serviceFee || 0);
+
+                            // ── STEP B: Issued Tiket Vendor ────────────────────────────
+                            this.loadingText = 'Menerbitkan Tiket...';
+                            finalPayload.numCode = "LINKU-" + Date.now().toString().slice(-6)
+                                + Math.random().toString(36).substring(2, 5).toUpperCase();
+
+                            const resIssued = await fetch('https://darma.siappgo.id/api/shipdlu/issued', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(finalPayload)
+                            });
+
+                            const dataIssued = await resIssued.json();
+
+                            if (dataIssued.status === "SUCCESS") {
+
+                                // ── STEP C: Finalize DB + Kirim Email PDF ──────────────
+                                try {
+                                    this.loadingText = 'Menyimpan & Mengirim Tiket...';
+                                    await fetch('https://darma.siappgo.id/api/dlu-payments/finalize', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            booking_id: this.internalBookingId,   // ← integer ID dari draft
+                                            resData: dataIssued,
+                                            serviceFee: this.serviceFee,
+                                            rawPaxes: finalPayload.listPax,
+                                            partnerReff: this.currentPartnerReff
+                                        })
+                                    });
+                                } catch (dbErr) {
+                                    // Gagal finalize tidak menghentikan tampilan sukses
+                                    console.error("⚠️ Finalize Error:", dbErr);
+                                }
+
+                                this.issuedResponse = dataIssued;
+                                this.stage = 'issued_success';
+                                this.showToast("Tiket Berhasil Diterbitkan!", "success");
+                                window.scrollTo(0, 0);
+
+                            } else {
+                                throw new Error(dataIssued.respMessage || "Proses Issued gagal.");
+                            }
+
+                        } catch (e) {
+                            console.error("⛔ System Error:", e);
+                            this.showToast(e.message || "Terjadi gangguan sistem", "error");
+                        } finally {
+                            this.loading = false;
+                        }
+                    },
+                    async viewEticket(bookingNumber) {
+                        this.loading = true;
+                        this.loadingText = 'Membuka Tiket...';
+                        try {
+                            const res = await fetch('https://darma.siappgo.id/api/shipdlu/get-eticket', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ bookingNumber: bookingNumber })
+                            });
+                            if (!res.ok) throw new Error("Gagal download");
+                            const blob = await res.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                        } catch (e) {
+                            this.showToast("Gagal membuka E-Tiket.");
+                        } finally {
+                            this.loading = false;
+                        }
+                    },
+
+                    initBooker() {
+                        if (this.bookingResponse && !this.bookingResponse.bookerData) {
+                            this.bookingResponse.bookerData = { name: '', phone: '', email: '' };
+                        }
+                    },
+
+                    goBack() {
+                        if (this.stage === 'issued_success') this.stage = 'search';
+                        else if (this.stage === 'passenger_form') this.stage = 'results';
+                        else if (this.stage === 'results') this.stage = 'search';
+                        this.$nextTick(() => lucide.createIcons());
+                    },
+
+                    showToast(msg) {
+                        this.toast.message = msg;
+                        this.toast.show = true;
+                        setTimeout(() => { this.toast.show = false; }, 3000);
+                    },
+
+                    formatDateShort(iso) {
+                        if (!iso) return '';
+                        return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                    },
+                    formatTime(iso) {
+                        if (!iso) return '';
+                        return new Date(iso).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
+                    },
+                    formatCurrency(num) {
+                        if (!num) return 'Rp 0';
+                        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+                    }
+                }
+            }
+        </script>
+</body>
+
+</html>
