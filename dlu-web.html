@@ -340,6 +340,62 @@
                     </div>
                 </div>
 
+                <!-- Pengaturan Data Tersimpan -->
+                <div class="bg-white border border-slate-200 rounded-[15px] p-5 shadow-sm space-y-3">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" x-model="saveData" @change="onToggleSaveData()"
+                            class="mt-0.5 w-4 h-4 accent-[#24b3ae]">
+                        <span class="text-xs font-bold text-slate-700 leading-snug">
+                            Simpan data pemesan &amp; penumpang untuk pesanan berikutnya
+                            <span class="block text-[10px] font-medium text-slate-400 mt-0.5">Data hanya disimpan di
+                                perangkat ini dan tidak dikirim ke server.</span>
+                        </span>
+                    </label>
+
+                    <template x-if="savedBooker || savedPaxes.length > 0 || savedVehicles.length > 0">
+                        <div class="pt-3 border-t border-slate-100">
+                            <button type="button" @click="showSavedManager = !showSavedManager"
+                                class="text-[11px] font-bold text-[#24b3ae] uppercase tracking-wider"
+                                x-text="(showSavedManager ? 'Tutup' : 'Kelola') + ' data tersimpan (' + savedPaxes.length + ' penumpang, ' + savedVehicles.length + ' kendaraan)'"></button>
+
+                            <div x-show="showSavedManager" class="mt-3 space-y-2">
+                                <template x-for="sp in savedPaxes" :key="sp.key">
+                                    <div
+                                        class="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-black text-slate-700 uppercase truncate"
+                                                x-text="sp.name"></p>
+                                            <p class="text-[10px] text-slate-400 font-medium"
+                                                x-text="sp.id ? 'NIK ' + maskId(sp.id) : 'Tanpa NIK'"></p>
+                                        </div>
+                                        <button type="button" @click="removeSavedPax(sp.key)"
+                                            class="text-[10px] font-black text-red-500 uppercase">Hapus</button>
+                                    </div>
+                                </template>
+
+                                <template x-for="sv in savedVehicles" :key="sv.key">
+                                    <div
+                                        class="flex items-center justify-between gap-3 p-3 bg-orange-50 rounded-xl border border-orange-100">
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-black text-orange-700 uppercase truncate"
+                                                x-text="sv.regNo"></p>
+                                            <p class="text-[10px] text-orange-400 font-medium uppercase"
+                                                x-text="sv.ownerName"></p>
+                                        </div>
+                                        <button type="button" @click="removeSavedVehicle(sv.key)"
+                                            class="text-[10px] font-black text-red-500 uppercase">Hapus</button>
+                                    </div>
+                                </template>
+
+                                <button type="button" @click="clearSavedData()"
+                                    class="w-full pt-2 text-[10px] font-black text-red-500 uppercase tracking-widest">
+                                    Hapus semua data tersimpan
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
                 <!-- Data Kontak Pemesan -->
                 <div class="bg-white border border-[#24b3ae] rounded-[15px] p-5 mb-6 shadow-sm">
                     <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -427,6 +483,24 @@
                             </div>
 
                             <div class="p-5 space-y-5">
+                                <!-- Isi dari data tersimpan -->
+                                <template x-if="savedPaxes.length > 0">
+                                    <div>
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Isi
+                                            dari data tersimpan</label>
+                                        <select
+                                            @change="applySavedPax(pax, $event.target.value); $event.target.value = ''"
+                                            class="w-full p-4 bg-cyan-50/50 border border-dashed border-[#24b3ae] rounded-[15px] text-sm font-bold text-slate-700 outline-none appearance-none">
+                                            <option value="">Pilih penumpang tersimpan...</option>
+                                            <template x-for="sp in savedPaxes" :key="sp.key">
+                                                <option :value="sp.key"
+                                                    x-text="sp.name + (sp.id ? ' • ' + maskId(sp.id) : '')"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </template>
+
                                 <!-- Kolom Golongan -->
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1.5 block px-1">Gol.
@@ -530,6 +604,16 @@
                                     <span class="text-xs font-black text-orange-700 uppercase"
                                         x-text="vhc.vehicleInfo"></span>
                                 </div>
+                                <template x-if="savedVehicles.length > 0">
+                                    <select
+                                        @change="applySavedVehicle(vhc, $event.target.value); $event.target.value = ''"
+                                        class="w-full p-4 bg-white border border-dashed border-orange-300 rounded-[15px] text-sm font-bold text-slate-700 outline-none appearance-none">
+                                        <option value="">Pilih kendaraan tersimpan...</option>
+                                        <template x-for="sv in savedVehicles" :key="sv.key">
+                                            <option :value="sv.key" x-text="sv.regNo + ' - ' + sv.ownerName"></option>
+                                        </template>
+                                    </select>
+                                </template>
 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
@@ -629,7 +713,7 @@
                                             <p class="text-xs font-black text-slate-800 uppercase" x-text="pax.paxName">
                                             </p>
                                             <p class="text-[9px] font-bold text-slate-400 uppercase"
-                                                x-text="pax.paxType + ' | ' + (pax.paxGender === 'L' ? 'Laki-laki' : 'Perempuan': '')">
+                                                x-text="pax.paxType + ' | ' + (pax.paxGender === 'L' ? 'Laki-laki' : 'Perempuan')">
                                             </p>
                                         </div>
                                         <div class="text-right">
@@ -677,8 +761,6 @@
                 </div>
             </div>
         </template>
-
-        </div>
 
         <div x-show="toast.show" x-transition x-cloak
             class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest px-6 py-3 rounded-full shadow-2xl z-[200]">
@@ -948,8 +1030,6 @@
             </div>
         </div>
 
-        </div>
-
         <script>
             function shipDluApp() {
                 return {
@@ -964,7 +1044,6 @@
                     ticketTypes: [],
                     roomClasses: [],
                     scheduleList: [],
-                    bookingResponse: null,
                     issuedResponse: null,
                     selectedShip: null,
                     selectedFareData: '',
@@ -989,11 +1068,32 @@
                     bookingResponse: {
                         bookerData: {
                             name: '',
+                            id: '',
                             phone: '',
                             email: '',
                             city: ''
                         }
                     },
+                    originName: '',
+                    destinationName: '',
+                    isLoading: false,
+
+                    // ===== DATA TERSIMPAN (localStorage) =====
+                    STORAGE_KEYS: {
+                        consent: 'dlu:saveConsent:v1',
+                        booker: 'dlu:booker:v1',
+                        paxes: 'dlu:paxes:v1',
+                        lastPax: 'dlu:lastPaxKeys:v1',
+                        vehicles: 'dlu:vehicles:v1',
+                        lastVehicles: 'dlu:lastVehicleKeys:v1'
+                    },
+                    saveData: true,
+                    showSavedManager: false,
+                    savedBooker: null,
+                    savedPaxes: [],
+                    savedVehicles: [],
+                    lastPaxKeys: [],
+                    lastVehicleKeys: [],
                     showOriginModal: false,
                     showDestModal: false,
                     searchCityQuery: '',
@@ -1046,13 +1146,6 @@
                         });
                     },
 
-                    formatDateShort(dateStr) {
-                        if (!dateStr) return '';
-                        const d = new Date(dateStr);
-                        const day = d.toLocaleDateString('id-ID', { day: 'numeric' });
-                        const month = d.toLocaleDateString('id-ID', { month: 'short' });
-                        return `${day} ${month}`;
-                    },
 
                     formatDateRange(start, end) {
                         if (!start) return '-';
@@ -1091,6 +1184,7 @@
                     },
 
                     async init() {
+                        this.loadSavedData();
                         this.loading = true;
                         this.loadingText = 'Loading...';
                         try {
@@ -1301,13 +1395,19 @@
                                     fares: selectedFares
                                 };
 
-                                // Inisialisasi Booker Data jika belum ada
-                                if (!this.bookingResponse.bookerData) {
-                                    this.bookingResponse.bookerData = { name: '', phone: '', email: '', city: 'BALIKPAPAN' };
-                                }
+                                // Inisialisasi data pemesan (semua field disiapkan)
+                                this.bookingResponse.bookerData = Object.assign(
+                                    { name: '', id: '', city: 'BALIKPAPAN', email: '', phone: '' },
+                                    this.bookingResponse.bookerData || {}
+                                );
 
-                                // 🚀 POINT UTAMA: Panggil fungsi pemetaan form yang baru
+                                // Susun form penumpang dari response API
                                 this.preparePassengerForms();
+
+                                // Isi otomatis dari data yang pernah disimpan
+                                if (this.applySavedToForm()) {
+                                    this.showToast('Data terisi dari pesanan sebelumnya');
+                                }
 
                                 // Pindah Stage & Scroll ke atas
                                 this.stage = 'passenger_form';
@@ -1466,6 +1566,9 @@
                                 booker.email = regularPaxes[0].email || booker.email;
                             }
 
+                            // Simpan data form ke localStorage untuk pesanan berikutnya
+                            this.persistFormData();
+
                             // Simpan DRAFT ke DB → dapat booking_id integer
                             const resDraft = await fetch('https://darma.siappgo.id/api/shipdlu/dlu-bookings/draft', {
                                 method: 'POST',
@@ -1570,7 +1673,8 @@
                                     this.paymentStep = 'show_qris';
                                 } else {
                                     this.vaNumber = res.data.virtual_account;
-                                    this.vaBankName = bankCode === '014' ? 'BCA' : bankCode === '002' ? 'BRI' : 'BNI';
+                                    const bnk = this.bankList.find(b => b.code === bankCode);
+                                    this.vaBankName = bnk ? bnk.name : '';
                                     this.paymentStep = 'show_va';
                                 }
 
@@ -1831,6 +1935,247 @@
                             this.showToast("Gagal membuka E-Tiket.");
                         } finally {
                             this.loading = false;
+                        }
+                    },
+
+                    // ==========================================
+                    // DATA TERSIMPAN (localStorage)
+                    // ==========================================
+                    storageGet(key, fallback) {
+                        try {
+                            const raw = localStorage.getItem(key);
+                            return raw ? JSON.parse(raw) : fallback;
+                        } catch (e) {
+                            return fallback;
+                        }
+                    },
+
+                    storageSet(key, value) {
+                        try {
+                            localStorage.setItem(key, JSON.stringify(value));
+                            return true;
+                        } catch (e) {
+                            console.warn('localStorage tidak tersedia:', e);
+                            return false;
+                        }
+                    },
+
+                    storageRemove(key) {
+                        try { localStorage.removeItem(key); } catch (e) { /* abaikan */ }
+                    },
+
+                    loadSavedData() {
+                        const K = this.STORAGE_KEYS;
+                        const arr = (v) => Array.isArray(v) ? v : [];
+                        this.saveData = this.storageGet(K.consent, true) !== false;
+                        this.savedBooker = this.storageGet(K.booker, null);
+                        this.savedPaxes = arr(this.storageGet(K.paxes, []));
+                        this.savedVehicles = arr(this.storageGet(K.vehicles, []));
+                        this.lastPaxKeys = arr(this.storageGet(K.lastPax, []));
+                        this.lastVehicleKeys = arr(this.storageGet(K.lastVehicles, []));
+                    },
+
+                    onToggleSaveData() {
+                        this.storageSet(this.STORAGE_KEYS.consent, !!this.saveData);
+                        this.showToast(this.saveData
+                            ? 'Data akan disimpan untuk pesanan berikutnya'
+                            : 'Penyimpanan data dimatikan');
+                    },
+
+                    // Kunci unik penumpang: NIK kalau ada, selain itu nama + tgl lahir
+                    paxKey(p) {
+                        const id = String(p.id || '').replace(/\s/g, '');
+                        if (id) return 'id:' + id;
+                        return 'nm:' + String(p.name || '').toUpperCase().trim() + '|' + (p.dob || '');
+                    },
+
+                    vehicleKey(v) {
+                        return 'reg:' + String(v.regNo || '').toUpperCase().replace(/\s+/g, '');
+                    },
+
+                    maskId(id) {
+                        const t = String(id || '');
+                        return t.length > 7 ? t.slice(0, 4) + '••••••' + t.slice(-3) : t;
+                    },
+
+                    // Dipanggil saat user menekan "Lanjutkan ke Pembayaran"
+                    persistFormData() {
+                        if (!this.saveData) return;
+                        const K = this.STORAGE_KEYS;
+                        const up = (v) => String(v || '').toUpperCase().trim();
+                        const tr = (v) => String(v || '').trim();
+
+                        // -- Pemesan --
+                        const b = (this.bookingResponse && this.bookingResponse.bookerData) || {};
+                        if (up(b.name)) {
+                            this.savedBooker = {
+                                name: up(b.name),
+                                id: tr(b.id),
+                                city: up(b.city),
+                                email: tr(b.email),
+                                phone: tr(b.phone)
+                            };
+                            this.storageSet(K.booker, this.savedBooker);
+                        }
+
+                        // -- Penumpang --
+                        let list = this.savedPaxes.slice();
+                        const usedKeys = this.passengerDetails.map((p) => {
+                            if (!up(p.name)) return null; // jaga urutan index tetap sejajar
+                            const entry = {
+                                key: this.paxKey(p),
+                                name: up(p.name),
+                                gender: p.gender === 'P' ? 'P' : 'L',
+                                dob: p.dob || '',
+                                id: tr(p.id),
+                                city: up(p.city),
+                                phone: tr(p.phone),
+                                savedAt: Date.now()
+                            };
+                            list = list.filter((x) =>
+                                x.key !== entry.key && !(x.name === entry.name && (!x.id || !entry.id)));
+                            list.unshift(entry);
+                            return entry.key;
+                        });
+                        this.savedPaxes = list.slice(0, 50);
+                        this.lastPaxKeys = usedKeys;
+                        this.storageSet(K.paxes, this.savedPaxes);
+                        this.storageSet(K.lastPax, this.lastPaxKeys);
+
+                        // -- Kendaraan --
+                        const vehicles = (this.bookingResponse && this.bookingResponse.listVehicle) || [];
+                        if (vehicles.length > 0) {
+                            let vList = this.savedVehicles.slice();
+                            const vKeys = vehicles.map((v) => {
+                                if (!up(v.regNo)) return null;
+                                const entry = {
+                                    key: this.vehicleKey(v),
+                                    regNo: up(v.regNo),
+                                    ownerName: up(v.ownerName),
+                                    savedAt: Date.now()
+                                };
+                                vList = vList.filter((x) => x.key !== entry.key);
+                                vList.unshift(entry);
+                                return entry.key;
+                            });
+                            this.savedVehicles = vList.slice(0, 20);
+                            this.lastVehicleKeys = vKeys;
+                            this.storageSet(K.vehicles, this.savedVehicles);
+                            this.storageSet(K.lastVehicles, this.lastVehicleKeys);
+                        }
+                    },
+
+                    // Isi form dengan data tersimpan. Return true kalau ada yang terisi.
+                    applySavedToForm() {
+                        let filled = false;
+
+                        const b = this.bookingResponse.bookerData;
+                        if (this.savedBooker) {
+                            ['name', 'id', 'city', 'email', 'phone'].forEach((k) => {
+                                if (this.savedBooker[k]) {
+                                    b[k] = this.savedBooker[k];
+                                    filled = true;
+                                }
+                            });
+                        }
+
+                        // Penumpang diisi sesuai urutan pesanan terakhir
+                        this.passengerDetails.forEach((p, i) => {
+                            const key = this.lastPaxKeys[i];
+                            if (!key) return;
+                            const saved = this.savedPaxes.find((x) => x.key === key);
+                            if (saved) {
+                                this.fillPaxFromSaved(p, saved);
+                                filled = true;
+                            }
+                        });
+
+                        (this.bookingResponse.listVehicle || []).forEach((v, i) => {
+                            const key = this.lastVehicleKeys[i];
+                            if (!key) return;
+                            const saved = this.savedVehicles.find((x) => x.key === key);
+                            if (saved) {
+                                v.regNo = saved.regNo;
+                                v.ownerName = saved.ownerName;
+                                filled = true;
+                            }
+                        });
+
+                        return filled;
+                    },
+
+                    fillPaxFromSaved(pax, saved) {
+                        // paxGroup/paxType/paxClass/harga sengaja tidak diubah (ditentukan oleh tiket yang dipilih)
+                        pax.name = saved.name || '';
+                        pax.gender = saved.gender === 'P' ? 'P' : 'L';
+                        if (saved.dob) pax.dob = saved.dob;
+                        pax.id = saved.id || '';
+                        if (saved.city) pax.city = saved.city;
+                        pax.phone = saved.phone || '';
+                    },
+
+                    applySavedPax(pax, key) {
+                        if (!key) return;
+                        const saved = this.savedPaxes.find((x) => x.key === key);
+                        if (!saved) return;
+                        this.fillPaxFromSaved(pax, saved);
+                        this.showToast('Data ' + saved.name + ' dimuat');
+                    },
+
+                    applySavedVehicle(vhc, key) {
+                        if (!key) return;
+                        const saved = this.savedVehicles.find((x) => x.key === key);
+                        if (!saved) return;
+                        vhc.regNo = saved.regNo;
+                        vhc.ownerName = saved.ownerName;
+                        this.showToast('Data kendaraan ' + saved.regNo + ' dimuat');
+                    },
+
+                    removeSavedPax(key) {
+                        this.savedPaxes = this.savedPaxes.filter((x) => x.key !== key);
+                        this.lastPaxKeys = this.lastPaxKeys.map((k) => (k === key ? null : k));
+                        this.storageSet(this.STORAGE_KEYS.paxes, this.savedPaxes);
+                        this.storageSet(this.STORAGE_KEYS.lastPax, this.lastPaxKeys);
+                    },
+
+                    removeSavedVehicle(key) {
+                        this.savedVehicles = this.savedVehicles.filter((x) => x.key !== key);
+                        this.lastVehicleKeys = this.lastVehicleKeys.map((k) => (k === key ? null : k));
+                        this.storageSet(this.STORAGE_KEYS.vehicles, this.savedVehicles);
+                        this.storageSet(this.STORAGE_KEYS.lastVehicles, this.lastVehicleKeys);
+                    },
+
+                    clearSavedData() {
+                        if (!confirm('Hapus semua data pemesan, penumpang, dan kendaraan yang tersimpan di perangkat ini?')) return;
+                        const K = this.STORAGE_KEYS;
+                        [K.booker, K.paxes, K.lastPax, K.vehicles, K.lastVehicles].forEach((k) => this.storageRemove(k));
+                        this.savedBooker = null;
+                        this.savedPaxes = [];
+                        this.savedVehicles = [];
+                        this.lastPaxKeys = [];
+                        this.lastVehicleKeys = [];
+                        this.showSavedManager = false;
+                        this.showToast('Data tersimpan dihapus');
+                    },
+
+                    // Tombol "Simpan QR Ke Galeri" (sebelumnya dipanggil tapi belum didefinisikan)
+                    async downloadQR(src, reff) {
+                        if (!src) return;
+                        try {
+                            const res = await fetch(src);
+                            const blob = await res.blob();
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'QRIS-' + (reff || Date.now()) + '.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            setTimeout(() => URL.revokeObjectURL(url), 1000);
+                            this.showToast('QR berhasil disimpan');
+                        } catch (e) {
+                            window.open(src, '_blank');
+                            this.showToast('Tekan lama gambar QR untuk menyimpan');
                         }
                     },
 
