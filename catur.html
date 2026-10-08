@@ -735,7 +735,13 @@
             ["utamaHal", "paymentMethodsContainer", "vaPage", "qrisPage"].forEach(x => $(x).style.display = (x === id ? "block" : "none"));
             window.scrollTo(0, 0);
         }
-        $("nextBtn").addEventListener("click", () => {
+        $("nextBtn").addEventListener("click", async () => {
+            // Cek ulang kuota: kalau paket terpilih baru saja habis, pilihan otomatis dialihkan
+            const before = getPkg();
+            await loadQuota();
+            if (getPkg() !== before) {
+                return warn("Kuota paket yang Anda pilih baru saja habis. Pilihan dialihkan ke Reguler Tanpa Jersey, periksa kembali lalu klik Lanjut Bayar.");
+            }
             const d = collect(); if (!d) return;
             formData = d;
             $("payTotal").textContent = rp(d.pkg.price);
