@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pendaftaran NBCC 2026</title>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { theme: { extend: { colors: { pri: '#24b3ae', sec: '#e03f7d', gold: '#f5c542' } } } }</script>
+    <style>
+        @import url(https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap);
+
+        body {
+            font-family: "Poppins", system-ui, sans-serif;
+            background: #07070b;
+            color: #f1f1f5
+        }
+
+        /* kartu & section */
+        .card {
+            background: linear-gradient(180deg, #14141b, #0d0d12);
+            border: 1px solid #2a2a35;
+            border-radius: 18px
+        }
+
+        .num {
+            background: linear-gradient(135deg, #ffd96a, #d9a520);
+            color: #1a1405;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 15px
+        }
+
+        /* paket */
+        .pkg input {
+            display: none
+        }
+
+        .pkg label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(90deg, #1a1a22, #101016);
+            border: 1.5px solid #2a2a35;
+            border-radius: 12px;
+            padding: 0 14px 0 0;
+            min-height: 78px;
+            cursor: pointer;
+            transition: .2s;
+            overflow: hidden
+        }
+
+        .pkg label img {
+            width: 92px;
+            height: 78px;
+            object-fit: cover;
+            flex-shrink: 0
+        }
+
+        .pkg input:checked+label {
+            border-color: #f5c542;
+            background: linear-gradient(90deg, #3a2e0c, #14110a);
+            box-shadow: 0 0 14px rgba(245, 197, 66, .25)
+        }
+
+        .pkg input:disabled+label {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        .dot {
+            width: 26px;
+            height: 26px;
+            border: 2px solid #8a8a99;
+            border-radius: 50%;
+            flex-shrink: 0
+        }
+
+        .pkg input:checked+label .dot {
+            border-color: #f5c542;
+            background: #f5c542;
+            box-shadow: inset 0 0 0 5px #1a1405
+        }
+
+        .price {
+            color: #fff;
+            font-weight: 700;
+            font-size: 17px;
+            white-space: nowrap
+        }
+
+        .pkg input:checked+label .price {
+            color: #f5c542
+        }
+
+        /* input */
+        .fld {
+            position: relative;
+            margin-top: 6px
+        }
+
+        .fld iconify-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #cfcfdb
+        }
+
+        .inp {
+            width: 100%;
+            background: #0b0b10;
+            border: 1px solid #2f2f3b;
+            border-radius: 12px;
+            padding: 12px 12px 12px 44px;
+            font-size: 14px;
+            color: #fff
+        }
+
+        .inp::placeholder {
+            color: #6b6b7b
+        }
+
+        .inp:focus {
+            outline: none;
+            border-color: #f5c542;
+            box-shadow: 0 0 0 3px rgba(245, 197, 66, .15)
+        }
+
+        input[type=file].inp {
+            padding: 10px 12px
+        }
+
+        .lbl {
+            font-size: 14px;
+            color: #d4d4de
+        }
+
+        .lbl i {
+            color: #ff4d6d;
+            font-style: normal
+        }
+
+        /* tombol */
+        .btn {
+            background: #24b3ae;
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 700;
+            width: 100%;
+            transition: .2s
+        }
+
+        .btn:active {
+            transform: scale(.98)
+        }
+
+        .btn:disabled {
+            opacity: .6
+        }
+
+        .btn-pink {
+            background: linear-gradient(135deg, #ff3d7f, #c4155a);
+            box-shadow: 0 4px 14px rgba(224, 63, 125, .45);
+            width: auto;
+            padding: 13px 26px
+        }
+
+        /* bar bawah */
+        .bar {
+            background: #0a0a0f;
+            border-top: 1px solid #23232d
+        }
+
+        /* metode bayar */
+        .method {
+            border: 1px solid #2a2a35;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 8px 0;
+            background: #14141b
+        }
+
+        .method:has(input:checked) {
+            border-color: #f5c542;
+            background: #2a220a
+        }
+
+        .method label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer
+        }
+
+        .method img {
+            width: 40px;
+            height: auto;
+            background: #fff;
+            border-radius: 4px;
+            padding: 2px
+        }
+
+        /* override utilitas terang di halaman pembayaran */
+        .bg-white {
+            background: #14141b !important;
+            color: #eee
+        }
+
+        .bg-slate-100 {
+            background: #1c1c25 !important;
+            color: #eee
+        }
+
+        .border,
+        .border-t {
+            border-color: #2a2a35 !important
+        }
+
+        .text-slate-700,
+        .text-slate-600,
+        .text-slate-500 {
+            color: #b4b4c2 !important
+        }
+
+        .text-pri {
+            color: #f5c542 !important
+        }
+
+        .bg-pri {
+            background: #f5c542 !important;
+            color: #1a1405 !important
+        }
+
+        #vaPage .btn,
+        #qrisPage .btn,
+        #payBtn {
+            background: linear-gradient(135deg, #ffd96a, #d9a520);
+            color: #1a1405
+        }
+
+        /* ===== MOBILE ONLY: di desktop tampil sebagai layar HP di tengah ===== */
+        html {
+            background: #020204
+        }
+
+        #app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            background: #07070b;
+            overflow-x: hidden;
+            box-shadow: 0 0 60px rgba(0, 0, 0, .8)
+        }
+
+        @media (min-width:768px) {
+            #app {
+                box-shadow: 0 0 0 1px #23232d, 0 0 60px rgba(245, 197, 66, .08)
+            }
+        }
+
+        /* bar fixed ikut lebar container, bukan lebar layar */
+        .fixed.bottom-0 {
+            left: 50% !important;
+            right: auto !important;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px
+        }
+
+        /* ===== SKALA MOBILE: font, ikon & gambar diperkecil agar proporsional ===== */
+        #app {
+            font-size: 13px
+        }
+
+        #app h1 {
+            font-size: 22px !important
+        }
+
+        #app h2 {
+            font-size: 15px !important
+        }
+
+        #app .text-sm {
+            font-size: 12px !important
+        }
+
+        #app .text-lg {
+            font-size: 15px !important
+        }
+
+        #app .text-xl {
+            font-size: 16px !important
+        }
+
+        #app .text-2xl {
+            font-size: 20px !important
+        }
+
+        #utamaHal>div>span {
+            width: 34px !important;
+            height: 34px !important;
+            font-size: 18px !important
+        }
+
+        #utamaHal {
+            padding-bottom: 7rem
+        }
+
+        .card.p-4 {
+            padding: 14px !important;
+            border-radius: 16px
+        }
+
+        .num {
+            width: 26px;
+            height: 26px;
+            font-size: 13px
+        }
+
+        .pkg label {
+            min-height: 64px;
+            gap: 10px;
+            padding-right: 12px
+        }
+
+        .pkg label img {
+            width: 72px;
+            height: 64px
+        }
+
+        .pkg label b {
+            font-size: 13px
+        }
+
+        .pkg label small {
+            font-size: 11px
+        }
+
+        .price {
+            font-size: 14px !important
+        }
+
+        .dot {
+            width: 22px;
+            height: 22px
+        }
+
+        .pkg input:checked+label .dot {
+            box-shadow: inset 0 0 0 4px #1a1405
+        }
+
+        .lbl {
+            font-size: 12px
+        }
+
+        .inp {
+            font-size: 13px;
+            padding: 10px 10px 10px 38px;
+            border-radius: 10px
+        }
+
+        .fld iconify-icon {
+            font-size: 17px;
+            left: 12px
+        }
+
+        #totalLabel {
+            font-size: 22px !important;
+            margin-top: 4px !important
+        }
+
+        .bar .text-sm {
+            font-size: 11px !important
+        }
+
+        .btn {
+            font-size: 14px
+        }
+
+        .btn-pink {
+            padding: 11px 18px
+        }
+
+        #app .bar .border-t {
+            font-size: 10.5px !important
+        }
+
+        #app .bar .border-t b {
+            font-size: 14px !important
+        }
+
+        .method {
+            padding: 10px;
+            font-size: 13px
+        }
+
+        .method img {
+            width: 32px
+        }
+
+        .bank-logo {
+            height: 20px !important
+        }
+
+        #qrisImage,
+        #qrShimmer {
+            width: 210px !important;
+            height: 210px !important
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0
+            }
+
+            100% {
+                background-position: 200% 0
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div id="app">
+
+        <!-- ================= HALAMAN FORM ================= -->
+        <main id="utamaHal" class="max-w-2xl mx-auto pb-40">
+            <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791416548/nbcc_ada_kec_sepaku_1_fhqvot.png"
+                alt="NBCC 2026" class="w-full block">
+
+            <div class="px-4 -mt-2 flex items-center gap-3">
+                <span
+                    class="w-11 h-11 rounded-full grid place-items-center text-2xl bg-gradient-to-br from-yellow-200 to-yellow-600 text-black shrink-0">♟</span>
+                <h1 class="text-3xl font-extrabold leading-tight">Pendaftaran<br><span class="text-gold">NBCC
+                        2026</span></h1>
+            </div>
+            <p class="px-4 mt-2 text-sm text-slate-400">Pilih paket pendaftaran dan isi data peserta dengan benar.</p>
+
+            <form id="regForm" class="p-4 space-y-5" novalidate>
+                <!-- 1. PAKET -->
+                <section class="card p-4">
+                    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">1</span> Pilihan Paket <span
+                            class="text-sm text-[#ff4d6d]">*wajib</span></h2>
+                    <div class="pkg mt-3 space-y-2.5">
+                        <div><input type="radio" name="pkg" id="p1" value="early" checked><label for="p1">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382192/earlybird_kfgzmw.png"
+                                    alt="">
+                                <span class="flex-1"><b>Early Bird + Jersey</b><br><small id="q_early"
+                                        class="text-slate-400">Kuota 50 peserta</small></span>
+                                <b id="pr_early" class="price">Rp100.000</b><span class="dot"></span></label></div>
+                        <div><input type="radio" name="pkg" id="p2" value="reguler"><label for="p2">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382253/reguler_1_b0jn69.png"
+                                    alt="">
+                                <span class="flex-1"><b>Reguler + Jersey</b><br><small id="q_reguler"
+                                        class="text-slate-400">Kuota 100 peserta</small></span>
+                                <b class="price">Rp200.000</b><span class="dot"></span></label></div>
+                        <div><input type="radio" name="pkg" id="p3" value="paket5"><label for="p3">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382191/paket_5org_tgxxgt.png"
+                                    alt="">
+                                <span class="flex-1"><b>Paket 5 Orang</b><br><small class="text-slate-400">5 peserta,
+                                        tanpa jersey</small></span>
+                                <b class="price">Rp350.000</b><span class="dot"></span></label></div>
+                        <div><input type="radio" name="pkg" id="p4" value="nojersey"><label for="p4">
+                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382192/reguler_perorg_ebsfup.png"
+                                    alt="">
+                                <span class="flex-1"><b>Reguler Tanpa Jersey</b><br><small class="text-slate-400">1
+                                        peserta, tanpa jersey</small></span>
+                                <b class="price">Rp150.000</b><span class="dot"></span></label></div>
+                    </div>
+                </section>
+
+                <!-- 2A. SATU PESERTA -->
+                <section id="single" class="card p-4 space-y-3">
+                    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">2</span> Data Peserta</h2>
+                    <div><label class="lbl">Nama Lengkap <i>*</i></label>
+                        <div class="fld"><iconify-icon icon="mdi:account-outline"></iconify-icon><input class="inp"
+                                id="s_name" autocomplete="name" placeholder="Masukkan nama lengkap"></div>
+                    </div>
+                    <div><label class="lbl">NIK <i>*</i></label>
+                        <div class="fld"><iconify-icon icon="mdi:card-account-details-outline"></iconify-icon><input
+                                class="inp" id="s_nik" inputmode="numeric" maxlength="16"
+                                placeholder="Masukkan NIK (16 digit)"></div>
+                    </div>
+                    <div><label class="lbl">Nomor WhatsApp <i>*</i></label>
+                        <div class="fld"><iconify-icon icon="mdi:whatsapp"></iconify-icon><input class="inp"
+                                id="s_phone" inputmode="tel" placeholder="0812..."></div>
+                    </div>
+                    <div><label class="lbl">Foto KTP <i>*</i> <small class="text-slate-500">(JPG/PNG, maks
+                                5MB)</small></label>
+                        <div class="fld"><input class="inp" id="s_ktp" type="file" accept="image/*"
+                                style="padding-left:12px"></div>
+                    </div>
+                </section>
+
+                <!-- 2B. PAKET 5 ORANG -->
+                <section id="multi" class="hidden space-y-3"></section>
+
+                <!-- KONFIRMASI -->
+                <section class="card p-4">
+                    <label class="flex items-start gap-3 text-sm cursor-pointer">
+                        <input type="checkbox" id="agree" class="mt-1 w-4 h-4 accent-[#f5c542]">
+                        <span>Saya menyatakan bahwa data yang saya masukkan benar dan bersedia mengikuti ketentuan NBCC
+                            2026.</span>
+                    </label>
+                </section>
+            </form>
+
+            <div class="bar fixed bottom-0 left-0 right-0 z-40">
+                <div class="max-w-2xl mx-auto px-4 pt-3 flex items-center gap-3">
+                    <div class="flex-1">
+                        <div class="text-sm text-slate-300 leading-none">Total Pembayaran</div>
+                        <div id="totalLabel" class="text-[#19e3d6] font-extrabold text-3xl mt-1">Rp100.000</div>
+                    </div>
+                    <button id="nextBtn" class="btn btn-pink">Lanjut Bayar →</button>
+                </div>
+                <div
+                    class="flex items-center justify-center gap-2 text-xs text-slate-300 py-2.5 mt-2 border-t border-[#23232d]">
+                    <span>Sistem Support by</span>
+                    <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791411962/linku_transparan_eordl5.png"
+                        style="width:auto;height:50px;" alt="LinkU">
+                </div>
+            </div>
+        </main>
+
+        <!-- ================= METODE PEMBAYARAN ================= -->
+        <div id="paymentMethodsContainer" class="max-w-2xl mx-auto p-4 pb-28" style="display:none">
+            <button onclick="backToForm()" class="text-sm text-pri font-semibold">← Ubah data</button>
+            <p class="text-center font-bold text-lg mt-2">Pilih Metode Pembayaran</p>
+            <p class="text-center text-sm text-slate-500">Total: <b id="payTotal" class="text-sec"></b></p>
+            <h6 class="font-bold mt-4">Scan QR</h6>
+            <div class="method"><label><input type="radio" name="payment" value="qris" data-method="qris"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684336/Logo_QRIS.svg_szprhw.png"
+                        alt="QRIS">QRIS</label></div>
+            <h6 class="font-bold mt-4">Virtual Account</h6>
+            <div class="method"><label><input type="radio" name="payment" value="002" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png"
+                        alt="BRI">Bank BRI</label></div>
+            <div class="method"><label><input type="radio" name="payment" value="008" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png"
+                        alt="Mandiri">Bank Mandiri</label></div>
+            <div class="method"><label><input type="radio" name="payment" value="009" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png"
+                        alt="BNI">Bank BNI</label></div>
+            <div class="method"><label><input type="radio" name="payment" value="451" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png"
+                        alt="BSI">Bank BSI</label></div>
+            <div class="method"><label><input type="radio" name="payment" value="022" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png"
+                        alt="CIMB">Bank CIMB</label></div>
+            <div class="method"><label><input type="radio" name="payment" value="011" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png"
+                        alt="Danamon">Bank Danamon</label></div>
+            <div class="method"><label><input type="radio" name="payment" value="013" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg"
+                        alt="Permata">Bank Permata</label></div>
+            <div class="method"><label><input type="radio" name="payment" value="028" data-method="va"><img
+                        src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png"
+                        alt="OCBC">Bank OCBC</label></div>
+            <div class="fixed bottom-0 left-0 right-0 bg-white p-3 border-t z-40">
+                <button onclick="createPayment()" class="btn max-w-2xl mx-auto block" id="payBtn">LANJUTKAN</button>
+            </div>
+        </div>
+
+        <!-- ================= HALAMAN VA ================= -->
+        <div id="vaPage" class="max-w-2xl mx-auto p-4 pb-28" style="display:none">
+            <button onclick="backToMethods()" class="text-sm text-pri font-semibold">← Ganti metode</button>
+            <p class="text-sm font-bold text-slate-700 mt-4">Jumlah yang harus dibayar</p>
+            <p class="total-payment text-2xl font-extrabold text-pri"></p>
+            <div class="card p-4 mt-4">
+                <div class="flex items-center gap-3"><img class="bank-logo h-6 object-contain bg-white rounded px-1"
+                        src="" alt="bank"><b class="bank-name"></b></div>
+                <hr class="my-3 border-[#2a2a35]">
+                <p class="text-xs text-slate-500">Nomor Virtual Account</p>
+                <div class="flex items-center justify-between">
+                    <p id="vaDana" class="text-xl font-bold text-pri"></p>
+                    <button type="button" onclick="copyVaCode()"
+                        class="bg-pri w-8 h-8 rounded-md grid place-items-center"><iconify-icon
+                            icon="ion:copy"></iconify-icon></button>
+                </div>
+            </div>
+            <div id="panduan-pembayaran-va"></div>
+            <div id="countdown" class="text-center font-bold bg-slate-100 px-4 py-2 rounded-lg w-fit mx-auto mt-5">
+            </div>
+            <div class="fixed bottom-0 left-0 right-0 bg-white p-3 border-t z-40"><button type="button"
+                    onclick="handleManualCheck(this)" class="btn max-w-2xl mx-auto block">Cek Status Pembayaran</button>
+            </div>
+        </div>
+
+        <!-- ================= HALAMAN QRIS ================= -->
+        <div id="qrisPage" class="max-w-2xl mx-auto p-4 pb-28" style="display:none">
+            <button onclick="backToMethods()" class="text-sm text-pri font-semibold">← Ganti metode</button>
+            <p class="text-center text-sm text-slate-600 mt-4">Scan QRIS berikut untuk membayar:</p>
+            <div id="qrShimmer"
+                style="width:250px;height:250px;margin:12px auto;background:linear-gradient(90deg,#1c1c25 25%,#2a2a35 50%,#1c1c25 75%);background-size:200% 100%;animation:shimmer 1.5s infinite">
+            </div>
+            <div class="flex justify-center my-3"><img id="qrisImage" alt="QRIS" width="250" height="250"
+                    style="display:none;background:#fff;padding:6px;border-radius:8px"></div>
+            <div class="text-center"><button id="downloadQR" class="bg-sec text-white px-5 py-1.5 rounded-lg"
+                    style="display:none">⬇ Unduh QR</button></div>
+            <div class="flex justify-between items-center mt-4">
+                <p class="text-lg">Total Pembayaran:</p>
+                <p class="total-payment text-xl font-extrabold text-pri"></p>
+            </div>
+            <div id="panduan-pembayaran-qris"></div>
+            <div id="countdown-qris" class="text-center font-bold bg-slate-100 px-4 py-2 rounded-lg w-fit mx-auto mt-5">
+            </div>
+            <div class="fixed bottom-0 left-0 right-0 bg-white p-3 border-t z-40"><button type="button"
+                    onclick="handleManualCheck(this)" class="btn max-w-2xl mx-auto block">Cek Status Pembayaran</button>
+            </div>
+        </div>
+
+    </div><!-- /#app -->
+
+    <div id="loadingOverlay" class="fixed inset-0 hidden items-center justify-center bg-black/60 z-[9999]">
+        <div class="flex flex-col items-center">
+            <svg class="animate-spin h-10 w-10 text-white mb-3" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="text-white text-lg font-medium">Memproses pembayaran...</p>
+        </div>
+    </div>
+
+    <script>
+        // ===== KONFIGURASI BACKEND =====
+        const API = (new URLSearchParams(location.search).get("api") || "https://catur.siappgo.id").replace(/\/$/, "");
+
+        // Mode tes: 100. Sebelum publik, samakan dengan EARLY_PRICE di backend.
+        const EARLY_PRICE = 100;
+        const PACKAGES = {
+            early: { label: "Early Bird + Jersey", price: EARLY_PRICE, pax: 1 },
+            reguler: { label: "Reguler + Jersey", price: 200000, pax: 1 },
+            paket5: { label: "Paket 5 Orang", price: 350000, pax: 5 },
+            nojersey: { label: "Reguler Tanpa Jersey", price: 150000, pax: 1 }
+        };
+        const rp = n => "Rp" + Number(n).toLocaleString("id-ID");
+        const $ = id => document.getElementById(id);
+        const showFlex = (el, on) => { el.classList.toggle("hidden", !on); el.classList.toggle("flex", on); };
+
+        $("pr_early").textContent = rp(PACKAGES.early.price);
+        let formData = null, activePartnerReff = "", pollingInterval = null, timers = {};
+
+        // ---------- Form dinamis (paket 5 orang) ----------
+        const multi = $("multi");
+        let html = "";
+        for (let i = 1; i <= 5; i++) {
+            html += `<section class="card p-4 space-y-3">
+    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">${i + 1}</span> Data Peserta ${i}</h2>
+    <div><label class="lbl">Nama Lengkap Peserta ${i} <i>*</i></label><div class="fld"><iconify-icon icon="mdi:account-outline"></iconify-icon><input class="inp m_name" placeholder="Masukkan nama lengkap"></div></div>
+    <div><label class="lbl">NIK Peserta ${i} <i>*</i></label><div class="fld"><iconify-icon icon="mdi:card-account-details-outline"></iconify-icon><input class="inp m_nik" inputmode="numeric" maxlength="16" placeholder="Masukkan NIK (16 digit)"></div></div>
+  </section>`;
+        }
+        html += `<section class="card p-4 space-y-3"><h2 class="font-bold text-lg">Data Koordinator</h2>
+  <div><label class="lbl">Nomor WhatsApp Koordinator <i>*</i></label><div class="fld"><iconify-icon icon="mdi:whatsapp"></iconify-icon><input class="inp" id="m_phone" inputmode="tel" placeholder="0812..."></div></div></section>`;
+        multi.innerHTML = html;
+
+        const getPkg = () => document.querySelector('input[name="pkg"]:checked').value;
+        function refreshPkg() {
+            const p = PACKAGES[getPkg()];
+            $("single").classList.toggle("hidden", p.pax !== 1);
+            multi.classList.toggle("hidden", p.pax === 1);
+            $("totalLabel").textContent = rp(p.price);
+        }
+        document.querySelectorAll('input[name="pkg"]').forEach(r => r.addEventListener("change", refreshPkg));
+        document.querySelectorAll("#s_nik,.m_nik").forEach(el => el.addEventListener("input", () => el.value = el.value.replace(/\D/g, "")));
+
+        // ---------- Sisa kuota ----------
+        const PKG_INPUT = { early: "p1", reguler: "p2" };
+        async function loadQuota() {
+            try {
+                const r = await fetch(`${API}/catur-quota`);
+                if (!r.ok) return;
+                const q = await r.json();
+                for (const [id, info] of Object.entries(q)) {
+                    const el = $("q_" + id), radio = $(PKG_INPUT[id]);
+                    if (!el || !radio) continue;
+                    if (info.sisa <= 0) {
+                        el.innerHTML = `<b class="text-sec">Kuota penuh</b>`;
+                        radio.disabled = true;
+                        if (radio.checked) { $("p4").checked = true; refreshPkg(); }
+                    } else {
+                        el.innerHTML = `Sisa <b class="${info.sisa <= 10 ? "text-sec" : "text-[#19e3d6]"}">${info.sisa}</b> dari ${info.quota} peserta`;
+                    }
+                }
+            } catch (e) { console.warn("Gagal memuat kuota:", e.message); }
+        }
+        loadQuota();
+        refreshPkg();
+
+        // ---------- Validasi ----------
+        const validPhone = v => /^(\+62|62|0)8\d{7,12}$/.test(v.replace(/[\s-]/g, ""));
+        const validNik = v => /^\d{16}$/.test(v);
+        function warn(msg) { swal("Periksa kembali", msg, "warning"); return null; }
+
+        function collect() {
+            const key = getPkg(), pkg = PACKAGES[key];
+            let participants = [], phone, ktp = null;
+            if (pkg.pax === 1) {
+                const name = $("s_name").value.trim(), nik = $("s_nik").value.trim(), ph = $("s_phone").value.trim();
+                if (!name) return warn("Nama lengkap wajib diisi.");
+                if (!validNik(nik)) return warn("NIK harus 16 digit angka.");
+                if (!validPhone(ph)) return warn("Nomor WhatsApp tidak valid.");
+                ktp = $("s_ktp").files[0];
+                if (!ktp) return warn("Foto KTP wajib diupload.");
+                if (ktp.size > 5 * 1024 * 1024) return warn("Ukuran foto KTP maksimal 5MB.");
+                participants = [{ name, nik }]; phone = ph;
+            } else {
+                const names = [...document.querySelectorAll(".m_name")], niks = [...document.querySelectorAll(".m_nik")];
+                for (let i = 0; i < 5; i++) {
+                    const name = names[i].value.trim(), nik = niks[i].value.trim();
+                    if (!name) return warn(`Nama Peserta ${i + 1} wajib diisi.`);
+                    if (!validNik(nik)) return warn(`NIK Peserta ${i + 1} harus 16 digit angka.`);
+                    participants.push({ name, nik });
+                }
+                if (new Set(participants.map(p => p.nik)).size < 5) return warn("Terdapat NIK ganda antar peserta.");
+                phone = $("m_phone").value.trim();
+                if (!validPhone(phone)) return warn("Nomor WhatsApp koordinator tidak valid.");
+            }
+            if (!$("agree").checked) return warn("Centang pernyataan persetujuan terlebih dahulu.");
+            return { key, pkg, participants, phone, ktp };
+        }
+
+        // ---------- Navigasi ----------
+        function show(id) {
+            ["utamaHal", "paymentMethodsContainer", "vaPage", "qrisPage"].forEach(x => $(x).style.display = (x === id ? "block" : "none"));
+            window.scrollTo(0, 0);
+        }
+        $("nextBtn").addEventListener("click", () => {
+            const d = collect(); if (!d) return;
+            formData = d;
+            $("payTotal").textContent = rp(d.pkg.price);
+            show("paymentMethodsContainer");
+        });
+        function backToForm() { show("utamaHal"); }
+        function backToMethods() { stopPolling(); clearAllTimers(); show("paymentMethodsContainer"); }
+        function clearAllTimers() { Object.values(timers).forEach(clearInterval); timers = {}; }
+
+        // ---------- Pembayaran ----------
+        async function uploadKtp(file) {
+            const fd = new FormData(); fd.append("ktp", file);
+            const r = await fetch(`${API}/upload-ktp`, { method: "POST", body: fd });
+            const j = await r.json();
+            if (!r.ok || !j.file) throw new Error(j.error || "Upload KTP gagal");
+            return j.file;
+        }
+
+        async function createPayment() {
+            const sel = document.querySelector('input[name="payment"]:checked');
+            if (!sel) return swal("Warning!", "Silakan pilih metode pembayaran terlebih dahulu", "warning");
+            if (!formData) return show("utamaHal");
+
+            const { key, pkg, participants, phone, ktp } = formData;
+            const method = sel.dataset.method, bankCode = sel.value;
+            const logoSrc = sel.parentElement.querySelector("img").src; // logo bank diambil dari pilihan metode
+            const un = "{username}";
+            const note = participants.map((p, i) => `${i + 1}. ${p.name} (${p.nik})`).join(" | ");
+
+            const payload = {
+                amount: pkg.price,
+                package_id: key,
+                package_name: pkg.label,
+                participants,
+                name: "NBCC 2026",
+                note,
+                pax: String(pkg.pax),
+                date: new Date().toISOString().split("T")[0],
+                phone,
+                customer_id: "{userid}",
+                customer_name: un.startsWith("{") ? participants[0].name : un,
+                customer_email: "bocahangon64@gmail.com",
+                customer_phone: phone
+            };
+            let endpoint;
+            if (method === "va") { endpoint = `${API}/create-va`; payload.metode_pembayaran = "VA"; payload.bank_code = bankCode; }
+            else { endpoint = `${API}/create-qris`; payload.metode_pembayaran = "QRIS"; }
+
+            showFlex($("loadingOverlay"), true);
+            try {
+                if (ktp) payload.ktp_file = await uploadKtp(ktp);
+                const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const res = await response.json();
+                if (!res.partner_reff || res.response_code !== "00") {
+                    return swal("Gagal", res.response_desc || res.error || "Gagal membuat pembayaran", "error");
+                }
+                startPolling(res.partner_reff);
+                const amount = "Rp " + Number(res.amount).toLocaleString("id-ID");
+
+                if (method === "va") {
+                    show("vaPage");
+                    document.querySelector("#vaPage .total-payment").textContent = amount;
+                    const steps = {
+                        "BANK BRI": ["Login ke aplikasi BRImo.", "Pilih menu BRIVA.", "Masukkan nomor Virtual Account.", "Konfirmasi dan selesaikan pembayaran."],
+                        "BANK MANDIRI": ["Login ke Livin' by Mandiri.", "Pilih Bayar > Multi Payment.", "Masukkan nomor Virtual Account.", "Konfirmasi dan bayar."],
+                        "BANK BNI": ["Login ke BNI Mobile Banking.", "Pilih Transfer > Virtual Account Billing.", "Masukkan nomor VA.", "Periksa dan konfirmasi pembayaran."],
+                        "BANK BSI": ["Login ke BSI Mobile.", "Pilih Bayar > Virtual Account.", "Masukkan nomor VA.", "Periksa dan konfirmasi pembayaran."],
+                        "DANAMON": ["Login ke D-Bank PRO.", "Pilih Transfer > Virtual Account.", "Masukkan nomor VA.", "Konfirmasi pembayaran."],
+                        "BANK PERMATA": ["Login ke PermataMobile X.", "Pilih Bayar > Virtual Account.", "Masukkan nomor VA.", "Konfirmasi dan bayar."]
+                    };
+                    document.querySelector("#vaPage .bank-logo").src = logoSrc;
+                    document.querySelector("#vaPage .bank-name").textContent = res.bank_name;
+                    $("vaDana").textContent = res.virtual_account;
+                    const s = steps[res.bank_name] || ["Buka mobile banking / ATM bank Anda.", "Pilih menu Virtual Account.", "Masukkan nomor VA lalu konfirmasi."];
+                    $("panduan-pembayaran-va").innerHTML = `<div class="mt-4 p-4 bg-white rounded-xl border"><h3 class="font-semibold text-pri mb-2">Panduan Pembayaran ${res.bank_name}</h3><ol class="list-decimal pl-5 text-sm text-slate-700 space-y-1">${s.map(x => `<li>${x}</li>`).join("")}</ol></div>`;
+                    startCountdown("countdown", 15);
+                } else {
+                    show("qrisPage");
+                    document.querySelector("#qrisPage .total-payment").textContent = amount;
+                    const img = $("qrisImage"); img.src = res.imageqris; img.style.display = "block";
+                    $("qrShimmer").style.display = "none";
+                    const dl = $("downloadQR"); dl.style.display = "inline-block";
+                    dl.onclick = () => window.open(`${API}/download-qr/${res.partner_reff}`, "_blank");
+                    $("panduan-pembayaran-qris").innerHTML = `<div class="mt-2 p-4 bg-white rounded-xl border"><h3 class="font-semibold text-pri mb-2">Panduan Pembayaran QRIS</h3><ol class="list-decimal pl-5 text-sm text-slate-700 space-y-1"><li>Buka e-Wallet atau Mobile Banking.</li><li>Pilih menu <b>Scan / Bayar</b>.</li><li>Scan kode QR di atas atau gunakan hasil unduhan.</li><li>Periksa nominal dan selesaikan pembayaran.</li></ol></div>`;
+                    startCountdown("countdown-qris", 15);
+                }
+            } catch (err) {
+                console.error(err);
+                swal("Error", err.message || "Terjadi kesalahan jaringan atau server.", "error");
+            } finally {
+                showFlex($("loadingOverlay"), false);
+            }
+        }
+
+        // ---------- Polling status ----------
+        function startPolling(ref) {
+            activePartnerReff = ref;
+            try { localStorage.setItem("last_partner_reff", ref); } catch (e) { }
+            stopPolling();
+            pollingInterval = setInterval(() => cekStatus(ref), 5000);
+            setTimeout(stopPolling, 15 * 60 * 1000);
+        }
+        function stopPolling() { if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; } }
+
+        async function cekStatus(ref) {
+            try {
+                const r = await fetch(`${API}/check-status/${ref}`);
+                if (!r.ok) return false;
+                const d = await r.json();
+                const paid = d.rc === "00" && d.data && (d.data.status_trx === "success" || d.data.status_paid === "paid");
+                if (paid) {
+                    stopPolling(); clearAllTimers();
+                    show("utamaHal");
+                    swal({ title: "Pendaftaran Berhasil! ♟️", text: "Pembayaran diterima. Konfirmasi pendaftaran dikirim ke WhatsApp Anda.", icon: "success", button: "Selesai", closeOnClickOutside: false })
+                        .then(() => location.reload());
+                }
+                return paid;
+            } catch (e) { console.error(e); return false; }
+        }
+
+        async function handleManualCheck(btn) {
+            let ref = activePartnerReff;
+            if (!ref) { try { ref = localStorage.getItem("last_partner_reff"); } catch (e) { } }
+            if (!ref) return swal("Peringatan", "Data transaksi tidak ditemukan, silakan daftar ulang.", "warning");
+            const old = btn.innerHTML; btn.disabled = true; btn.innerHTML = "⏳ Mengecek...";
+            const paid = await cekStatus(ref);
+            btn.disabled = false; btn.innerHTML = old;
+            if (!paid) swal("Belum Diterima", "Pembayaran belum kami terima. Coba lagi beberapa saat.", "info");
+        }
+
+        // ---------- Util ----------
+        function copyVaCode() {
+            const v = $("vaDana").innerText.trim();
+            if (!v) return swal("Gagal", "Nomor VA tidak ditemukan", "error");
+            const t = document.createElement("input"); t.value = v; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove();
+            swal({ title: "Berhasil Disalin!", text: "Nomor Virtual Account telah disalin.", icon: "success" });
+        }
+        function startCountdown(id, minutes) {
+            clearInterval(timers[id]);
+            let time = minutes * 60; const el = $(id);
+            const tick = () => {
+                const m = String(Math.floor(time / 60)).padStart(2, "0"), s = String(time % 60).padStart(2, "0");
+                el.textContent = `⏳ Berakhir dalam ${m}:${s}`;
+                if (time <= 0) { clearInterval(timers[id]); el.textContent = "❌ Waktu Berakhir"; el.classList.add("text-sec"); }
+                time--;
+            };
+            tick(); timers[id] = setInterval(tick, 1000);
+        }
+    </script>
+</body>
+
+</html>

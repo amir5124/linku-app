@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Data Pendaftar Turnamen Catur 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <style>
+        @import url(https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap);
+
+        body {
+            font-family: "Poppins", system-ui, sans-serif
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: #1f2937;
+            color: #fff;
+            font-weight: 600;
+            font-size: 12px;
+            text-align: left;
+            padding: 10px 12px;
+            white-space: nowrap
+        }
+
+        td {
+            padding: 9px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #eef0f3;
+            white-space: nowrap
+        }
+
+        tr.sep td {
+            border-top: 2px solid #e5e7eb
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600
+        }
+
+        .f {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 13px;
+            background: #fff
+        }
+
+        .f:focus {
+            outline: none;
+            border-color: #d4a63a;
+            box-shadow: 0 0 0 3px rgba(212, 166, 58, .2)
+        }
+
+        .btn {
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 text-slate-800">
+
+    <header class="bg-gray-900 text-white px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+        <div><b>♟️ Data Pendaftar Turnamen Catur 2026</b>
+            <div id="updated" class="text-xs text-slate-400"></div>
+        </div>
+        <label class="flex items-center gap-1 text-sm cursor-pointer"><input type="checkbox" id="auto"
+                class="accent-amber-500"> Auto-refresh 30 dtk</label>
+    </header>
+
+    <main class="max-w-[1400px] mx-auto p-4 space-y-4">
+        <p id="err" class="hidden bg-rose-50 text-rose-700 border border-rose-200 rounded-xl p-3 text-sm"></p>
+        <section id="cards" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></section>
+        <section id="perPkg" class="bg-white rounded-xl shadow-sm p-4 text-sm"></section>
+
+        <section class="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-2 items-end">
+            <div>
+                <div class="text-xs text-slate-500 mb-1">Cari</div><input id="q" class="f w-56"
+                    placeholder="Nama / NIK / invoice / WA / ref">
+            </div>
+            <div>
+                <div class="text-xs text-slate-500 mb-1">Status</div>
+                <select id="fStatus" class="f">
+                    <option value="SUKSES">Lunas</option>
+                    <option value="PENDING">Menunggu bayar</option>
+                    <option value="EXPIRED">Kedaluwarsa</option>
+                    <option value="">Semua</option>
+                </select>
+            </div>
+            <div>
+                <div class="text-xs text-slate-500 mb-1">Paket</div><select id="fPkg" class="f">
+                    <option value="">Semua</option>
+                </select>
+            </div>
+            <div>
+                <div class="text-xs text-slate-500 mb-1">Metode</div><select id="fMethod" class="f">
+                    <option value="">Semua</option>
+                </select>
+            </div>
+            <div>
+                <div class="text-xs text-slate-500 mb-1">Dari tanggal</div><input id="dFrom" type="date" class="f">
+            </div>
+            <div>
+                <div class="text-xs text-slate-500 mb-1">Sampai</div><input id="dTo" type="date" class="f">
+            </div>
+            <button id="resetBtn" class="btn bg-slate-200 hover:bg-slate-300">Reset</button>
+            <button id="reloadBtn" class="btn bg-slate-800 text-white">⟳ Muat ulang</button>
+            <button id="xlsBtn" class="btn text-white ml-auto" style="background:#16a34a">⬇ Unduh Excel</button>
+        </section>
+
+        <section class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="px-4 py-2 text-xs text-slate-500" id="countInfo"></div>
+            <div class="overflow-auto max-h-[65vh]">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tgl Bayar</th>
+                            <th>Invoice</th>
+                            <th>Nama Peserta</th>
+                            <th>NIK</th>
+                            <th>No. WhatsApp</th>
+                            <th>Paket</th>
+                            <th>Nominal</th>
+                            <th>Metode</th>
+                            <th>Ref Bank</th>
+                            <th>KTP</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </section>
+        <p class="text-xs text-slate-400">Nominal ditampilkan per invoice (diulang pada tiap peserta dalam invoice yang
+            sama). Total pendapatan dihitung per invoice, bukan per baris. Foto KTP hanya ada untuk paket 1 orang.</p>
+    </main>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const rp = n => "Rp" + Number(n || 0).toLocaleString("id-ID");
+        const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        const EXPIRE_MS = 20 * 60 * 1000;
+        let DATA = [], VIEW = [], timer = null;
+
+        // Key admin diambil dari URL: /admin/<ADMIN_KEY>
+        const BASE_URL = "https://catur.siappgo.id";
+        const ktpLink = f => f
+            ? `<a href="${BASE_URL}/ktp?f=${encodeURIComponent(f)}" target="_blank" rel="noopener" class="text-blue-600 underline">Lihat KTP</a>`
+            : "-";
+
+        const fmt = iso => iso ? new Date(iso).toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-";
+        const dayKey = iso => iso ? new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" }) : "";
+        const statusOf = r => r.status === "SUKSES" ? "SUKSES" : (Date.now() - new Date(r.created_at).getTime() > EXPIRE_MS ? "EXPIRED" : "PENDING");
+        const STATUS_LABEL = { SUKSES: "Lunas", PENDING: "Menunggu", EXPIRED: "Kedaluwarsa" };
+        const STATUS_CLS = { SUKSES: "bg-green-100 text-green-700", PENDING: "bg-amber-100 text-amber-700", EXPIRED: "bg-slate-200 text-slate-500" };
+
+        firebase.initializeApp({
+            apiKey: "AIzaSyD8P9au26mC8xx8UcjNsm-NMW5JUgTHUBU",
+            authDomain: "linku-3ca65.firebaseapp.com",
+            databaseURL: "https://linku-3ca65-default-rtdb.firebaseio.com",
+            projectId: "linku-3ca65",
+            appId: "1:759194220603:web:33e2327dfa94af2552841e"
+        });
+
+        async function load() {
+            try {
+                const snap = await firebase.database().ref("catur_registrations").once("value");
+                const all = snap.val() || {};
+                DATA = Object.values(all).map(r => ({
+                    invoice: r.partner_reff, status: r.status || "PENDING", created_at: r.created_at || null, paid_at: r.paid_at || null,
+                    amount: Number(r.amount) || 0, method: r.method || "-", va_number: r.va_number || null, bank_ref: r.bank_ref || null,
+                    package_name: r.package_name || r.package_id || "-", phone: r.phone || null, customer_name: r.customer_name || null,
+                    ktp_file: r.ktp_file || null,
+                    participants: Array.isArray(r.participants) ? r.participants : Object.values(r.participants || {})
+                }))
+                    .sort((a, b) => new Date(b.paid_at || b.created_at) - new Date(a.paid_at || a.created_at))
+                    .map(x => ({ ...x, _st: statusOf(x), _date: x.paid_at || x.created_at }));
+                $("err").classList.add("hidden");
+                $("updated").textContent = "Diperbarui " + fmt(new Date().toISOString());
+                buildFilters(); render();
+            } catch (e) {
+                $("err").textContent = "Gagal membaca Firebase: " + e.message;
+                $("err").classList.remove("hidden");
+            }
+        }
+
+        function buildFilters() {
+            const keep = { p: $("fPkg").value, m: $("fMethod").value };
+            const pk = [...new Set(DATA.map(r => r.package_name).filter(Boolean))].sort();
+            const mt = [...new Set(DATA.map(r => r.method).filter(Boolean))].sort();
+            $("fPkg").innerHTML = `<option value="">Semua</option>` + pk.map(x => `<option>${esc(x)}</option>`).join("");
+            $("fMethod").innerHTML = `<option value="">Semua</option>` + mt.map(x => `<option>${esc(x)}</option>`).join("");
+            $("fPkg").value = keep.p; $("fMethod").value = keep.m;
+        }
+
+        function applyFilter() {
+            const q = $("q").value.trim().toLowerCase(), st = $("fStatus").value, pk = $("fPkg").value, mt = $("fMethod").value;
+            const from = $("dFrom").value, to = $("dTo").value;
+            return DATA.filter(r => {
+                if (st && r._st !== st) return false;
+                if (pk && r.package_name !== pk) return false;
+                if (mt && r.method !== mt) return false;
+                const d = dayKey(r._date);
+                if (from && d < from) return false;
+                if (to && d > to) return false;
+                if (q) {
+                    const hay = [r.invoice, r.phone, r.bank_ref, r.customer_name, ...(r.participants || []).flatMap(p => [p.name, p.nik])].join(" ").toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        ["q", "fStatus", "fPkg", "fMethod", "dFrom", "dTo"].forEach(id => $(id).addEventListener("input", render));
+        $("resetBtn").onclick = () => { $("q").value = ""; $("fStatus").value = "SUKSES"; $("fPkg").value = ""; $("fMethod").value = ""; $("dFrom").value = ""; $("dTo").value = ""; render(); };
+        $("reloadBtn").onclick = load;
+        $("auto").onchange = e => { clearInterval(timer); if (e.target.checked) timer = setInterval(load, 30000); };
+
+        function render() {
+            const paid = DATA.filter(r => r._st === "SUKSES"), pending = DATA.filter(r => r._st === "PENDING");
+            const peserta = paid.reduce((a, r) => a + (r.participants || []).length, 0);
+            const omzet = paid.reduce((a, r) => a + Number(r.amount || 0), 0);
+            const card = (t, v, c) => `<div class="bg-white rounded-xl shadow-sm p-4"><div class="text-xs text-slate-500">${t}</div><div class="text-xl font-bold ${c || ""}">${v}</div></div>`;
+            $("cards").innerHTML = card("Invoice Lunas", paid.length, "text-green-600") + card("Total Peserta (Lunas)", peserta) +
+                card("Total Pendapatan", rp(omzet), "text-amber-600") + card("Menunggu Pembayaran", pending.length, "text-slate-600");
+
+            const per = {};
+            paid.forEach(r => { const k = r.package_name || "-"; per[k] ??= { inv: 0, org: 0, rp: 0 }; per[k].inv++; per[k].org += (r.participants || []).length; per[k].rp += Number(r.amount || 0); });
+            $("perPkg").innerHTML = `<b>Rekap per paket (lunas)</b><div class="mt-2 grid sm:grid-cols-2 lg:grid-cols-4 gap-2">` +
+                (Object.entries(per).map(([k, v]) => `<div class="border rounded-lg p-3"><div class="font-semibold">${esc(k)}</div><div class="text-xs text-slate-500">${v.inv} invoice · ${v.org} peserta</div><div class="text-amber-600 font-semibold">${rp(v.rp)}</div></div>`).join("") || `<span class="text-slate-400">Belum ada pembayaran lunas.</span>`) + `</div>`;
+
+            VIEW = applyFilter();
+            let n = 0, html = "";
+            VIEW.forEach(r => {
+                (r.participants?.length ? r.participants : [{ name: r.customer_name || "-", nik: "-" }]).forEach((p, i) => {
+                    n++;
+                    html += `<tr class="${i === 0 ? "sep" : ""}">
+        <td>${n}</td><td>${esc(fmt(r._date))}</td><td class="font-mono text-xs">${esc(r.invoice)}</td>
+        <td class="font-medium">${esc(p.name)}</td><td class="font-mono">${esc(p.nik)}</td><td>${esc(r.phone || "-")}</td>
+        <td>${esc(r.package_name)}</td><td>${rp(r.amount)}</td><td>${esc(r.method)}</td><td class="font-mono text-xs">${esc(r.bank_ref || "-")}</td>
+        <td>${i === 0 ? ktpLink(r.ktp_file) : "-"}</td>
+        <td><span class="badge ${STATUS_CLS[r._st]}">${STATUS_LABEL[r._st]}</span></td></tr>`;
+                });
+            });
+            $("tbody").innerHTML = html || `<tr><td colspan="12" class="text-center text-slate-400 py-10">Tidak ada data.</td></tr>`;
+            $("countInfo").textContent = `${VIEW.length} invoice · ${n} peserta ditampilkan`;
+        }
+
+        function exportExcel() {
+            if (!VIEW.length) return alert("Tidak ada data untuk diunduh.");
+            const peserta = [], rekap = [];
+            let no = 0;
+            VIEW.forEach(r => {
+                rekap.push({
+                    "Tgl Bayar": fmt(r._date), "No. Invoice": r.invoice, "Paket": r.package_name, "Jumlah Peserta": (r.participants || []).length,
+                    "Nominal": Number(r.amount || 0), "Metode Bayar": r.method, "No. VA": r.va_number || "", "Ref Bank": r.bank_ref || "",
+                    "WhatsApp": r.phone || "", "Status": STATUS_LABEL[r._st]
+                });
+                (r.participants?.length ? r.participants : [{ name: r.customer_name || "", nik: "" }]).forEach(p => {
+                    peserta.push({
+                        "No": ++no, "Tgl Bayar": fmt(r._date), "No. Invoice": r.invoice, "Nama Peserta": p.name, "NIK": String(p.nik),
+                        "No. WhatsApp": r.phone || "", "Paket": r.package_name, "Nominal Invoice": Number(r.amount || 0),
+                        "Metode Bayar": r.method, "Ref Bank": r.bank_ref || "", "Status": STATUS_LABEL[r._st]
+                    });
+                });
+            });
+            rekap.push({ "Tgl Bayar": "TOTAL", "Jumlah Peserta": rekap.reduce((a, x) => a + x["Jumlah Peserta"], 0), "Nominal": rekap.reduce((a, x) => a + x["Nominal"], 0) });
+
+            const wb = XLSX.utils.book_new();
+            const add = (rows, name, widths, moneyCols) => {
+                const ws = XLSX.utils.json_to_sheet(rows);
+                ws["!cols"] = widths.map(w => ({ wch: w }));
+                const range = XLSX.utils.decode_range(ws["!ref"]);
+                for (let R = 1; R <= range.e.r; R++) moneyCols.forEach(C => { const c = ws[XLSX.utils.encode_cell({ r: R, c: C })]; if (c && typeof c.v === "number") c.z = "#,##0"; });
+                XLSX.utils.book_append_sheet(wb, ws, name);
+            };
+            add(peserta, "Peserta", [5, 20, 34, 28, 20, 16, 24, 16, 18, 22, 12], [7]);
+            add(rekap, "Rekap Pembayaran", [20, 34, 24, 14, 14, 18, 20, 22, 16, 12], [4]);
+            XLSX.writeFile(wb, `pendaftar-catur-${new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" })}.xlsx`);
+        }
+        $("xlsBtn").onclick = exportExcel;
+
+        load();
+    </script>
+</body>
+
+</html>
