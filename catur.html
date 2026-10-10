@@ -823,8 +823,7 @@
             }
             $("pkgList").innerHTML = ids.map(id => {
                 const p = PACKAGES[id];
-                const qKey = `${id}__${catId}`;         // ← KUNCI OPSI A
-                const q = QUOTA[qKey];                  // ← baca per kombinasi
+                const q = QUOTA[id];                     // ✅ Opsi B — baca per paket saja
                 let quotaText = "";
                 if (q) {
                     const sisa = q.sisa;
@@ -837,19 +836,19 @@
                 const disabled = q && q.sisa <= 0 ? "disabled" : "";
                 const inputId = `pkg_${catId}_${id}`;
                 return `
-                <div>
-                    <input type="radio" name="pkg_selected" id="${inputId}"
-                           value="${escAttr(id)}" data-cat="${escAttr(catId)}" ${disabled}>
-                    <label for="${inputId}">
-                        <img src="${PKG_IMG[id] || ''}" alt="">
-                        <span class="flex-1">
-                            <b>${escHtml(p.label)}</b><br>
-                            <small class="text-slate-400">${quotaText}</small>
-                        </span>
-                        <b class="price">${rp(p.price)}</b>
-                        <span class="dot"></span>
-                    </label>
-                </div>`;
+        <div>
+            <input type="radio" name="pkg_selected" id="${inputId}"
+                   value="${escAttr(id)}" data-cat="${escAttr(catId)}" ${disabled}>
+            <label for="${inputId}">
+                <img src="${PKG_IMG[id] || ''}" alt="">
+                <span class="flex-1">
+                    <b>${escHtml(p.label)}</b><br>
+                    <small class="text-slate-400">${quotaText}</small>
+                </span>
+                <b class="price">${rp(p.price)}</b>
+                <span class="dot"></span>
+            </label>
+        </div>`;
             }).join('');
         }
 
