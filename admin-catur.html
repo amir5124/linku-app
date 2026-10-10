@@ -74,8 +74,7 @@
             cursor: not-allowed
         }
 
-        /* Modal reset */
-        #resetModal {
+        .modal-mask {
             backdrop-filter: blur(3px)
         }
 
@@ -106,6 +105,24 @@
             font-size: 12px;
             white-space: pre-wrap
         }
+
+        .tab-btn {
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .tab-btn.active {
+            background: #1f2937;
+            color: #fff
+        }
+
+        .tab-btn:not(.active) {
+            background: #e5e7eb;
+            color: #334155
+        }
     </style>
 </head>
 
@@ -123,78 +140,170 @@
     </header>
 
     <main class="max-w-[1400px] mx-auto p-4 space-y-4">
+
+        <div class="flex gap-2 flex-wrap">
+            <button class="tab-btn active" data-tab="pendaftar">📋 Pendaftar</button>
+            <button class="tab-btn" data-tab="kategori">🏷️ Kategori</button>
+            <button class="tab-btn" data-tab="paket">📦 Paket</button>
+        </div>
+
         <p id="err" class="hidden bg-rose-50 text-rose-700 border border-rose-200 rounded-xl p-3 text-sm"></p>
         <p id="ok" class="hidden bg-green-50 text-green-700 border border-green-200 rounded-xl p-3 text-sm"></p>
-        <section id="cards" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></section>
-        <section id="perPkg" class="bg-white rounded-xl shadow-sm p-4 text-sm"></section>
 
-        <section class="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-2 items-end">
-            <div>
-                <div class="text-xs text-slate-500 mb-1">Cari</div><input id="q" class="f w-56"
-                    placeholder="Nama / NIK / invoice / WA / ref">
-            </div>
-            <div>
-                <div class="text-xs text-slate-500 mb-1">Status</div>
-                <select id="fStatus" class="f">
-                    <option value="SUKSES">Lunas</option>
-                    <option value="PENDING">Menunggu bayar</option>
-                    <option value="EXPIRED">Kedaluwarsa</option>
-                    <option value="">Semua</option>
-                </select>
-            </div>
-            <div>
-                <div class="text-xs text-slate-500 mb-1">Paket</div><select id="fPkg" class="f">
-                    <option value="">Semua</option>
-                </select>
-            </div>
-            <div>
-                <div class="text-xs text-slate-500 mb-1">Metode</div><select id="fMethod" class="f">
-                    <option value="">Semua</option>
-                </select>
-            </div>
-            <div>
-                <div class="text-xs text-slate-500 mb-1">Dari tanggal</div><input id="dFrom" type="date" class="f">
-            </div>
-            <div>
-                <div class="text-xs text-slate-500 mb-1">Sampai</div><input id="dTo" type="date" class="f">
-            </div>
-            <button id="resetBtn" class="btn bg-slate-200 hover:bg-slate-300">Reset</button>
-            <button id="reloadBtn" class="btn bg-slate-800 text-white">⟳ Muat ulang</button>
-            <button id="xlsBtn" class="btn text-white ml-auto" style="background:#16a34a">⬇ Unduh Excel</button>
-        </section>
+        <!-- ============ TAB: PENDAFTAR ============ -->
+        <div id="tab-pendaftar" class="space-y-4">
+            <section id="cards" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></section>
+            <section id="perPkg" class="bg-white rounded-xl shadow-sm p-4 text-sm"></section>
 
-        <section class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div class="px-4 py-2 text-xs text-slate-500" id="countInfo"></div>
-            <div class="overflow-auto max-h-[65vh]">
-                <table class="w-full">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Tgl Bayar</th>
-                            <th>Invoice</th>
-                            <th>Nama Peserta</th>
-                            <th>NIK</th>
-                            <th>No. WhatsApp</th>
-                            <th>Paket</th>
-                            <th>Nominal</th>
-                            <th>Metode</th>
-                            <th>Ref Bank</th>
-                            <th>KTP</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody"></tbody>
-                </table>
-            </div>
-        </section>
-        <p class="text-xs text-slate-400">Nominal ditampilkan per invoice (diulang pada tiap peserta dalam invoice yang
-            sama). Total pendapatan dihitung per invoice, bukan per baris. Foto KTP hanya ada untuk paket 1 orang.</p>
+            <section class="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-2 items-end">
+                <div>
+                    <div class="text-xs text-slate-500 mb-1">Cari</div>
+                    <input id="q" class="f w-56" placeholder="Nama / NIK / invoice / WA / ref">
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 mb-1">Status</div>
+                    <select id="fStatus" class="f">
+                        <option value="SUKSES">Lunas</option>
+                        <option value="PENDING">Menunggu bayar</option>
+                        <option value="EXPIRED">Kedaluwarsa</option>
+                        <option value="">Semua</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 mb-1">Kategori</div>
+                    <select id="fCat" class="f">
+                        <option value="">Semua</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 mb-1">Paket</div>
+                    <select id="fPkg" class="f">
+                        <option value="">Semua</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 mb-1">Metode</div>
+                    <select id="fMethod" class="f">
+                        <option value="">Semua</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 mb-1">Dari tanggal</div>
+                    <input id="dFrom" type="date" class="f">
+                </div>
+                <div>
+                    <div class="text-xs text-slate-500 mb-1">Sampai</div>
+                    <input id="dTo" type="date" class="f">
+                </div>
+                <button id="resetBtn" class="btn bg-slate-200 hover:bg-slate-300">Reset</button>
+                <button id="reloadBtn" class="btn bg-slate-800 text-white">⟳ Muat ulang</button>
+                <button id="xlsBtn" class="btn text-white ml-auto" style="background:#16a34a">⬇ Unduh Excel</button>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="px-4 py-2 text-xs text-slate-500" id="countInfo"></div>
+                <div class="overflow-auto max-h-[65vh]">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tgl Bayar</th>
+                                <th>Invoice</th>
+                                <th>Nama Peserta</th>
+                                <th>NIK</th>
+                                <th>No. WhatsApp</th>
+                                <th>Kategori</th>
+                                <th>Paket</th>
+                                <th>Nominal</th>
+                                <th>Metode</th>
+                                <th>Ref Bank</th>
+                                <th>KTP</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+            <p class="text-xs text-slate-400">Nominal ditampilkan per invoice (diulang pada tiap peserta dalam invoice
+                yang sama). Total pendapatan dihitung per invoice, bukan per baris.</p>
+        </div>
+
+        <!-- ============ TAB: KATEGORI ============ -->
+        <div id="tab-kategori" class="hidden space-y-4">
+            <section class="bg-white rounded-xl shadow-sm p-4 space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <b>🏷️ Kelola Kategori (Kelas Peserta)</b>
+                        <div class="text-xs text-slate-500">Kategori menentukan <b>kelas peserta</b> (Umum, Pelajar,
+                            dll.). Harga & pax ditentukan di tab <b>Paket</b>.</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="reloadCats" class="btn bg-slate-200 hover:bg-slate-300">⟳ Muat ulang</button>
+                        <button id="addCat" class="btn bg-emerald-600 hover:bg-emerald-700 text-white">+ Tambah
+                            Kategori</button>
+                    </div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-100">
+                                <th class="text-left p-2">Order</th>
+                                <th class="text-left p-2">ID</th>
+                                <th class="text-left p-2">Label</th>
+                                <th class="text-left p-2">Status</th>
+                                <th class="text-left p-2">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catBody"></tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-slate-400">Kategori berlaku untuk semua paket. Harga tiap paket diatur di tab
+                    <b>📦 Paket</b>.</p>
+            </section>
+        </div>
+
+        <!-- ============ TAB: PAKET ============ -->
+        <div id="tab-paket" class="hidden space-y-4">
+            <section class="bg-white rounded-xl shadow-sm p-4 space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <b>📦 Kelola Paket (Bentuk Pembelian)</b>
+                        <div class="text-xs text-slate-500">Paket menentukan <b>harga</b>, <b>pax</b>, dan <b>kuota</b>.
+                            Berlaku untuk semua kategori.</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="reloadPkgs" class="btn bg-slate-200 hover:bg-slate-300">⟳ Muat ulang</button>
+                        <button id="addPkg" class="btn bg-emerald-600 hover:bg-emerald-700 text-white">+ Tambah
+                            Paket</button>
+                    </div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-100">
+                                <th class="text-left p-2">Order</th>
+                                <th class="text-left p-2">ID</th>
+                                <th class="text-left p-2">Label</th>
+                                <th class="text-left p-2">Harga</th>
+                                <th class="text-left p-2">Pax</th>
+                                <th class="text-left p-2">Kuota</th>
+                                <th class="text-left p-2">Terisi</th>
+                                <th class="text-left p-2">Status</th>
+                                <th class="text-left p-2">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pkgBody"></tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-slate-400">Kolom "Terisi" diambil dari <code>catur_quota</code>. Paket dengan
+                    kuota kosong (∞) tidak dihitung.</p>
+            </section>
+        </div>
     </main>
 
-    <!-- ============================================================
-         MODAL RESET DATA UJICOBA
-         ============================================================ -->
-    <div id="resetModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <!-- ============ MODAL RESET ============ -->
+    <div id="resetModal" class="hidden fixed inset-0 bg-black/50 z-50 modal-mask flex items-center justify-center p-4">
         <div
             class="modal-box bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div class="bg-rose-600 text-white px-5 py-3 flex items-center justify-between">
@@ -204,22 +313,27 @@
 
             <div class="p-5 space-y-4 overflow-auto">
                 <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-3 text-xs leading-relaxed">
-                    <b>Yang dihapus:</b><br>
-                    • Transaksi <code>INV-CATUR-*</code> di <code>inquiry_va</code> &amp; <code>inquiry_qris</code>
-                    (data
-                    aplikasi lain aman)<br>
-                    • Seluruh <code>catur_registrations</code> (data web admin)<br>
+                    <b>Yang dihapus (default):</b><br>
+                    • Transaksi <code>INV-CATUR-*</code> di <code>inquiry_va</code> &amp; <code>inquiry_qris</code><br>
+                    • Seluruh <code>catur_registrations</code><br>
                     • File foto KTP milik transaksi yang dihapus<br>
-                    • <code>catur_quota</code> direset → Early Bird kembali <b>50</b>, Reguler <b>100</b>
+                    • <code>catur_quota</code> direset → semua paket kembali penuh
                 </div>
 
                 <div>
-                    <div class="text-xs text-slate-500 mb-1">Hapus hanya transaksi yang dibuat SEBELUM tanggal
-                        (opsional)</div>
+                    <div class="text-xs text-slate-500 mb-1">Hapus hanya transaksi SEBELUM tanggal (opsional)</div>
                     <input id="resetBefore" type="date" class="f w-full">
-                    <div class="text-xs text-slate-400 mt-1">Kosongkan untuk menghapus semua data ujicoba. Jika diisi,
-                        <b>catur_registrations</b> &amp; <b>catur_quota</b> tetap direset penuh.
-                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="resetCats" class="accent-rose-500">
+                        Reset daftar <b>kategori</b> ke default (Umum, Pelajar)
+                    </label>
+                    <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="resetPkgs" class="accent-rose-500">
+                        Reset daftar <b>paket</b> ke default (Early, Reguler, Paket5, Tanpa Jersey)
+                    </label>
                 </div>
 
                 <div id="resetPreview" class="hidden">
@@ -236,6 +350,92 @@
         </div>
     </div>
 
+    <!-- ============ MODAL KATEGORI ============ -->
+    <div id="catModal" class="hidden fixed inset-0 bg-black/50 z-50 modal-mask flex items-center justify-center p-4">
+        <div class="modal-box bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div class="px-5 py-3 border-b flex items-center justify-between">
+                <b id="catModalTitle">Tambah Kategori</b>
+                <button id="closeCatModal" class="text-2xl leading-none text-slate-400 hover:text-slate-700">×</button>
+            </div>
+            <div class="p-5 space-y-3 text-sm">
+                <label class="block">
+                    <div class="text-xs text-slate-500 mb-1">ID (unik, tanpa spasi)</div>
+                    <input id="catId" class="f w-full" placeholder="umum / pelajar">
+                    <div class="text-xs text-slate-400 mt-1">Biarkan kosong → otomatis dari label.</div>
+                </label>
+                <label class="block">
+                    <div class="text-xs text-slate-500 mb-1">Label</div>
+                    <input id="catLabel" class="f w-full" placeholder="Umum">
+                </label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="block">
+                        <div class="text-xs text-slate-500 mb-1">Urutan tampil</div>
+                        <input id="catOrder" type="number" class="f w-full" placeholder="10">
+                    </label>
+                    <label class="flex items-center gap-2 mt-5 cursor-pointer">
+                        <input id="catActive" type="checkbox" class="accent-amber-500" checked>
+                        <span class="text-sm">Aktif</span>
+                    </label>
+                </div>
+                <p id="catMsg" class="hidden text-xs"></p>
+            </div>
+            <div class="px-5 py-3 border-t flex justify-end gap-2 bg-slate-50">
+                <button id="cancelCat" class="btn bg-slate-200 hover:bg-slate-300">Batal</button>
+                <button id="saveCat" class="btn bg-emerald-600 hover:bg-emerald-700 text-white">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL PAKET ============ -->
+    <div id="pkgModal" class="hidden fixed inset-0 bg-black/50 z-50 modal-mask flex items-center justify-center p-4">
+        <div class="modal-box bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div class="px-5 py-3 border-b flex items-center justify-between">
+                <b id="pkgModalTitle">Tambah Paket</b>
+                <button id="closePkgModal" class="text-2xl leading-none text-slate-400 hover:text-slate-700">×</button>
+            </div>
+            <div class="p-5 space-y-3 text-sm">
+                <label class="block">
+                    <div class="text-xs text-slate-500 mb-1">ID (unik, tanpa spasi)</div>
+                    <input id="pkgId" class="f w-full" placeholder="early / reguler / paket5">
+                    <div class="text-xs text-slate-400 mt-1">Biarkan kosong → otomatis dari label.</div>
+                </label>
+                <label class="block">
+                    <div class="text-xs text-slate-500 mb-1">Label</div>
+                    <input id="pkgLabel" class="f w-full" placeholder="Early Bird + Jersey">
+                </label>
+                <div class="grid grid-cols-3 gap-2">
+                    <label class="block">
+                        <div class="text-xs text-slate-500 mb-1">Harga (Rp)</div>
+                        <input id="pkgPrice" type="number" min="0" class="f w-full" placeholder="150000">
+                    </label>
+                    <label class="block">
+                        <div class="text-xs text-slate-500 mb-1">Pax</div>
+                        <input id="pkgPax" type="number" min="1" class="f w-full" value="1">
+                    </label>
+                    <label class="block">
+                        <div class="text-xs text-slate-500 mb-1">Kuota (∞)</div>
+                        <input id="pkgQuota" type="number" min="0" class="f w-full" placeholder="">
+                    </label>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="block">
+                        <div class="text-xs text-slate-500 mb-1">Urutan tampil</div>
+                        <input id="pkgOrder" type="number" class="f w-full" placeholder="10">
+                    </label>
+                    <label class="flex items-center gap-2 mt-5 cursor-pointer">
+                        <input id="pkgActive" type="checkbox" class="accent-amber-500" checked>
+                        <span class="text-sm">Aktif</span>
+                    </label>
+                </div>
+                <p id="pkgMsg" class="hidden text-xs"></p>
+            </div>
+            <div class="px-5 py-3 border-t flex justify-end gap-2 bg-slate-50">
+                <button id="cancelPkg" class="btn bg-slate-200 hover:bg-slate-300">Batal</button>
+                <button id="savePkg" class="btn bg-emerald-600 hover:bg-emerald-700 text-white">Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const $ = id => document.getElementById(id);
         const rp = n => "Rp" + Number(n || 0).toLocaleString("id-ID");
@@ -243,11 +443,6 @@
         const EXPIRE_MS = 20 * 60 * 1000;
         let DATA = [], VIEW = [], timer = null;
 
-        // ============================================================
-        // KONFIGURASI
-        // Dashboard diakses langsung lewat /admin (tanpa key).
-        // Endpoint reset: /admin/reset-catur
-        // ============================================================
         const BASE_URL = "https://catur.siappgo.id";
         const ktpLink = f => f
             ? `<a href="${BASE_URL}/ktp?f=${encodeURIComponent(f)}" target="_blank" rel="noopener" class="text-blue-600 underline">Lihat KTP</a>`
@@ -267,14 +462,22 @@
             appId: "1:759194220603:web:33e2327dfa94af2552841e"
         });
 
+        // ============================================================
+        // 📋 TAB: PENDAFTAR
+        // ============================================================
         async function load() {
             try {
                 const snap = await firebase.database().ref("catur_registrations").once("value");
                 const all = snap.val() || {};
                 DATA = Object.values(all).map(r => ({
-                    invoice: r.partner_reff, status: r.status || "PENDING", created_at: r.created_at || null, paid_at: r.paid_at || null,
-                    amount: Number(r.amount) || 0, method: r.method || "-", va_number: r.va_number || null, bank_ref: r.bank_ref || null,
-                    package_name: r.package_name || r.package_id || "-", phone: r.phone || null, customer_name: r.customer_name || null,
+                    invoice: r.partner_reff, status: r.status || "PENDING",
+                    created_at: r.created_at || null, paid_at: r.paid_at || null,
+                    amount: Number(r.amount) || 0, method: r.method || "-",
+                    va_number: r.va_number || null, bank_ref: r.bank_ref || null,
+                    category_label: r.category_label || "-",
+                    package_name: r.package_name || r.package_id || "-",
+                    combo_label: r.combo_label || `${r.package_name || '-'} — ${r.category_label || '-'}`,
+                    phone: r.phone || null, customer_name: r.customer_name || null,
                     ktp_file: r.ktp_file || null,
                     participants: Array.isArray(r.participants) ? r.participants : Object.values(r.participants || {})
                 }))
@@ -290,34 +493,43 @@
         }
 
         function buildFilters() {
-            const keep = { p: $("fPkg").value, m: $("fMethod").value };
-            const pk = [...new Set(DATA.map(r => r.package_name).filter(Boolean))].sort();
-            const mt = [...new Set(DATA.map(r => r.method).filter(Boolean))].sort();
-            $("fPkg").innerHTML = `<option value="">Semua</option>` + pk.map(x => `<option>${esc(x)}</option>`).join("");
-            $("fMethod").innerHTML = `<option value="">Semua</option>` + mt.map(x => `<option>${esc(x)}</option>`).join("");
-            $("fPkg").value = keep.p; $("fMethod").value = keep.m;
+            const keep = { c: $("fCat").value, p: $("fPkg").value, m: $("fMethod").value };
+            const cats = [...new Set(DATA.map(r => r.category_label).filter(Boolean))].sort();
+            const pkgs = [...new Set(DATA.map(r => r.package_name).filter(Boolean))].sort();
+            const mts = [...new Set(DATA.map(r => r.method).filter(Boolean))].sort();
+            $("fCat").innerHTML = `<option value="">Semua</option>` + cats.map(x => `<option>${esc(x)}</option>`).join("");
+            $("fPkg").innerHTML = `<option value="">Semua</option>` + pkgs.map(x => `<option>${esc(x)}</option>`).join("");
+            $("fMethod").innerHTML = `<option value="">Semua</option>` + mts.map(x => `<option>${esc(x)}</option>`).join("");
+            $("fCat").value = keep.c; $("fPkg").value = keep.p; $("fMethod").value = keep.m;
         }
 
         function applyFilter() {
-            const q = $("q").value.trim().toLowerCase(), st = $("fStatus").value, pk = $("fPkg").value, mt = $("fMethod").value;
+            const q = $("q").value.trim().toLowerCase(), st = $("fStatus").value;
+            const cat = $("fCat").value, pk = $("fPkg").value, mt = $("fMethod").value;
             const from = $("dFrom").value, to = $("dTo").value;
             return DATA.filter(r => {
                 if (st && r._st !== st) return false;
+                if (cat && r.category_label !== cat) return false;
                 if (pk && r.package_name !== pk) return false;
                 if (mt && r.method !== mt) return false;
                 const d = dayKey(r._date);
                 if (from && d < from) return false;
                 if (to && d > to) return false;
                 if (q) {
-                    const hay = [r.invoice, r.phone, r.bank_ref, r.customer_name, ...(r.participants || []).flatMap(p => [p.name, p.nik])].join(" ").toLowerCase();
+                    const hay = [r.invoice, r.phone, r.bank_ref, r.customer_name, r.combo_label,
+                    ...(r.participants || []).flatMap(p => [p.name, p.nik])].join(" ").toLowerCase();
                     if (!hay.includes(q)) return false;
                 }
                 return true;
             });
         }
 
-        ["q", "fStatus", "fPkg", "fMethod", "dFrom", "dTo"].forEach(id => $(id).addEventListener("input", render));
-        $("resetBtn").onclick = () => { $("q").value = ""; $("fStatus").value = "SUKSES"; $("fPkg").value = ""; $("fMethod").value = ""; $("dFrom").value = ""; $("dTo").value = ""; render(); };
+        ["q", "fStatus", "fCat", "fPkg", "fMethod", "dFrom", "dTo"].forEach(id => $(id).addEventListener("input", render));
+        $("resetBtn").onclick = () => {
+            $("q").value = ""; $("fStatus").value = "SUKSES";
+            $("fCat").value = ""; $("fPkg").value = ""; $("fMethod").value = "";
+            $("dFrom").value = ""; $("dTo").value = ""; render();
+        };
         $("reloadBtn").onclick = load;
         $("auto").onchange = e => { clearInterval(timer); if (e.target.checked) timer = setInterval(load, 30000); };
 
@@ -330,8 +542,12 @@
                 card("Total Pendapatan", rp(omzet), "text-amber-600") + card("Menunggu Pembayaran", pending.length, "text-slate-600");
 
             const per = {};
-            paid.forEach(r => { const k = r.package_name || "-"; per[k] ??= { inv: 0, org: 0, rp: 0 }; per[k].inv++; per[k].org += (r.participants || []).length; per[k].rp += Number(r.amount || 0); });
-            $("perPkg").innerHTML = `<b>Rekap per paket (lunas)</b><div class="mt-2 grid sm:grid-cols-2 lg:grid-cols-4 gap-2">` +
+            paid.forEach(r => {
+                const k = r.combo_label || "-";
+                per[k] ??= { inv: 0, org: 0, rp: 0 };
+                per[k].inv++; per[k].org += (r.participants || []).length; per[k].rp += Number(r.amount || 0);
+            });
+            $("perPkg").innerHTML = `<b>Rekap per kategori × paket (lunas)</b><div class="mt-2 grid sm:grid-cols-2 lg:grid-cols-4 gap-2">` +
                 (Object.entries(per).map(([k, v]) => `<div class="border rounded-lg p-3"><div class="font-semibold">${esc(k)}</div><div class="text-xs text-slate-500">${v.inv} invoice · ${v.org} peserta</div><div class="text-amber-600 font-semibold">${rp(v.rp)}</div></div>`).join("") || `<span class="text-slate-400">Belum ada pembayaran lunas.</span>`) + `</div>`;
 
             VIEW = applyFilter();
@@ -342,12 +558,13 @@
                     html += `<tr class="${i === 0 ? "sep" : ""}">
         <td>${n}</td><td>${esc(fmt(r._date))}</td><td class="font-mono text-xs">${esc(r.invoice)}</td>
         <td class="font-medium">${esc(p.name)}</td><td class="font-mono">${esc(p.nik)}</td><td>${esc(r.phone || "-")}</td>
-        <td>${esc(r.package_name)}</td><td>${rp(r.amount)}</td><td>${esc(r.method)}</td><td class="font-mono text-xs">${esc(r.bank_ref || "-")}</td>
+        <td>${esc(r.category_label)}</td><td>${esc(r.package_name)}</td><td>${rp(r.amount)}</td>
+        <td>${esc(r.method)}</td><td class="font-mono text-xs">${esc(r.bank_ref || "-")}</td>
         <td>${i === 0 ? ktpLink(r.ktp_file) : "-"}</td>
         <td><span class="badge ${STATUS_CLS[r._st]}">${STATUS_LABEL[r._st]}</span></td></tr>`;
                 });
             });
-            $("tbody").innerHTML = html || `<tr><td colspan="12" class="text-center text-slate-400 py-10">Tidak ada data.</td></tr>`;
+            $("tbody").innerHTML = html || `<tr><td colspan="13" class="text-center text-slate-400 py-10">Tidak ada data.</td></tr>`;
             $("countInfo").textContent = `${VIEW.length} invoice · ${n} peserta ditampilkan`;
         }
 
@@ -357,15 +574,20 @@
             let no = 0;
             VIEW.forEach(r => {
                 rekap.push({
-                    "Tgl Bayar": fmt(r._date), "No. Invoice": r.invoice, "Paket": r.package_name, "Jumlah Peserta": (r.participants || []).length,
-                    "Nominal": Number(r.amount || 0), "Metode Bayar": r.method, "No. VA": r.va_number || "", "Ref Bank": r.bank_ref || "",
+                    "Tgl Bayar": fmt(r._date), "No. Invoice": r.invoice,
+                    "Kategori": r.category_label, "Paket": r.package_name,
+                    "Jumlah Peserta": (r.participants || []).length,
+                    "Nominal": Number(r.amount || 0), "Metode Bayar": r.method,
+                    "No. VA": r.va_number || "", "Ref Bank": r.bank_ref || "",
                     "WhatsApp": r.phone || "", "Status": STATUS_LABEL[r._st]
                 });
                 (r.participants?.length ? r.participants : [{ name: r.customer_name || "", nik: "" }]).forEach(p => {
                     peserta.push({
-                        "No": ++no, "Tgl Bayar": fmt(r._date), "No. Invoice": r.invoice, "Nama Peserta": p.name, "NIK": String(p.nik),
-                        "No. WhatsApp": r.phone || "", "Paket": r.package_name, "Nominal Invoice": Number(r.amount || 0),
-                        "Metode Bayar": r.method, "Ref Bank": r.bank_ref || "", "Status": STATUS_LABEL[r._st]
+                        "No": ++no, "Tgl Bayar": fmt(r._date), "No. Invoice": r.invoice,
+                        "Nama Peserta": p.name, "NIK": String(p.nik),
+                        "No. WhatsApp": r.phone || "", "Kategori": r.category_label, "Paket": r.package_name,
+                        "Nominal Invoice": Number(r.amount || 0), "Metode Bayar": r.method,
+                        "Ref Bank": r.bank_ref || "", "Status": STATUS_LABEL[r._st]
                     });
                 });
             });
@@ -379,14 +601,262 @@
                 for (let R = 1; R <= range.e.r; R++) moneyCols.forEach(C => { const c = ws[XLSX.utils.encode_cell({ r: R, c: C })]; if (c && typeof c.v === "number") c.z = "#,##0"; });
                 XLSX.utils.book_append_sheet(wb, ws, name);
             };
-            add(peserta, "Peserta", [5, 20, 34, 28, 20, 16, 24, 16, 18, 22, 12], [7]);
-            add(rekap, "Rekap Pembayaran", [20, 34, 24, 14, 14, 18, 20, 22, 16, 12], [4]);
+            add(peserta, "Peserta", [5, 20, 34, 28, 20, 16, 14, 24, 16, 18, 22, 12], [8]);
+            add(rekap, "Rekap Pembayaran", [20, 34, 14, 24, 14, 14, 18, 20, 22, 16, 12], [5]);
             XLSX.writeFile(wb, `pendaftar-catur-${new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" })}.xlsx`);
         }
         $("xlsBtn").onclick = exportExcel;
 
         // ============================================================
-        // 🧹 RESET DATA UJICOBA (tanpa key)
+        // 🏷️ TAB: KATEGORI
+        // ============================================================
+        let CATS = [];
+        let editingCatId = null;
+
+        async function loadCategories() {
+            try {
+                const r = await fetch(`${BASE_URL}/admin/categories`);
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                CATS = await r.json();
+                renderCats();
+            } catch (e) {
+                $("catBody").innerHTML = `<tr><td colspan="5" class="text-center text-rose-500 py-6">Gagal memuat: ${esc(e.message)}</td></tr>`;
+            }
+        }
+
+        function renderCats() {
+            $("catBody").innerHTML = CATS.map(c => `
+                <tr class="border-b">
+                    <td class="p-2">${c.order ?? '-'}</td>
+                    <td class="p-2 font-mono text-xs">${esc(c.id)}</td>
+                    <td class="p-2 font-medium">${esc(c.label)}</td>
+                    <td class="p-2">
+                        <span class="badge ${c.active !== false ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}">
+                            ${c.active !== false ? 'Aktif' : 'Nonaktif'}
+                        </span>
+                    </td>
+                    <td class="p-2 space-x-2 whitespace-nowrap">
+                        <button class="text-blue-600 underline" onclick="editCat('${esc(c.id)}')">Edit</button>
+                        <button class="text-rose-600 underline" onclick="deleteCat('${esc(c.id)}','${esc(c.label)}')">Hapus</button>
+                    </td>
+                </tr>`).join('') || `<tr><td colspan="5" class="text-center text-slate-400 py-6">Belum ada kategori.</td></tr>`;
+        }
+
+        function openCatModal(title) {
+            $("catModalTitle").textContent = title;
+            $("catMsg").classList.add("hidden");
+            $("catModal").classList.remove("hidden");
+        }
+        function closeCatModal() { $("catModal").classList.add("hidden"); editingCatId = null; }
+
+        $("addCat").onclick = () => {
+            editingCatId = null;
+            $("catId").value = ""; $("catId").disabled = false;
+            $("catLabel").value = "";
+            $("catOrder").value = (CATS.length + 1) * 10;
+            $("catActive").checked = true;
+            openCatModal("Tambah Kategori");
+        };
+
+        window.editCat = (id) => {
+            const c = CATS.find(x => x.id === id);
+            if (!c) return;
+            editingCatId = id;
+            $("catId").value = c.id; $("catId").disabled = true;
+            $("catLabel").value = c.label || "";
+            $("catOrder").value = c.order ?? 0;
+            $("catActive").checked = c.active !== false;
+            openCatModal("Edit Kategori");
+        };
+
+        window.deleteCat = async (id, label) => {
+            if (!confirm(`Hapus kategori "${label}" (${id})?`)) return;
+            try {
+                const r = await fetch(`${BASE_URL}/admin/categories/${encodeURIComponent(id)}`, { method: "DELETE" });
+                if (!r.ok) throw new Error(await r.text());
+                await loadCategories();
+            } catch (e) { alert('Gagal hapus: ' + e.message); }
+        };
+
+        $("closeCatModal").onclick = closeCatModal;
+        $("cancelCat").onclick = closeCatModal;
+        $("catModal").addEventListener("click", e => { if (e.target.id === "catModal") closeCatModal(); });
+
+        function showCatMsg(msg, isErr) {
+            const el = $("catMsg");
+            el.textContent = msg;
+            el.className = isErr ? "text-xs text-rose-600" : "text-xs text-green-600";
+            el.classList.remove("hidden");
+        }
+
+        $("saveCat").onclick = async () => {
+            const body = {
+                label: $("catLabel").value.trim(),
+                order: Number($("catOrder").value) || 0,
+                active: $("catActive").checked
+            };
+            if (!body.label) return showCatMsg('Label wajib', true);
+            try {
+                let r;
+                if (editingCatId) {
+                    r = await fetch(`${BASE_URL}/admin/categories/${encodeURIComponent(editingCatId)}`, {
+                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+                    });
+                } else {
+                    body.id = $("catId").value.trim();
+                    r = await fetch(`${BASE_URL}/admin/categories`, {
+                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+                    });
+                }
+                if (!r.ok) {
+                    const txt = await r.text();
+                    let msg = txt; try { msg = JSON.parse(txt).error || txt; } catch { }
+                    throw new Error(msg);
+                }
+                closeCatModal();
+                await loadCategories();
+            } catch (e) { showCatMsg(e.message, true); }
+        };
+
+        $("reloadCats").onclick = loadCategories;
+
+        // ============================================================
+        // 📦 TAB: PAKET
+        // ============================================================
+        let PKGS = [];
+        let PKG_QUOTA = {};
+        let editingPkgId = null;
+
+        async function loadPackages() {
+            try {
+                const [rPkgs, rQuota] = await Promise.all([
+                    fetch(`${BASE_URL}/admin/packages`).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))),
+                    fetch(`${BASE_URL}/catur-quota`).then(r => r.ok ? r.json() : {})
+                ]);
+                PKGS = Array.isArray(rPkgs) ? rPkgs : [];
+                PKG_QUOTA = rQuota || {};
+                renderPkgs();
+            } catch (e) {
+                $("pkgBody").innerHTML = `<tr><td colspan="9" class="text-center text-rose-500 py-6">Gagal memuat: ${esc(e.message)}</td></tr>`;
+            }
+        }
+
+        function renderPkgs() {
+            $("pkgBody").innerHTML = PKGS.map(p => {
+                const q = p.quota ? (PKG_QUOTA[p.id]?.terisi ?? 0) : null;
+                const sisa = p.quota ? (p.quota - q) : null;
+                const statusBadge = p.active !== false
+                    ? '<span class="badge bg-green-100 text-green-700">Aktif</span>'
+                    : '<span class="badge bg-slate-200 text-slate-500">Nonaktif</span>';
+                const kuotaCell = p.quota ? `<span title="sisa ${sisa}">${p.quota}</span>` : '<span class="text-slate-400">∞</span>';
+                const terisiCell = p.quota ? `<span class="${sisa <= 5 ? 'text-rose-600 font-semibold' : ''}">${q}</span>` : '-';
+                return `<tr class="border-b">
+                    <td class="p-2">${p.order ?? '-'}</td>
+                    <td class="p-2 font-mono text-xs">${esc(p.id)}</td>
+                    <td class="p-2 font-medium">${esc(p.label)}</td>
+                    <td class="p-2">${rp(p.price)}</td>
+                    <td class="p-2">${p.pax ?? 1}</td>
+                    <td class="p-2">${kuotaCell}</td>
+                    <td class="p-2">${terisiCell}</td>
+                    <td class="p-2">${statusBadge}</td>
+                    <td class="p-2 space-x-2 whitespace-nowrap">
+                        <button class="text-blue-600 underline" onclick="editPkg('${esc(p.id)}')">Edit</button>
+                        <button class="text-rose-600 underline" onclick="deletePkg('${esc(p.id)}','${esc(p.label)}')">Hapus</button>
+                    </td>
+                </tr>`;
+            }).join('') || `<tr><td colspan="9" class="text-center text-slate-400 py-6">Belum ada paket.</td></tr>`;
+        }
+
+        function openPkgModal(title) {
+            $("pkgModalTitle").textContent = title;
+            $("pkgMsg").classList.add("hidden");
+            $("pkgModal").classList.remove("hidden");
+        }
+        function closePkgModal() { $("pkgModal").classList.add("hidden"); editingPkgId = null; }
+
+        $("addPkg").onclick = () => {
+            editingPkgId = null;
+            $("pkgId").value = ""; $("pkgId").disabled = false;
+            $("pkgLabel").value = "";
+            $("pkgPrice").value = "";
+            $("pkgPax").value = 1;
+            $("pkgQuota").value = "";
+            $("pkgOrder").value = (PKGS.length + 1) * 10;
+            $("pkgActive").checked = true;
+            openPkgModal("Tambah Paket");
+        };
+
+        window.editPkg = (id) => {
+            const p = PKGS.find(x => x.id === id);
+            if (!p) return;
+            editingPkgId = id;
+            $("pkgId").value = p.id; $("pkgId").disabled = true;
+            $("pkgLabel").value = p.label || "";
+            $("pkgPrice").value = p.price || 0;
+            $("pkgPax").value = p.pax || 1;
+            $("pkgQuota").value = p.quota ?? "";
+            $("pkgOrder").value = p.order ?? 0;
+            $("pkgActive").checked = p.active !== false;
+            openPkgModal("Edit Paket");
+        };
+
+        window.deletePkg = async (id, label) => {
+            if (!confirm(`Hapus paket "${label}" (${id})?\n\nPendaftaran yang sudah ada tidak terhapus.`)) return;
+            try {
+                const r = await fetch(`${BASE_URL}/admin/packages/${encodeURIComponent(id)}`, { method: "DELETE" });
+                if (!r.ok) throw new Error(await r.text());
+                await loadPackages();
+            } catch (e) { alert('Gagal hapus: ' + e.message); }
+        };
+
+        $("closePkgModal").onclick = closePkgModal;
+        $("cancelPkg").onclick = closePkgModal;
+        $("pkgModal").addEventListener("click", e => { if (e.target.id === "pkgModal") closePkgModal(); });
+
+        function showPkgMsg(msg, isErr) {
+            const el = $("pkgMsg");
+            el.textContent = msg;
+            el.className = isErr ? "text-xs text-rose-600" : "text-xs text-green-600";
+            el.classList.remove("hidden");
+        }
+
+        $("savePkg").onclick = async () => {
+            const body = {
+                label: $("pkgLabel").value.trim(),
+                price: Number($("pkgPrice").value),
+                pax: Number($("pkgPax").value) || 1,
+                quota: $("pkgQuota").value === "" ? null : Number($("pkgQuota").value),
+                order: Number($("pkgOrder").value) || 0,
+                active: $("pkgActive").checked
+            };
+            if (!body.label) return showPkgMsg('Label wajib', true);
+            if (!(body.price > 0)) return showPkgMsg('Harga wajib > 0', true);
+            try {
+                let r;
+                if (editingPkgId) {
+                    r = await fetch(`${BASE_URL}/admin/packages/${encodeURIComponent(editingPkgId)}`, {
+                        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+                    });
+                } else {
+                    body.id = $("pkgId").value.trim();
+                    r = await fetch(`${BASE_URL}/admin/packages`, {
+                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+                    });
+                }
+                if (!r.ok) {
+                    const txt = await r.text();
+                    let msg = txt; try { msg = JSON.parse(txt).error || txt; } catch { }
+                    throw new Error(msg);
+                }
+                closePkgModal();
+                await loadPackages();
+            } catch (e) { showPkgMsg(e.message, true); }
+        };
+
+        $("reloadPkgs").onclick = loadPackages;
+
+        // ============================================================
+        // 🧹 RESET
         // ============================================================
         function showOk(msg) {
             $("ok").textContent = msg;
@@ -405,20 +875,21 @@
             $("executeReset").disabled = true;
             $("resetModal").classList.remove("hidden");
         }
-        function closeResetModal() {
-            $("resetModal").classList.add("hidden");
-        }
+        function closeResetModal() { $("resetModal").classList.add("hidden"); }
 
         $("openReset").onclick = openResetModal;
         $("closeReset").onclick = closeResetModal;
         $("resetModal").addEventListener("click", e => { if (e.target.id === "resetModal") closeResetModal(); });
 
-        // Panggil endpoint reset di backend (tanpa ADMIN_KEY)
         async function callReset({ apply }) {
             const before = $("resetBefore").value;
+            const resetCats = $("resetCats").checked;
+            const resetPkgs = $("resetPkgs").checked;
             const qs = new URLSearchParams();
             if (apply) qs.set("yes", "1");
             if (before) qs.set("before", before);
+            if (apply && resetCats) qs.set("resetCategories", "1");
+            if (apply && resetPkgs) qs.set("resetPackages", "1");
             const url = `${BASE_URL}/admin/reset-catur${qs.toString() ? "?" + qs.toString() : ""}`;
             const res = await fetch(url, { method: apply ? "POST" : "GET" });
             if (!res.ok) {
@@ -447,9 +918,14 @@
 
         $("executeReset").onclick = async () => {
             const before = $("resetBefore").value;
-            const msg = before
-                ? `⚠️ HAPUS transaksi catur yang dibuat SEBELUM ${before}?\n\ncatur_registrations & catur_quota tetap direset PENUH.\nFile KTP ikut terhapus.\n\nTindakan ini TIDAK bisa dibatalkan. Lanjutkan?`
-                : `⚠️ HAPUS SEMUA data ujicoba turnamen catur?\n\n• inquiry_va / inquiry_qris (INV-CATUR-*)\n• catur_registrations (semua)\n• catur_quota (reset → Early Bird 50, Reguler 100)\n• file KTP\n\nTindakan ini TIDAK bisa dibatalkan. Lanjutkan?`;
+            const resetCats = $("resetCats").checked;
+            const resetPkgs = $("resetPkgs").checked;
+            let msg = `⚠️ HAPUS data ujicoba turnamen catur?\n\n` +
+                (before ? `• Transaksi sebelum ${before}\n` : `• Semua transaksi INV-CATUR-*\n`) +
+                `• catur_registrations (semua)\n• catur_quota (reset)\n• file KTP\n`;
+            if (resetCats) msg += `\n⚠️ PLUS: reset kategori ke default`;
+            if (resetPkgs) msg += `\n⚠️ PLUS: reset paket ke default`;
+            msg += `\n\nTindakan ini TIDAK bisa dibatalkan. Lanjutkan?`;
             if (!confirm(msg)) return;
 
             const btn = $("executeReset");
@@ -460,7 +936,9 @@
                 $("resetPreview").classList.remove("hidden");
                 showOk(`✅ Reset selesai: ${data.total_transaksi_dihapus} transaksi & ${data.file_ktp_dihapus} file KTP dihapus.`);
                 closeResetModal();
-                await load(); // reload tabel
+                await load();
+                if (resetCats) await loadCategories();
+                if (resetPkgs) await loadPackages();
             } catch (e) {
                 showErr("❌ Reset gagal: " + e.message);
             } finally {
@@ -468,6 +946,25 @@
             }
         };
 
+        // ============================================================
+        // 🗂️ TAB NAV
+        // ============================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const tab = btn.dataset.tab;
+                $("tab-pendaftar").classList.toggle('hidden', tab !== 'pendaftar');
+                $("tab-kategori").classList.toggle('hidden', tab !== 'kategori');
+                $("tab-paket").classList.toggle('hidden', tab !== 'paket');
+                if (tab === 'kategori') loadCategories();
+                if (tab === 'paket') loadPackages();
+            };
+        });
+
+        // ============================================================
+        // 🚀 BOOT
+        // ============================================================
         load();
     </script>
 </body>

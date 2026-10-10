@@ -18,7 +18,6 @@
             color: #f1f1f5
         }
 
-        /* kartu & section */
         .card {
             background: linear-gradient(180deg, #14141b, #0d0d12);
             border: 1px solid #2a2a35;
@@ -37,7 +36,70 @@
             font-size: 15px
         }
 
-        /* paket */
+        /* ============ KARTU KATEGORI ============ */
+        .cat-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(90deg, #1a1a22, #101016);
+            border: 1.5px solid #2a2a35;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: .2s;
+            user-select: none
+        }
+
+        .cat-card:hover {
+            border-color: #4a4a5a
+        }
+
+        .cat-card.active {
+            border-color: #f5c542;
+            background: linear-gradient(90deg, #3a2e0c, #14110a);
+            box-shadow: 0 0 14px rgba(245, 197, 66, .25)
+        }
+
+        .cat-card .dot {
+            width: 26px;
+            height: 26px;
+            border: 2px solid #8a8a99;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: .2s
+        }
+
+        .cat-card.active .dot {
+            border-color: #f5c542;
+            background: #f5c542;
+            box-shadow: inset 0 0 0 5px #1a1405
+        }
+
+        .cat-card b {
+            font-size: 14px;
+            display: block
+        }
+
+        .cat-card small {
+            font-size: 11.5px;
+            color: #9a9aa8;
+            line-height: 1.3;
+            display: block;
+            margin-top: 2px
+        }
+
+        .cat-card .check {
+            margin-left: auto;
+            font-size: 22px;
+            color: #4a4a5a;
+            transition: .2s
+        }
+
+        .cat-card.active .check {
+            color: #f5c542
+        }
+
+        /* ============ PAKET ============ */
         .pkg input {
             display: none
         }
@@ -174,13 +236,11 @@
             padding: 13px 26px
         }
 
-        /* bar bawah */
         .bar {
             background: #0a0a0f;
             border-top: 1px solid #23232d
         }
 
-        /* metode bayar */
         .method {
             border: 1px solid #2a2a35;
             border-radius: 10px;
@@ -209,7 +269,6 @@
             padding: 2px
         }
 
-        /* override utilitas terang di halaman pembayaran */
         .bg-white {
             background: #14141b !important;
             color: #eee
@@ -247,7 +306,6 @@
             color: #1a1405
         }
 
-        /* ===== MOBILE ONLY: di desktop tampil sebagai layar HP di tengah ===== */
         html {
             background: #020204
         }
@@ -268,7 +326,6 @@
             }
         }
 
-        /* bar fixed ikut lebar container, bukan lebar layar */
         .fixed.bottom-0 {
             left: 50% !important;
             right: auto !important;
@@ -277,7 +334,6 @@
             max-width: 430px
         }
 
-        /* ===== SKALA MOBILE: font, ikon & gambar diperkecil agar proporsional ===== */
         #app {
             font-size: 13px
         }
@@ -325,6 +381,20 @@
             width: 26px;
             height: 26px;
             font-size: 13px
+        }
+
+        .cat-card {
+            padding: 12px;
+            gap: 10px
+        }
+
+        .cat-card .dot {
+            width: 22px;
+            height: 22px
+        }
+
+        .cat-card.active .dot {
+            box-shadow: inset 0 0 0 4px #1a1405
         }
 
         .pkg label {
@@ -444,44 +514,51 @@
                 <h1 class="text-3xl font-extrabold leading-tight">Pendaftaran<br><span class="text-gold">NBCC
                         2026</span></h1>
             </div>
-            <p class="px-4 mt-2 text-sm text-slate-400">Pilih paket pendaftaran dan isi data peserta dengan benar.</p>
+            <p class="px-4 mt-2 text-sm text-slate-400">Pilih kategori & paket pendaftaran, lalu isi data peserta dengan
+                benar.</p>
 
             <form id="regForm" class="p-4 space-y-5" novalidate>
-                <!-- 1. PAKET -->
+
+                <!-- ==================================================
+                     1. KATEGORI (cuma 3 tombol: Bebas, Umum, Pelajar)
+                     ================================================== -->
                 <section class="card p-4">
-                    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">1</span> Pilihan Paket <span
-                            class="text-sm text-[#ff4d6d]">*wajib</span></h2>
-                    <div class="pkg mt-3 space-y-2.5">
-                        <div><input type="radio" name="pkg" id="p1" value="early" checked><label for="p1">
-                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382192/earlybird_kfgzmw.png"
-                                    alt="">
-                                <span class="flex-1"><b>Early Bird + Jersey</b><br><small id="q_early"
-                                        class="text-slate-400">Kuota 50 peserta</small></span>
-                                <b id="pr_early" class="price">Rp100.000</b><span class="dot"></span></label></div>
-                        <div><input type="radio" name="pkg" id="p2" value="reguler"><label for="p2">
-                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382253/reguler_1_b0jn69.png"
-                                    alt="">
-                                <span class="flex-1"><b>Reguler + Jersey</b><br><small id="q_reguler"
-                                        class="text-slate-400">Kuota 100 peserta</small></span>
-                                <b class="price">Rp200.000</b><span class="dot"></span></label></div>
-                        <div><input type="radio" name="pkg" id="p3" value="paket5"><label for="p3">
-                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382191/paket_5org_tgxxgt.png"
-                                    alt="">
-                                <span class="flex-1"><b>Paket 5 Orang</b><br><small class="text-slate-400">5 peserta,
-                                        tanpa jersey</small></span>
-                                <b class="price">Rp350.000</b><span class="dot"></span></label></div>
-                        <div><input type="radio" name="pkg" id="p4" value="nojersey"><label for="p4">
-                                <img src="https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382192/reguler_perorg_ebsfup.png"
-                                    alt="">
-                                <span class="flex-1"><b>Reguler Tanpa Jersey</b><br><small class="text-slate-400">1
-                                        peserta, tanpa jersey</small></span>
-                                <b class="price">Rp150.000</b><span class="dot"></span></label></div>
+                    <h2 class="font-bold text-lg flex items-center gap-3">
+                        <span class="num">1</span> Pilih Kategori
+                        <span class="text-sm text-[#ff4d6d]">*wajib</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Kategori menentukan kelas peserta. Harga paket sama untuk
+                        semua kategori.</p>
+
+                    <div id="catList" class="mt-3 space-y-2.5">
+                        <p class="text-xs text-slate-500">Memuat kategori…</p>
+                    </div>
+
+                    <div id="catInfo" class="hidden mt-3 text-xs text-slate-400">
+                        Kategori dipilih: <b id="catChosen" class="text-gold"></b>
                     </div>
                 </section>
 
-                <!-- 2A. SATU PESERTA -->
-                <section id="single" class="card p-4 space-y-3">
-                    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">2</span> Data Peserta</h2>
+                <!-- ==================================================
+                     2. PILIHAN PAKET (muncul setelah kategori dipilih)
+                     ================================================== -->
+                <section id="pkgSection" class="card p-4 opacity-50 pointer-events-none">
+                    <h2 class="font-bold text-lg flex items-center gap-3">
+                        <span class="num">2</span> Pilihan Paket
+                        <span class="text-sm text-[#ff4d6d]">*wajib</span>
+                    </h2>
+                    <p id="pkgHint" class="text-xs text-slate-400 mt-1">Pilih kategori di atas terlebih dahulu.</p>
+
+                    <div class="pkg mt-3 space-y-2.5" id="pkgList">
+                        <p class="text-xs text-slate-500">Belum ada paket.</p>
+                    </div>
+                </section>
+
+                <!-- ==================================================
+                     3A. SATU PESERTA
+                     ================================================== -->
+                <section id="single" class="card p-4 space-y-3 hidden">
+                    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">3</span> Data Peserta</h2>
                     <div><label class="lbl">Nama Lengkap <i>*</i></label>
                         <div class="fld"><iconify-icon icon="mdi:account-outline"></iconify-icon><input class="inp"
                                 id="s_name" autocomplete="name" placeholder="Masukkan nama lengkap"></div>
@@ -502,7 +579,9 @@
                     </div>
                 </section>
 
-                <!-- 2B. PAKET 5 ORANG -->
+                <!-- ==================================================
+                     3B. PAKET MULTI ORANG (render dari JS)
+                     ================================================== -->
                 <section id="multi" class="hidden space-y-3"></section>
 
                 <!-- KONFIRMASI -->
@@ -519,7 +598,7 @@
                 <div class="max-w-2xl mx-auto px-4 pt-3 flex items-center gap-3">
                     <div class="flex-1">
                         <div class="text-sm text-slate-300 leading-none">Total Pembayaran</div>
-                        <div id="totalLabel" class="text-[#19e3d6] font-extrabold text-3xl mt-1">Rp100.000</div>
+                        <div id="totalLabel" class="text-[#19e3d6] font-extrabold text-3xl mt-1">—</div>
                     </div>
                     <button id="nextBtn" class="btn btn-pink">Lanjut Bayar →</button>
                 </div>
@@ -632,126 +711,292 @@
     </div>
 
     <script>
-        // ===== KONFIGURASI BACKEND =====
+        // ============================================================
+        // KONFIGURASI
+        // ============================================================
         const API = (new URLSearchParams(location.search).get("api") || "https://catur.siappgo.id").replace(/\/$/, "");
-
-        // Mode tes: 100. Sebelum publik, samakan dengan EARLY_PRICE di backend.
-        const EARLY_PRICE = 150000;
-        const PACKAGES = {
-            early: { label: "Early Bird + Jersey", price: EARLY_PRICE, pax: 1 },
-            reguler: { label: "Reguler + Jersey", price: 200000, pax: 1 },
-            paket5: { label: "Paket 5 Orang", price: 350000, pax: 5 },
-            nojersey: { label: "Reguler Tanpa Jersey", price: 150000, pax: 1 }
-        };
         const rp = n => "Rp" + Number(n).toLocaleString("id-ID");
         const $ = id => document.getElementById(id);
         const showFlex = (el, on) => { el.classList.toggle("hidden", !on); el.classList.toggle("flex", on); };
 
-        $("pr_early").textContent = rp(PACKAGES.early.price);
-        let formData = null, activePartnerReff = "", pollingInterval = null, timers = {};
+        // State
+        let CATEGORIES = [];
+        let PACKAGES = {};
+        let QUOTA = {};
+        let chosenCategory = null;
+        let formData = null;
+        let activePartnerReff = "";
+        let pollingInterval = null;
+        let timers = {};
 
-        // ---------- Form dinamis (paket 5 orang) ----------
-        const multi = $("multi");
-        let html = "";
-        for (let i = 1; i <= 5; i++) {
-            html += `<section class="card p-4 space-y-3">
-    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">${i + 1}</span> Data Peserta ${i}</h2>
-    <div><label class="lbl">Nama Lengkap Peserta ${i} <i>*</i></label><div class="fld"><iconify-icon icon="mdi:account-outline"></iconify-icon><input class="inp m_name" placeholder="Masukkan nama lengkap"></div></div>
-    <div><label class="lbl">NIK Peserta ${i} <i>*</i></label><div class="fld"><iconify-icon icon="mdi:card-account-details-outline"></iconify-icon><input class="inp m_nik" inputmode="numeric" maxlength="16" placeholder="Masukkan NIK (16 digit)"></div></div>
-  </section>`;
-        }
-        html += `<section class="card p-4 space-y-3"><h2 class="font-bold text-lg">Data Koordinator</h2>
-  <div><label class="lbl">Nomor WhatsApp Koordinator <i>*</i></label><div class="fld"><iconify-icon icon="mdi:whatsapp"></iconify-icon><input class="inp" id="m_phone" inputmode="tel" placeholder="0812..."></div></div></section>`;
-        multi.innerHTML = html;
+        // Gambar paket per id
+        const PKG_IMG = {
+            early: "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382192/earlybird_kfgzmw.png",
+            reguler: "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382253/reguler_1_b0jn69.png",
+            paket5: "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382191/paket_5org_tgxxgt.png",
+            nojersey: "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382192/reguler_perorg_ebsfup.png"
+        };
 
-        const getPkg = () => document.querySelector('input[name="pkg"]:checked').value;
-        function refreshPkg() {
-            const p = PACKAGES[getPkg()];
-            $("single").classList.toggle("hidden", p.pax !== 1);
-            multi.classList.toggle("hidden", p.pax === 1);
-            $("totalLabel").textContent = rp(p.price);
-        }
-        document.querySelectorAll('input[name="pkg"]').forEach(r => r.addEventListener("change", refreshPkg));
-        document.querySelectorAll("#s_nik,.m_nik").forEach(el => el.addEventListener("input", () => el.value = el.value.replace(/\D/g, "")));
-
-        // ---------- Sisa kuota ----------
-        const PKG_INPUT = { early: "p1", reguler: "p2" };
-        async function loadQuota() {
+        // ============================================================
+        // LOAD DATA
+        // ============================================================
+        async function loadAll() {
             try {
-                const r = await fetch(`${API}/catur-quota`);
-                if (!r.ok) return;
-                const q = await r.json();
-                for (const [id, info] of Object.entries(q)) {
-                    const el = $("q_" + id), radio = $(PKG_INPUT[id]);
-                    if (!el || !radio) continue;
-                    if (info.sisa <= 0) {
-                        el.innerHTML = `<b class="text-sec">Kuota penuh</b>`;
-                        radio.disabled = true;
-                        if (radio.checked) { $("p4").checked = true; refreshPkg(); }
-                    } else {
-                        el.innerHTML = `Sisa <b class="${info.sisa <= 10 ? "text-sec" : "text-[#19e3d6]"}">${info.sisa}</b> dari ${info.quota} peserta`;
-                    }
-                }
-            } catch (e) { console.warn("Gagal memuat kuota:", e.message); }
+                const [rCat, rPkg, rQ] = await Promise.all([
+                    fetch(`${API}/catur-categories`).then(r => r.ok ? r.json() : []),
+                    fetch(`${API}/catur-packages`).then(r => r.ok ? r.json() : []),
+                    fetch(`${API}/catur-quota`).then(r => r.ok ? r.json() : {})
+                ]);
+                CATEGORIES = Array.isArray(rCat) ? rCat : [];
+                const list = Array.isArray(rPkg) ? rPkg : [];
+                PACKAGES = Object.fromEntries(list.map(p => [p.id, p]));
+                QUOTA = rQ || {};
+                renderCategories();
+                console.log('✅ Data loaded:', { CATEGORIES, PACKAGES, QUOTA });
+            } catch (e) {
+                console.error("Gagal load data:", e);
+                swal("Error", "Gagal memuat data kategori/paket. Cek koneksi internet Anda.", "error");
+            }
         }
-        loadQuota();
-        refreshPkg();
 
-        // ---------- Validasi ----------
+        // ============================================================
+        // RENDER KATEGORI (3 kartu)
+        // ============================================================
+        function renderCategories() {
+            if (!CATEGORIES.length) {
+                $("catList").innerHTML = `<p class="text-xs text-rose-400">Belum ada kategori. Hubungi admin.</p>`;
+                return;
+            }
+            $("catList").innerHTML = CATEGORIES.map(c => `
+                <div class="cat-card" data-cat="${escAttr(c.id)}" onclick="chooseCategory('${escAttr(c.id)}')">
+                    <span class="dot"></span>
+                    <span class="flex-1">
+                        <b>${escHtml(c.label)}</b>
+                        ${c.desc ? `<small>${escHtml(c.desc)}</small>` : ''}
+                    </span>
+                    <iconify-icon class="check" icon="mdi:check-circle"></iconify-icon>
+                </div>`).join('');
+        }
+
+        // ============================================================
+        // PILIH KATEGORI → render paket ke section 2
+        // ============================================================
+        window.chooseCategory = (catId) => {
+            const cat = CATEGORIES.find(c => c.id === catId);
+            if (!cat) return;
+            chosenCategory = catId;
+
+            // Highlight kartu kategori
+            document.querySelectorAll('.cat-card').forEach(a => {
+                a.classList.toggle('active', a.dataset.cat === catId);
+            });
+
+            // Info kategori terpilih
+            $("catInfo").classList.remove("hidden");
+            $("catChosen").textContent = cat.label;
+
+            // Reset state paket & form
+            $("totalLabel").textContent = "—";
+            $("single").classList.add("hidden");
+            $("multi").classList.add("hidden");
+            $("multi").innerHTML = "";
+
+            // Render paket ke section 2
+            renderPackagesIntoSection(catId);
+
+            // Aktifkan section 2
+            $("pkgSection").classList.remove("opacity-50", "pointer-events-none");
+            $("pkgHint").textContent = `Pilih paket untuk kategori ${cat.label}.`;
+
+            // Scroll ke section paket
+            setTimeout(() => $("pkgSection").scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        };
+
+        // ============================================================
+        // RENDER 4 PAKET — baca kuota dari key kombinasi `<pkgId>__<catId>`
+        // ============================================================
+        function renderPackagesIntoSection(catId) {
+            const ids = Object.keys(PACKAGES);
+            if (!ids.length) {
+                $("pkgList").innerHTML = `<p class="text-xs text-rose-400">Paket belum tersedia.</p>`;
+                return;
+            }
+            $("pkgList").innerHTML = ids.map(id => {
+                const p = PACKAGES[id];
+                const qKey = `${id}__${catId}`;         // ← KUNCI OPSI A
+                const q = QUOTA[qKey];                  // ← baca per kombinasi
+                let quotaText = "";
+                if (q) {
+                    const sisa = q.sisa;
+                    quotaText = sisa <= 0
+                        ? `<b class="text-sec">Kuota penuh</b>`
+                        : `Sisa <b class="${sisa <= 10 ? 'text-sec' : 'text-[#19e3d6]'}">${sisa}</b> dari ${q.quota} peserta`;
+                } else {
+                    quotaText = `Kuota tidak terbatas`;
+                }
+                const disabled = q && q.sisa <= 0 ? "disabled" : "";
+                const inputId = `pkg_${catId}_${id}`;
+                return `
+                <div>
+                    <input type="radio" name="pkg_selected" id="${inputId}"
+                           value="${escAttr(id)}" data-cat="${escAttr(catId)}" ${disabled}>
+                    <label for="${inputId}">
+                        <img src="${PKG_IMG[id] || ''}" alt="">
+                        <span class="flex-1">
+                            <b>${escHtml(p.label)}</b><br>
+                            <small class="text-slate-400">${quotaText}</small>
+                        </span>
+                        <b class="price">${rp(p.price)}</b>
+                        <span class="dot"></span>
+                    </label>
+                </div>`;
+            }).join('');
+        }
+
+        // ============================================================
+        // PAKET: event listener
+        // ============================================================
+        document.addEventListener("change", (e) => {
+            if (e.target.matches('input[name="pkg_selected"]')) {
+                onPackageChosen(e.target);
+            }
+        });
+
+        function onPackageChosen(radio) {
+            const pkgId = radio.value;
+            const pkg = PACKAGES[pkgId];
+            if (!pkg) return;
+
+            const pax = Number(pkg.pax) || 1;
+            $("single").classList.toggle("hidden", pax !== 1);
+            if (pax === 1) {
+                $("multi").classList.add("hidden");
+                $("multi").innerHTML = "";
+            } else {
+                buildMultiForm(pax);
+                $("multi").classList.remove("hidden");
+            }
+            $("totalLabel").textContent = rp(pkg.price);
+
+            // Scroll ke form data peserta
+            setTimeout(() => {
+                const target = pax === 1 ? $("single") : $("multi");
+                if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
+        }
+
+        // ============================================================
+        // FORM MULTI ORANG
+        // ============================================================
+        function buildMultiForm(pax) {
+            let html = "";
+            for (let i = 1; i <= pax; i++) {
+                html += `<section class="card p-4 space-y-3">
+                    <h2 class="font-bold text-lg flex items-center gap-3"><span class="num">${i + 2}</span> Data Peserta ${i}</h2>
+                    <div><label class="lbl">Nama Lengkap Peserta ${i} <i>*</i></label>
+                        <div class="fld"><iconify-icon icon="mdi:account-outline"></iconify-icon>
+                        <input class="inp m_name" placeholder="Masukkan nama lengkap"></div></div>
+                    <div><label class="lbl">NIK Peserta ${i} <i>*</i></label>
+                        <div class="fld"><iconify-icon icon="mdi:card-account-details-outline"></iconify-icon>
+                        <input class="inp m_nik" inputmode="numeric" maxlength="16" placeholder="Masukkan NIK (16 digit)"></div></div>
+                </section>`;
+            }
+            html += `<section class="card p-4 space-y-3">
+                <h2 class="font-bold text-lg">Data Koordinator</h2>
+                <div><label class="lbl">Nomor WhatsApp Koordinator <i>*</i></label>
+                    <div class="fld"><iconify-icon icon="mdi:whatsapp"></iconify-icon>
+                    <input class="inp" id="m_phone" inputmode="tel" placeholder="0812..."></div></div>
+            </section>`;
+            $("multi").innerHTML = html;
+            $("multi").querySelectorAll(".m_nik").forEach(el =>
+                el.addEventListener("input", () => el.value = el.value.replace(/\D/g, ""))
+            );
+        }
+
+        // ============================================================
+        // VALIDASI
+        // ============================================================
         const validPhone = v => /^(\+62|62|0)8\d{7,12}$/.test(v.replace(/[\s-]/g, ""));
         const validNik = v => /^\d{16}$/.test(v);
         function warn(msg) { swal("Periksa kembali", msg, "warning"); return null; }
 
+        document.addEventListener("input", (e) => {
+            if (e.target.matches("#s_nik")) e.target.value = e.target.value.replace(/\D/g, "");
+        });
+
+        // ============================================================
+        // KOLEKSI DATA
+        // ============================================================
         function collect() {
-            const key = getPkg(), pkg = PACKAGES[key];
+            if (!chosenCategory) return warn("Pilih kategori terlebih dahulu.");
+            const radio = document.querySelector('input[name="pkg_selected"]:checked');
+            if (!radio) return warn("Pilih paket pendaftaran.");
+
+            const key = radio.value;
+            const pkg = PACKAGES[key];
+            if (!pkg) return warn("Paket tidak valid.");
+
+            const cat = CATEGORIES.find(c => c.id === chosenCategory);
+            const pax = Number(pkg.pax) || 1;
             let participants = [], phone, ktp = null;
-            if (pkg.pax === 1) {
-                const name = $("s_name").value.trim(), nik = $("s_nik").value.trim(), ph = $("s_phone").value.trim();
+
+            if (pax === 1) {
+                const name = $("s_name").value.trim();
+                const nik = $("s_nik").value.trim();
+                const ph = $("s_phone").value.trim();
                 if (!name) return warn("Nama lengkap wajib diisi.");
                 if (!validNik(nik)) return warn("NIK harus 16 digit angka.");
                 if (!validPhone(ph)) return warn("Nomor WhatsApp tidak valid.");
                 ktp = $("s_ktp").files[0];
                 if (!ktp) return warn("Foto KTP wajib diupload.");
                 if (ktp.size > 5 * 1024 * 1024) return warn("Ukuran foto KTP maksimal 5MB.");
-                participants = [{ name, nik }]; phone = ph;
+                participants = [{ name, nik }];
+                phone = ph;
             } else {
-                const names = [...document.querySelectorAll(".m_name")], niks = [...document.querySelectorAll(".m_nik")];
-                for (let i = 0; i < 5; i++) {
-                    const name = names[i].value.trim(), nik = niks[i].value.trim();
+                const names = [...document.querySelectorAll(".m_name")];
+                const niks = [...document.querySelectorAll(".m_nik")];
+                for (let i = 0; i < pax; i++) {
+                    const name = names[i]?.value.trim() || "";
+                    const nik = niks[i]?.value.trim() || "";
                     if (!name) return warn(`Nama Peserta ${i + 1} wajib diisi.`);
                     if (!validNik(nik)) return warn(`NIK Peserta ${i + 1} harus 16 digit angka.`);
                     participants.push({ name, nik });
                 }
-                if (new Set(participants.map(p => p.nik)).size < 5) return warn("Terdapat NIK ganda antar peserta.");
+                if (new Set(participants.map(p => p.nik)).size < pax) return warn("Terdapat NIK ganda antar peserta.");
                 phone = $("m_phone").value.trim();
                 if (!validPhone(phone)) return warn("Nomor WhatsApp koordinator tidak valid.");
             }
             if (!$("agree").checked) return warn("Centang pernyataan persetujuan terlebih dahulu.");
-            return { key, pkg, participants, phone, ktp };
+
+            return { key, pkg, cat, participants, phone, ktp };
         }
 
-        // ---------- Navigasi ----------
+        // ============================================================
+        // NAVIGASI
+        // ============================================================
         function show(id) {
-            ["utamaHal", "paymentMethodsContainer", "vaPage", "qrisPage"].forEach(x => $(x).style.display = (x === id ? "block" : "none"));
+            ["utamaHal", "paymentMethodsContainer", "vaPage", "qrisPage"].forEach(x =>
+                $(x).style.display = (x === id ? "block" : "none")
+            );
             window.scrollTo(0, 0);
         }
+
         $("nextBtn").addEventListener("click", async () => {
-            // Cek ulang kuota: kalau paket terpilih baru saja habis, pilihan otomatis dialihkan
-            const before = getPkg();
-            await loadQuota();
-            if (getPkg() !== before) {
-                return warn("Kuota paket yang Anda pilih baru saja habis. Pilihan dialihkan ke Reguler Tanpa Jersey, periksa kembali lalu klik Lanjut Bayar.");
-            }
-            const d = collect(); if (!d) return;
+            if (!chosenCategory) return warn("Pilih kategori terlebih dahulu.");
+            const d = collect();
+            if (!d) return;
             formData = d;
             $("payTotal").textContent = rp(d.pkg.price);
             show("paymentMethodsContainer");
         });
+
         function backToForm() { show("utamaHal"); }
         function backToMethods() { stopPolling(); clearAllTimers(); show("paymentMethodsContainer"); }
         function clearAllTimers() { Object.values(timers).forEach(clearInterval); timers = {}; }
 
-        // ---------- Pembayaran ----------
+        // ============================================================
+        // PEMBAYARAN
+        // ============================================================
         async function uploadKtp(file) {
             const fd = new FormData(); fd.append("ktp", file);
             const r = await fetch(`${API}/upload-ktp`, { method: "POST", body: fd });
@@ -765,16 +1010,15 @@
             if (!sel) return swal("Warning!", "Silakan pilih metode pembayaran terlebih dahulu", "warning");
             if (!formData) return show("utamaHal");
 
-            const { key, pkg, participants, phone, ktp } = formData;
+            const { key, pkg, cat, participants, phone, ktp } = formData;
             const method = sel.dataset.method, bankCode = sel.value;
-            const logoSrc = sel.parentElement.querySelector("img").src; // logo bank diambil dari pilihan metode
-            const un = "{username}";
+            const logoSrc = sel.parentElement.querySelector("img").src;
             const note = participants.map((p, i) => `${i + 1}. ${p.name} (${p.nik})`).join(" | ");
 
             const payload = {
                 amount: pkg.price,
+                category_id: cat.id,
                 package_id: key,
-                package_name: pkg.label,
                 participants,
                 name: "NBCC 2026",
                 note,
@@ -782,18 +1026,28 @@
                 date: new Date().toISOString().split("T")[0],
                 phone,
                 customer_id: "{userid}",
-                customer_name: un.startsWith("{") ? participants[0].name : un,
+                customer_name: participants[0].name,
                 customer_email: "bocahangon64@gmail.com",
                 customer_phone: phone
             };
             let endpoint;
-            if (method === "va") { endpoint = `${API}/create-va`; payload.metode_pembayaran = "VA"; payload.bank_code = bankCode; }
-            else { endpoint = `${API}/create-qris`; payload.metode_pembayaran = "QRIS"; }
+            if (method === "va") {
+                endpoint = `${API}/create-va`;
+                payload.metode_pembayaran = "VA";
+                payload.bank_code = bankCode;
+            } else {
+                endpoint = `${API}/create-qris`;
+                payload.metode_pembayaran = "QRIS";
+            }
 
             showFlex($("loadingOverlay"), true);
             try {
                 if (ktp) payload.ktp_file = await uploadKtp(ktp);
-                const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
                 const res = await response.json();
                 if (!res.partner_reff || res.response_code !== "00") {
                     return swal("Gagal", res.response_desc || res.error || "Gagal membuat pembayaran", "error");
@@ -836,7 +1090,9 @@
             }
         }
 
-        // ---------- Polling status ----------
+        // ============================================================
+        // POLLING
+        // ============================================================
         function startPolling(ref) {
             activePartnerReff = ref;
             try { localStorage.setItem("last_partner_reff", ref); } catch (e) { }
@@ -855,7 +1111,7 @@
                 if (paid) {
                     stopPolling(); clearAllTimers();
                     show("utamaHal");
-                    swal({ title: "Pendaftaran Berhasil! ♟️", text: "Pembayaran diterima. Konfirmasi pendaftaran dikirim ke WhatsApp Anda.", icon: "success", button: "Selesai", closeOnClickOutside: false })
+                    swal({ title: "Pendaftaran Berhasil! ♟️", text: "Pembayaran diterima. Konfirmasi dikirim ke WhatsApp Anda.", icon: "success", button: "Selesai", closeOnClickOutside: false })
                         .then(() => location.reload());
                 }
                 return paid;
@@ -872,7 +1128,9 @@
             if (!paid) swal("Belum Diterima", "Pembayaran belum kami terima. Coba lagi beberapa saat.", "info");
         }
 
-        // ---------- Util ----------
+        // ============================================================
+        // UTIL
+        // ============================================================
         function copyVaCode() {
             const v = $("vaDana").innerText.trim();
             if (!v) return swal("Gagal", "Nomor VA tidak ditemukan", "error");
@@ -883,13 +1141,22 @@
             clearInterval(timers[id]);
             let time = minutes * 60; const el = $(id);
             const tick = () => {
-                const m = String(Math.floor(time / 60)).padStart(2, "0"), s = String(time % 60).padStart(2, "0");
+                const m = String(Math.floor(time / 60)).padStart(2, "0");
+                const s = String(time % 60).padStart(2, "0");
                 el.textContent = `⏳ Berakhir dalam ${m}:${s}`;
                 if (time <= 0) { clearInterval(timers[id]); el.textContent = "❌ Waktu Berakhir"; el.classList.add("text-sec"); }
                 time--;
             };
             tick(); timers[id] = setInterval(tick, 1000);
         }
+
+        function escHtml(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+        function escAttr(s) { return String(s ?? "").replace(/"/g, "&quot;"); }
+
+        // ============================================================
+        // BOOT
+        // ============================================================
+        loadAll();
     </script>
 </body>
 
