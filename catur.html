@@ -497,6 +497,37 @@
                 background-position: 200% 0
             }
         }
+
+        .size-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 6px
+        }
+
+        .size-opt input {
+            display: none
+        }
+
+        .size-opt span {
+            display: block;
+            text-align: center;
+            padding: 10px 0;
+            cursor: pointer;
+            border: 1.5px solid #2a2a35;
+            border-radius: 10px;
+            background: #0b0b10;
+            font-weight: 600;
+            font-size: 13px;
+            transition: .2s
+        }
+
+        .size-opt input:checked+span {
+            border-color: #f5c542;
+            background: #3a2e0c;
+            color: #f5c542;
+            box-shadow: 0 0 10px rgba(245, 197, 66, .25)
+        }
     </style>
 </head>
 
@@ -576,6 +607,17 @@
                                 5MB)</small></label>
                         <div class="fld"><input class="inp" id="s_ktp" type="file" accept="image/*"
                                 style="padding-left:12px"></div>
+                    </div>
+                    <div id="s_size_wrap">
+                        <label class="lbl">Ukuran Kaos <i>*</i></label>
+                        <div class="size-grid">
+                            <label class="size-opt"><input type="radio" name="s_size" value="S"><span>S</span></label>
+                            <label class="size-opt"><input type="radio" name="s_size" value="M"><span>M</span></label>
+                            <label class="size-opt"><input type="radio" name="s_size" value="L"><span>L</span></label>
+                            <label class="size-opt"><input type="radio" name="s_size" value="XL"><span>XL</span></label>
+                            <label class="size-opt"><input type="radio" name="s_size"
+                                    value="XXL"><span>XXL</span></label>
+                        </div>
                     </div>
                 </section>
 
@@ -737,6 +779,11 @@
             nojersey: "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1791382192/reguler_perorg_ebsfup.png"
         };
 
+        const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+        const sizeRadios = (name) => `<div class="size-grid">${SIZES.map(s =>
+            `<label class="size-opt"><input type="radio" name="${name}" value="${s}"><span>${s}</span></label>`
+        ).join('')}</div>`;
+
         // ============================================================
         // LOAD DATA
         // ============================================================
@@ -868,6 +915,7 @@
 
             const pax = Number(pkg.pax) || 1;
             $("single").classList.toggle("hidden", pax !== 1);
+            $("s_size_wrap").classList.toggle("hidden", pkgId === 'nojersey');
             if (pax === 1) {
                 $("multi").classList.add("hidden");
                 $("multi").innerHTML = "";
@@ -898,6 +946,8 @@
                     <div><label class="lbl">NIK Peserta ${i} <i>*</i></label>
                         <div class="fld"><iconify-icon icon="mdi:card-account-details-outline"></iconify-icon>
                         <input class="inp m_nik" inputmode="numeric" maxlength="16" placeholder="Masukkan NIK (16 digit)"></div></div>
+                                            <div><label class="lbl">Ukuran Kaos Peserta ${i} <i>*</i></label>
+                        ${sizeRadios('m_size_' + i)}</div>
                 </section>`;
             }
             html += `<section class="card p-4 space-y-3">
@@ -937,6 +987,7 @@
 
             const cat = CATEGORIES.find(c => c.id === chosenCategory);
             const pax = Number(pkg.pax) || 1;
+            const needSize = key !== 'nojersey';
             let participants = [], phone, ktp = null;
 
             if (pax === 1) {
@@ -949,7 +1000,14 @@
                 ktp = $("s_ktp").files[0];
                 if (!ktp) return warn("Foto KTP wajib diupload.");
                 if (ktp.size > 5 * 1024 * 1024) return warn("Ukuran foto KTP maksimal 5MB.");
-                participants = [{ name, nik }];
+
+                let size = null;
+                if (needSize) {
+                    const sz = document.querySelector('input[name="s_size"]:checked');
+                    if (!sz) return warn("Ukuran kaos wajib dipilih.");
+                    size = sz.value;
+                }
+                participants = [{ name, nik, size }];
                 phone = ph;
             } else {
                 const names = [...document.querySelectorAll(".m_name")];
@@ -959,7 +1017,14 @@
                     const nik = niks[i]?.value.trim() || "";
                     if (!name) return warn(`Nama Peserta ${i + 1} wajib diisi.`);
                     if (!validNik(nik)) return warn(`NIK Peserta ${i + 1} harus 16 digit angka.`);
-                    participants.push({ name, nik });
+
+                    let size = null;
+                    if (needSize) {
+                        const sz = document.querySelector(`input[name="m_size_${i + 1}"]:checked`);
+                        if (!sz) return warn(`Ukuran kaos Peserta ${i + 1} wajib dipilih.`);
+                        size = sz.value;
+                    }
+                    participants.push({ name, nik, size });
                 }
                 if (new Set(participants.map(p => p.nik)).size < pax) return warn("Terdapat NIK ganda antar peserta.");
                 phone = $("m_phone").value.trim();
@@ -969,7 +1034,6 @@
 
             return { key, pkg, cat, participants, phone, ktp };
         }
-
         // ============================================================
         // NAVIGASI
         // ============================================================
@@ -1012,7 +1076,7 @@
             const { key, pkg, cat, participants, phone, ktp } = formData;
             const method = sel.dataset.method, bankCode = sel.value;
             const logoSrc = sel.parentElement.querySelector("img").src;
-            const note = participants.map((p, i) => `${i + 1}. ${p.name} (${p.nik})`).join(" | ");
+            const note = participants.map((p, i) => `${i + 1}. ${p.name} (${p.nik})${p.size ? ` [${p.size}]` : ''}`).join(" | ");
 
             const payload = {
                 amount: pkg.price,
@@ -1042,6 +1106,10 @@
             showFlex($("loadingOverlay"), true);
             try {
                 if (ktp) payload.ktp_file = await uploadKtp(ktp);
+                console.log("📦 Payload dikirim ke", endpoint, payload);
+                console.table(payload.participants);   // tabel: name, nik, size
+                console.log("👕 Ukuran kaos:", payload.participants.map(p => `${p.name}: ${p.size ?? '-'}`));
+
                 const response = await fetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
