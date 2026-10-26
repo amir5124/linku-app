@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Admin Rental | LinkU</title>
+    <style>
+        :root {
+            --teal: #0b7a76;
+            --pink: #c92a68;
+            --bg: #f2fafa;
+            --ink: #17323a;
+            --mut: #4d6b73;
+            --line: #d5ebea
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 14px system-ui, -apple-system, Segoe UI, Roboto, sans-serif
+        }
+
+        header {
+            background: var(--teal);
+            color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-weight: 800
+        }
+
+        header span {
+            flex: 1
+        }
+
+        header button {
+            background: #fff2;
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 700
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px
+        }
+
+        .card small {
+            color: var(--mut);
+            font-weight: 700;
+            display: block
+        }
+
+        .card b {
+            font-size: 20px
+        }
+
+        .card i {
+            font-style: normal;
+            color: var(--mut);
+            font-size: 12px
+        }
+
+        .bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px
+        }
+
+        .bar input,
+        .bar select,
+        .bar button {
+            height: 38px;
+            border: 1px solid #bcd3d3;
+            border-radius: 8px;
+            padding: 0 10px;
+            font: inherit;
+            background: #fff
+        }
+
+        .bar button {
+            background: var(--pink);
+            color: #fff;
+            border: 0;
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .tw {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: auto
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 900px
+        }
+
+        th,
+        td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top
+        }
+
+        th {
+            background: #e8f6f5;
+            font-size: 12px;
+            white-space: nowrap
+        }
+
+        tr.r {
+            cursor: pointer
+        }
+
+        tr.r:hover {
+            background: #f6fcfc
+        }
+
+        .s {
+            display: inline-block;
+            border-radius: 99px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 800
+        }
+
+        .s.PAID {
+            background: #d9f5e5;
+            color: #116b3a
+        }
+
+        .s.PENDING {
+            background: #fff1cc;
+            color: #8a5a00
+        }
+
+        .s.EXPIRED {
+            background: #eee;
+            color: #555
+        }
+
+        .s.FAILED {
+            background: #ffe0e0;
+            color: #a11
+        }
+
+        .pg {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px;
+            color: var(--mut)
+        }
+
+        .pg button {
+            height: 34px;
+            border: 1px solid #bcd3d3;
+            background: #fff;
+            border-radius: 8px;
+            padding: 0 12px;
+            cursor: pointer
+        }
+
+        h3 {
+            margin: 18px 0 8px
+        }
+
+        pre {
+            background: #0e2a2e;
+            color: #cfe;
+            padding: 12px;
+            border-radius: 10px;
+            overflow: auto;
+            font-size: 12px;
+            max-height: 340px
+        }
+
+        dialog {
+            border: 0;
+            border-radius: 14px;
+            max-width: 760px;
+            width: 94%;
+            padding: 16px
+        }
+
+        dialog::backdrop {
+            background: #0006
+        }
+
+        .kv {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 4px 10px;
+            font-size: 13px
+        }
+
+        .kv span {
+            color: var(--mut)
+        }
+
+        #err {
+            color: var(--pink);
+            font-weight: 700;
+            margin-bottom: 10px
+        }
+    </style>
+</head>
+
+<body>
+    <header><span>Admin Rental LinkU</span><button id="out">Keluar</button></header>
+    <main>
+        <div id="err"></div>
+        <div class="cards" id="cards"></div>
+        <h3 style="margin-top:0">Jadwal terdekat (sudah lunas)</h3>
+        <div class="tw" style="margin-bottom:18px">
+            <table id="up"></table>
+        </div>
+        <h3>Semua transaksi</h3>
+        <div class="bar">
+            <input id="q" placeholder="Cari nama / WA / no. pesanan / mobil">
+            <select id="st">
+                <option value="">Semua status</option>
+                <option>PAID</option>
+                <option>PENDING</option>
+                <option>EXPIRED</option>
+                <option>FAILED</option>
+            </select>
+            <label style="align-self:center">Pakai dari <input type="date" id="from"></label>
+            <label style="align-self:center">sampai <input type="date" id="to"></label>
+            <button id="go">Tampilkan</button>
+        </div>
+        <div class="tw">
+            <table id="tb"></table>
+        </div>
+        <div class="pg"><button id="pv">Sebelumnya</button><span id="pi"></span><button id="nx">Berikutnya</button>
+        </div>
+    </main>
+    <dialog id="dlg">
+        <div id="dc"></div>
+        <div style="text-align:right;margin-top:12px"><button onclick="dlg.close()"
+                style="height:36px;padding:0 16px">Tutup</button></div>
+    </dialog>
+
+    <script>
+        const API = 'https://rental.siappgo.id/api/rental/admin';   // ubah bila domain berbeda
+        const LIM = 50; let off = 0, total = 0;
+        const $ = s => document.querySelector(s), dlg = $('#dlg');
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const rp = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+        const dt = d => d ? String(d).split('-').reverse().join('/') : '';
+        const wib = s => s ? new Date(String(s).replace(' ', 'T') + 'Z').toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : '-';
+
+        // Tanpa token secara default. Hanya jika server mengaktifkan ADMIN_TOKEN (balasan 401), baru diminta.
+        async function api(path) {
+            const t = sessionStorage.getItem('adm');
+            const r = await fetch(API + path, { headers: t ? { Authorization: 'Bearer ' + t } : {} });
+            if (r.status === 401) {
+                sessionStorage.removeItem('adm');
+                const n = prompt('Server meminta token admin'); if (n) { sessionStorage.setItem('adm', n.trim()); return api(path); }
+                throw new Error('Token diperlukan');
+            }
+            if (r.status === 403) throw new Error('IP Anda tidak diizinkan mengakses admin');
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(j.message || 'Error ' + r.status);
+            return j.data;
+        }
+        const err = e => { $('#err').textContent = e ? e.message : ''; };
+
+        async function loadSummary() {
+            const d = await api('/summary'), s = d.by_status;
+            $('#cards').innerHTML = [
+                ['Lunas', s.PAID.n, rp(s.PAID.total)], ['Lunas hari ini', d.paid_today.n, rp(d.paid_today.total)],
+                ['Menunggu bayar', s.PENDING.n, rp(s.PENDING.total)], ['Kedaluwarsa', s.EXPIRED.n, ''], ['Gagal', s.FAILED.n, '']
+            ].map(c => `<div class="card"><small>${c[0]}</small><b>${c[1]}</b><br><i>${c[2]}</i></div>`).join('');
+            $('#up').innerHTML = '<tr><th>Tanggal</th><th>Jam</th><th>Pelanggan</th><th>Mobil</th><th>Jemput → Tujuan</th><th>Pnp</th><th>Catatan</th></tr>' +
+                (d.upcoming.length ? d.upcoming.map(o => `<tr class="r" data-id="${esc(o.order_id)}"><td>${dt(o.usage_date)}${o.days > 1 ? ' – ' + dt(o.end_date) + '<br><small>' + o.days + ' hari</small>' : ''}</td><td>${esc(String(o.pickup_time).slice(0, 5))}</td>
+      <td>${esc(o.customer_name)}<br><a href="https://wa.me/${esc(o.whatsapp)}" target="_blank" onclick="event.stopPropagation()">${esc(o.whatsapp)}</a></td>
+      <td>${esc(o.car_name)}<br><small>${o.service === 'SELF' ? 'Tanpa driver' : 'Dengan driver'}</small></td><td>${esc(o.pickup_location)} → ${esc(o.destination)}</td><td>${o.passengers}</td><td>${esc(o.notes || '-')}</td></tr>`).join('')
+                    : '<tr><td colspan="7">Belum ada jadwal</td></tr>');
+        }
+        async function loadOrders() {
+            const p = new URLSearchParams({ limit: LIM, offset: off });
+            [['q', '#q'], ['status', '#st'], ['from', '#from'], ['to', '#to']].forEach(([k, id]) => { if ($(id).value) p.set(k, $(id).value); });
+            const d = await api('/orders?' + p); total = d.total;
+            $('#tb').innerHTML = '<tr><th>No. Pesanan</th><th>Pelanggan</th><th>Mobil</th><th>Jadwal pakai</th><th>Rute</th><th>Total</th><th>Metode</th><th>Status</th></tr>' +
+                (d.rows.length ? d.rows.map(o => `<tr class="r" data-id="${esc(o.order_id)}"><td>${esc(o.order_id)}</td>
+      <td>${esc(o.customer_name)}<br><small>${esc(o.whatsapp)}</small></td><td>${esc(o.car_name)}<br><small>${o.service === 'SELF' ? 'Tanpa driver' : 'Dengan driver'}</small></td>
+      <td>${dt(o.usage_date)}${o.days > 1 ? ' – ' + dt(o.end_date) : ''} ${esc(String(o.pickup_time).slice(0, 5))}<br><small>${o.days} hari</small></td><td>${esc(o.pickup_location)} → ${esc(o.destination)}</td>
+      <td>${rp(o.total_amount)}</td><td>${esc(o.payment_method)}${o.bank ? ' ' + esc(o.bank) : ''}</td>
+      <td><span class="s ${esc(o.status)}">${esc(o.status)}</span></td></tr>`).join('')
+                    : '<tr><td colspan="8">Tidak ada data</td></tr>');
+            $('#pi').textContent = `${total ? off + 1 : 0}-${Math.min(off + LIM, total)} dari ${total} · lunas ${rp(d.paid_total)}`;
+            $('#pv').disabled = off <= 0; $('#nx').disabled = off + LIM >= total;
+        }
+        async function detail(id) {
+            const d = await api('/orders/' + encodeURIComponent(id)), o = d.order;
+            const kv = Object.entries(o).filter(([k]) => k !== 'id').map(([k, v]) => `<span>${esc(k)}</span><div>${esc(v ?? '-')}</div>`).join('');
+            $('#dc').innerHTML = `<h3 style="margin-top:0">${esc(o.order_id)}</h3><div class="kv">${kv}</div>
+    <h3>Pembayaran</h3><pre>${esc(JSON.stringify(d.payments, null, 2))}</pre>
+    <h3>Log callback</h3><pre>${esc(JSON.stringify(d.webhooks.map(w => ({ ...w, payload: safe(w.payload) })), null, 2))}</pre>`;
+            dlg.showModal();
+        }
+        const safe = p => { try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return p; } };
+
+        document.addEventListener('click', e => { const tr = e.target.closest('tr.r'); if (tr) detail(tr.dataset.id).catch(err); });
+        $('#go').onclick = () => { off = 0; loadOrders().catch(err); };
+        $('#q').onkeydown = e => { if (e.key === 'Enter') $('#go').click(); };
+        $('#pv').onclick = () => { off = Math.max(0, off - LIM); loadOrders().catch(err); };
+        $('#nx').onclick = () => { off += LIM; loadOrders().catch(err); };
+        $('#out').onclick = () => { sessionStorage.removeItem('adm'); location.reload(); };
+        Promise.all([loadSummary(), loadOrders()]).catch(err);
+    </script>
+</body>
+
+</html>

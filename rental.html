@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Rental Mobil IKN – Balikpapan | LinkU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --teal: #0b7a76;
+            --pink: #c92a68;
+            --bg: #f2fafa;
+            --ink: #17323a;
+            --mut: #4d6b73;
+            --line: #d5ebea
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: #dfeeee;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--ink)
+        }
+
+        #app {
+            max-width: 430px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px #0002
+        }
+
+        header {
+            background: var(--teal);
+            color: #fff;
+            padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 17px;
+            position: sticky;
+            top: 0;
+            z-index: 5
+        }
+
+        header button {
+            background: none;
+            border: 0;
+            width: 44px;
+            height: 44px;
+            margin: -8px 0 -8px -12px;
+            display: grid;
+            place-items: center;
+            cursor: pointer
+        }
+
+        header button[hidden] {
+            display: none
+        }
+
+        .st {
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--teal)
+        }
+
+        .bar {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px
+        }
+
+        .bar i {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: #cfe6e5
+        }
+
+        .bar i.on {
+            background: var(--pink)
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom))
+        }
+
+        .c {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 0 16px 12px
+        }
+
+        .c h3 {
+            margin: 0 0 6px;
+            font-size: 14px
+        }
+
+        .g {
+            display: flex;
+            gap: 10px;
+            padding: 0 16px 10px
+        }
+
+        .f {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 0
+        }
+
+        .f input,
+        .f select {
+            height: 44px;
+            border: 1px solid #bcd3d3;
+            border-radius: 10px;
+            padding: 0 10px;
+            font: 500 14px inherit;
+            font-family: inherit;
+            background: #fff;
+            color: var(--ink);
+            width: 100%
+        }
+
+        .f.bad input,
+        .f.bad select {
+            border-color: var(--pink);
+            background: #fff5f9
+        }
+
+        .f em {
+            font-style: normal;
+            color: var(--pink);
+            font-size: 11px;
+            font-weight: 600
+        }
+
+        .btn {
+            display: block;
+            margin: auto 16px 8px;
+            width: calc(100% - 32px);
+            height: 52px;
+            border: 0;
+            border-radius: 14px;
+            background: var(--pink);
+            color: #fff;
+            font: 800 16px inherit;
+            font-family: inherit;
+            cursor: pointer
+        }
+
+        .btn:disabled {
+            opacity: .6
+        }
+
+        .btn.alt {
+            background: #fff;
+            color: var(--teal);
+            border: 2px solid var(--teal);
+            height: 46px;
+            margin-top: 0
+        }
+
+        .r {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 13px;
+            padding: 5px 0
+        }
+
+        .r span {
+            color: var(--mut)
+        }
+
+        .r b {
+            text-align: right
+        }
+
+        .r.t {
+            border-top: 1px dashed #bcd3d3;
+            margin-top: 6px;
+            padding-top: 10px;
+            font-size: 15px
+        }
+
+        .n {
+            background: #fff0f5;
+            color: #7a1a42;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin: 0 16px 12px;
+            font-size: 12px;
+            line-height: 1.6
+        }
+
+        .n b {
+            font-weight: 800
+        }
+
+        .stp {
+            display: flex;
+            align-items: center;
+            height: 44px;
+            border: 1px solid #bcd3d3;
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden
+        }
+
+        .stp button {
+            width: 48px;
+            height: 100%;
+            border: 0;
+            background: #e8f6f5;
+            color: var(--teal);
+            font: 800 22px inherit;
+            font-family: inherit;
+            cursor: pointer;
+            flex: none;
+            line-height: 1
+        }
+
+        .stp button:active {
+            background: #cfe9e7
+        }
+
+        .stp button:disabled {
+            opacity: .35;
+            cursor: default
+        }
+
+        .stp input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            height: 100%;
+            border: 0 !important;
+            background: #fff !important;
+            text-align: center;
+            font: 800 16px inherit;
+            font-family: inherit;
+            color: var(--ink);
+            -moz-appearance: textfield;
+            padding: 0
+        }
+
+        .stp input::-webkit-outer-spin-button,
+        .stp input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0
+        }
+
+        .f.bad .stp {
+            border-color: var(--pink);
+            background: #fff5f9
+        }
+
+        .hint {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--teal);
+            background: #e8f6f5;
+            border-radius: 10px;
+            padding: 8px 10px;
+            flex: 1
+        }
+
+        .o {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .o.sel {
+            border: 2px solid var(--pink);
+            background: #fff5f9
+        }
+
+        .o input {
+            margin-left: auto;
+            accent-color: var(--pink);
+            width: 18px;
+            height: 18px
+        }
+
+        .o small {
+            display: block;
+            font-weight: 500;
+            font-size: 11px;
+            color: var(--mut)
+        }
+
+        .bk {
+            width: 46px;
+            height: 30px;
+            border-radius: 6px;
+            background: #e1f1f0;
+            display: grid;
+            place-items: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #0b6460;
+            flex: none
+        }
+
+        .tm {
+            text-align: center;
+            font-size: 13px;
+            color: var(--mut);
+            padding: 8px 0
+        }
+
+        .tm b {
+            color: var(--pink);
+            font-size: 16px
+        }
+
+        ol {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 12px;
+            line-height: 1.7;
+            color: #35545c
+        }
+
+        .k {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #e8f6f5;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin: 6px 0 10px;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 1px
+        }
+
+        .k button {
+            background: var(--teal);
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            height: 36px;
+            padding: 0 14px;
+            font: 700 12px inherit;
+            font-family: inherit;
+            cursor: pointer
+        }
+
+        .qr {
+            display: grid;
+            place-items: center;
+            min-height: 210px
+        }
+
+        .qr img,
+        .qr canvas {
+            max-width: 210px
+        }
+
+        .ok {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--teal);
+            margin: 8px auto 12px;
+            display: grid;
+            place-items: center
+        }
+
+        .ctr {
+            text-align: center;
+            padding: 12px 16px
+        }
+
+        .err {
+            margin: 0 16px 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fff0f5;
+            color: #7a1a42;
+            font-size: 12px;
+            font-weight: 700
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <button id="back" aria-label="Kembali" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="#fff" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <path d="M15 5l-7 7 7 7" />
+                </svg></button>
+            <span id="ttl"></span>
+        </header>
+        <div id="stp"></div>
+        <main id="v"></main>
+    </div>
+
+    <script>
+        /* =====================  KONFIGURASI (UBAH DI SINI)  ===================== */
+        const CONFIG = {
+            MOCK: false,                                  // false = pakai backend asli
+            API_BASE: 'https://rental.siappgo.id',        // tanpa garis miring di akhir
+            EP_CREATE: '/api/rental/order',
+            EP_STATUS: '/api/rental/status/',
+            POLL_MS: 5000,
+            WA_ADMIN: '6281347423737',
+            MAX_DAYS: 30
+        };
+        /* Harga per HARI. Harga di sini HANYA tampilan; backend menghitung ulang: harga per hari x lama sewa. */
+        const SERVICES = { DRIVER: 'Dengan Driver', SELF: 'Tanpa Driver (Lepas Kunci)' };
+        const CARS = [
+            { code: 'AVANZA', name: 'Avanza / Xenia / Confero', price: 100, svc: 'DRIVER' },
+            // { code: 'TERIOS', name: 'Terios / Xpander / Rush', price: 800000, svc: 'DRIVER' },
+            { code: 'INNOVA_REBORN', name: 'Innova Reborn', price: 950000, svc: 'DRIVER' },
+            // { code: 'INNOVA_ZENIX', name: 'Innova Zenix', price: 1100000, svc: 'DRIVER' },
+            { code: 'AVANZA_SELF', name: 'New Avanza / Xenia', price: 500000, svc: 'SELF' },
+            { code: 'INNOVA_REBORN_SELF', name: 'Innova Reborn', price: 650000, svc: 'SELF' }
+        ];
+        const BANKS = ['BCA', 'BNI', 'BRI', 'MANDIRI'];
+
+        /* Kontrak API yang diharapkan:
+           POST EP_CREATE  body: {customer_name, whatsapp, car_code, days, date, time, passengers,
+                                  pickup, destination, notes, payment_method:'QRIS'|'VA', bank}
+             -> {order_id, total, expired_at(ISO), qr_string | qr_image_url, va_number, bank}
+           GET  EP_STATUS+order_id -> {status:'PENDING'|'PAID'|'EXPIRED'|'FAILED'}
+           Bila nama field backend berbeda, ubah fungsi mapOrder() & mapStatus() di bawah. */
+        const mapOrder = r => {
+            r = r.data || r; return {
+                id: r.order_id || r.orderId, total: r.total || r.amount, exp: r.expired_at || r.expiredAt,
+                qrString: r.qr_string || r.qrString, qrImg: r.qr_image_url || r.qrImageUrl,
+                va: r.va_number || r.vaNumber, bank: r.bank
+            };
+        };
+        const mapStatus = r => String((r.data || r).status || '').toUpperCase();
+
+        /* =====================  STATE & UTIL  ===================== */
+        const S = { step: 1, m: 'QRIS', bank: 'BCA', order: null, f: { svc: 'DRIVER', nama: '', wa: '', car: 'AVANZA', tgl: '', jam: '', days: '1', pnp: '', lok: 'IKN / Area Sepaku dan sekitarnya', tuj: 'Bandara Balikpapan', cat: '' } };
+        let tick = null, poll = null, mockN = 0;
+        const $ = s => document.querySelector(s);
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const rp = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+        const carsOf = svc => CARS.filter(c => c.svc === svc);
+        const car = () => CARS.find(c => c.code === S.f.car);
+        const days = () => Math.min(CONFIG.MAX_DAYS, Math.max(1, parseInt(S.f.days, 10) || 1));
+        const total = () => car().price * days();
+        const row = (a, b, c = '') => `<div class="r ${c}"><span>${a}</span><b>${esc(b)}</b></div>`;
+        const fmtTgl = d => d ? d.split('-').reverse().join('/') : '';
+        const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+        const rentRange = () => days() > 1 ? fmtTgl(S.f.tgl) + ' – ' + fmtTgl(addDays(S.f.tgl, days() - 1)) : fmtTgl(S.f.tgl);
+        const normWA = v => { v = v.replace(/[\s\-+]/g, ''); return v.startsWith('0') ? '62' + v.slice(1) : v; };
+        const stopTimers = () => { clearInterval(tick); clearInterval(poll); };
+
+        /* Catatan harga: berbeda untuk dengan driver / tanpa driver */
+        const noteHtml = svc => svc === 'SELF'
+            ? '<b>Layanan lepas kunci (tanpa driver), harga per hari.</b><br>Belum termasuk:<br>• BBM<br>• Parkir / tiket wisata'
+            : '<b>Sudah termasuk driver profesional 12 jam/hari, harga per hari.</b><br>Belum termasuk:<br>• Uang makan / tip driver<br>• BBM<br>• Parkir / tiket wisata';
+
+        async function api(path, opt) {
+            if (CONFIG.MOCK) return mock(path, opt);
+            const r = await fetch(CONFIG.API_BASE + path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opt));
+            if (!r.ok) throw new Error('Server error ' + r.status);
+            return r.json();
+        }
+        function mock(path, opt) {
+            return new Promise(res => setTimeout(() => {
+                if (opt && opt.method === 'POST') {
+                    const b = JSON.parse(opt.body); mockN = 0;
+                    res({
+                        order_id: 'RM-' + Date.now().toString().slice(-8), total: total(),
+                        expired_at: new Date(Date.now() + 15 * 60000).toISOString(), bank: b.bank,
+                        qr_string: b.payment_method === 'QRIS' ? '00020101021226MOCK-QRIS-' + Date.now() : undefined,
+                        va_number: b.payment_method === 'VA' ? '8808123456789012' : undefined
+                    });
+                } else res({ status: ++mockN >= 3 ? 'PAID' : 'PENDING' });
+            }, 600));
+        }
+
+        /* =====================  RENDER  ===================== */
+        function shell(title, n, back, head) {
+            $('#ttl').textContent = head || title;   // head = judul header (opsional), title = teks di baris langkah
+            $('#back').hidden = !back;
+            $('#stp').innerHTML = n ? `<div class="st">Langkah ${n} dari 4 · ${esc(title)}<div class="bar">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</div></div>` : '';
+            window.scrollTo(0, 0);
+        }
+        const fld = (id, l, type, val, extra = '') => `<div class="g"><label class="f" id="w-${id}">${l}<input id="${id}" type="${type}" value="${esc(val)}" ${extra}><em></em></label></div>`;
+
+        /* ambil nilai semua kolom form ke state */
+        function collect() {
+            const g = id => { const e = $('#' + id); return e ? e.value.trim() : ''; };
+            Object.assign(S.f, {
+                svc: g('svc') || S.f.svc, nama: g('nama'), wa: g('wa'), car: g('car') || S.f.car, tgl: g('tgl'), jam: g('jam'),
+                days: g('days') || '1', pnp: g('pnp'), lok: g('lok'), tuj: g('tuj'), cat: g('cat')
+            });
+        }
+        /* ringkasan tanggal & estimasi total di bawah kolom lama sewa */
+        function updateHint() {
+            const el = $('#hint'); if (!el) return;
+            const d = parseInt($('#days').value, 10), t = $('#tgl').value, cc = CARS.find(c => c.code === $('#car').value);
+            if (!(d >= 1 && d <= CONFIG.MAX_DAYS) || !cc) { el.textContent = ''; return; }
+            const range = t ? (d > 1 ? fmtTgl(t) + ' – ' + fmtTgl(addDays(t, d - 1)) : fmtTgl(t)) : '';
+            el.textContent = (range ? range + ' · ' : '') + d + ' hari × ' + rp(cc.price) + ' = ' + rp(cc.price * d);
+        }
+
+        function step1(err = '') {
+            if (typeof err !== 'string') err = '';   // cegah objek event tampil sebagai teks error
+            S.step = 1; stopTimers(); shell('Form Pemesanan', 1, false, 'Rental Mobil IKN – Balikpapan');
+            const f = S.f, today = new Date().toISOString().slice(0, 10), self = f.svc === 'SELF';
+            $('#v').innerHTML = `
+  <div class="g" style="padding-top:12px"><label class="f">Layanan *<select id="svc">${Object.entries(SERVICES).map(([k, l]) => `<option value="${k}" ${k === f.svc ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div>
+  ${fld('nama', 'Nama Pemesan *', 'text', f.nama, 'autocomplete="name" placeholder="Nama lengkap"')}
+  ${fld('wa', 'Nomor WhatsApp *', 'tel', f.wa, 'autocomplete="tel" placeholder="Contoh: 0813 4742 3737"')}
+  <div class="g"><label class="f">Pilih Jenis Mobil *<select id="car">${carsOf(f.svc).map(c => `<option value="${c.code}" ${c.code === f.car ? 'selected' : ''}>${c.name} — ${rp(c.price)}/hari</option>`).join('')}</select></label></div>
+  <div class="g"><label class="f" id="w-tgl">Tanggal Mulai *<input id="tgl" type="date" min="${today}" value="${esc(f.tgl)}"><em></em></label>
+  <div class="f" id="w-days">Lama Sewa (hari) *<div class="stp"><button type="button" id="dm" aria-label="Kurangi hari">−</button><input id="days" type="number" min="1" max="${CONFIG.MAX_DAYS}" value="${esc(f.days)}" readonly aria-label="Jumlah hari"><button type="button" id="dp" aria-label="Tambah hari">+</button></div><em></em></div></div>
+  <div class="g"><div class="hint" id="hint"></div></div>
+  <div class="g"><label class="f" id="w-jam">${self ? 'Waktu Ambil Mobil' : 'Waktu Jemput'} *<input id="jam" type="time" value="${esc(f.jam)}"><em></em></label>
+  <label class="f" id="w-pnp">Penumpang *<input id="pnp" type="number" min="1" max="8" inputmode="numeric" value="${esc(f.pnp)}" placeholder="4"><em></em></label></div>
+  ${fld('lok', self ? 'Lokasi Pengambilan / Pengantaran Mobil *' : 'Lokasi Penjemputan *', 'text', f.lok)}
+  ${fld('tuj', self ? 'Tujuan / Rencana Rute *' : 'Tujuan *', 'text', f.tuj)}
+  ${fld('cat', 'Catatan Tambahan (jika ada)', 'text', f.cat, 'placeholder="Kursi anak, waktu fleksibel, dll."')}
+  <div class="n">${noteHtml(f.svc)}</div>
+  ${err ? `<div class="err" role="alert">${esc(err)}</div>` : ''}
+  <button class="btn" id="next">Lanjut</button>`;
+            updateHint();
+            ['tgl', 'days', 'car'].forEach(id => { $('#' + id).oninput = updateHint; $('#' + id).onchange = updateHint; });
+            // tombol − / + untuk lama sewa (1 .. MAX_DAYS)
+            const setDays = n => {
+                n = Math.min(CONFIG.MAX_DAYS, Math.max(1, n));
+                $('#days').value = n; $('#dm').disabled = n <= 1; $('#dp').disabled = n >= CONFIG.MAX_DAYS;
+                $('#w-days').classList.remove('bad'); $('#w-days').querySelector('em').textContent = '';
+                updateHint();
+            };
+            $('#dm').onclick = () => setDays((parseInt($('#days').value, 10) || 1) - 1);
+            $('#dp').onclick = () => setDays((parseInt($('#days').value, 10) || 1) + 1);
+            setDays(parseInt($('#days').value, 10) || 1);
+            // ganti layanan: simpan isian, pilih mobil pertama layanan baru, render ulang
+            $('#svc').onchange = () => { collect(); S.f.car = carsOf(S.f.svc)[0].code; step1(); };
+            $('#next').onclick = () => {
+                collect();
+                const bad = {}, dn = Number(S.f.days);
+                if (S.f.nama.length < 3) bad.nama = 'Isi nama lengkap';
+                if (!/^628\d{8,12}$/.test(normWA(S.f.wa))) bad.wa = 'Nomor WhatsApp tidak valid';
+                if (!S.f.tgl) bad.tgl = 'Pilih tanggal';
+                if (!(Number.isInteger(dn) && dn >= 1 && dn <= CONFIG.MAX_DAYS)) bad.days = 'Isi 1-' + CONFIG.MAX_DAYS + ' hari';
+                if (!S.f.jam) bad.jam = 'Isi jam';
+                if (!(+S.f.pnp >= 1)) bad.pnp = 'Isi jumlah';
+                if (!S.f.lok) bad.lok = 'Wajib diisi';
+                if (!S.f.tuj) bad.tuj = 'Wajib diisi';
+                document.querySelectorAll('.f').forEach(l => { l.classList.remove('bad'); const e = l.querySelector('em'); if (e) e.textContent = ''; });
+                const keys = Object.keys(bad);
+                keys.forEach(k => { const l = $('#w-' + k); l.classList.add('bad'); l.querySelector('em').textContent = bad[k]; });
+                if (keys.length) { $('#w-' + keys[0]).scrollIntoView({ block: 'center' }); return; }
+                step2();
+            };
+        }
+
+        function step2() {
+            S.step = 2; shell('Ringkasan Pesanan', 2, true); const f = S.f, c = car(), d = days(), self = f.svc === 'SELF';
+            $('#v').innerHTML = `
+  <div class="c"><h3>Detail Sewa</h3>${row('Layanan', SERVICES[f.svc])}${row('Mobil', c.name)}${row('Lama sewa', d + ' hari')}${row('Tanggal', rentRange())}${row(self ? 'Ambil mobil' : 'Jemput', f.jam + ' · ' + f.lok)}${row('Tujuan', f.tuj)}${row('Penumpang', f.pnp + ' orang')}</div>
+  <div class="c"><h3>Data Pemesan</h3>${row('Nama', f.nama)}${row('WhatsApp', f.wa)}${f.cat ? row('Catatan', f.cat) : ''}</div>
+  <div class="c"><h3>Rincian Biaya</h3>${row('Sewa ' + rp(c.price) + ' × ' + d + ' hari', rp(total()))}${row('Total', rp(total()), 't')}</div>
+  <div class="n">${noteHtml(f.svc)}</div>
+  <button class="btn" id="next">Pilih Pembayaran</button>`;
+            $('#next').onclick = () => step3();   // jangan kirim objek event ke step3
+        }
+
+        function step3(err = '') {
+            if (typeof err !== 'string') err = '';   // cegah objek event tampil sebagai teks error
+            S.step = 3; shell('Metode Pembayaran', 3, true);
+            const opt = (val, badge, t, sub, chk) => `<label class="o ${chk ? 'sel' : ''}"><span class="bk">${badge}</span><span>${t}${sub ? `<small>${sub}</small>` : ''}</span><input type="radio" name="m" value="${val}" ${chk ? 'checked' : ''}></label>`;
+            $('#v').innerHTML = `
+  <div class="c"><div class="r"><span>Total pembayaran (${days()} hari)</span><b style="font-size:17px">${rp(total())}</b></div></div>
+  <div class="c"><h3>QRIS</h3>${opt('QRIS', 'QRIS', 'QRIS', 'E-wallet &amp; m-banking apa saja', S.m === 'QRIS')}</div>
+  <div class="c"><h3>Virtual Account</h3>${BANKS.map(b => opt('VA:' + b, b.slice(0, 4), 'Transfer ' + b, '', S.m === 'VA' && S.bank === b)).join('')}</div>
+  <div class="n">Pembayaran harus diselesaikan dalam 15 menit setelah tombol bayar ditekan.</div>
+  ${err ? `<div class="err" role="alert">${esc(err)}</div>` : ''}
+  <button class="btn" id="pay">Bayar ${rp(total())}</button>`;
+            document.querySelectorAll('input[name=m]').forEach(i => i.onchange = () => {
+                const [m, b] = i.value.split(':'); S.m = m; if (b) S.bank = b;
+                document.querySelectorAll('.o').forEach(o => o.classList.toggle('sel', o.contains(i) && i.checked));
+            });
+            $('#pay').onclick = createOrder;
+        }
+
+        async function createOrder() {
+            const b = $('#pay'); b.disabled = true; b.textContent = 'Memproses…'; const f = S.f;
+            try {
+                const r = await api(CONFIG.EP_CREATE, {
+                    method: 'POST', body: JSON.stringify({
+                        customer_name: f.nama, whatsapp: normWA(f.wa), car_code: f.car, days: days(), date: f.tgl, time: f.jam,
+                        passengers: +f.pnp, pickup: f.lok, destination: f.tuj, notes: f.cat, payment_method: S.m, bank: S.m === 'VA' ? S.bank : null
+                    })
+                });
+                S.order = mapOrder(r);
+                if (!S.order.id) throw new Error('Respons order tidak valid');
+                S.m === 'QRIS' ? stepQris() : stepVa();
+            } catch (e) { step3('Gagal membuat pesanan: ' + e.message + '. Coba lagi.'); }
+        }
+
+        const steps = `<div class="c"><h3>Cara membayar</h3><ol>@@</ol></div>`;
+        function payTimers() {
+            stopTimers();
+            const exp = S.order.exp ? new Date(S.order.exp).getTime() : Date.now() + 15 * 60000;
+            tick = setInterval(() => {
+                const s = Math.max(0, Math.round((exp - Date.now()) / 1000)), el = $('#cd');
+                if (el) el.textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+                if (!s) expired();
+            }, 1000);
+            poll = setInterval(checkStatus, CONFIG.POLL_MS);
+        }
+        async function checkStatus(manual) {
+            try {
+                const st = mapStatus(await api(CONFIG.EP_STATUS + encodeURIComponent(S.order.id)));
+                if (st === 'PAID') return done();
+                if (st === 'EXPIRED' || st === 'FAILED') return expired();
+                if (manual === true) { const m = $('#msg'); if (m) m.textContent = 'Pembayaran belum kami terima. Coba cek lagi sebentar.'; }
+            } catch (e) { }
+        }
+        function stepQris() {
+            S.step = 4; shell('Bayar dengan QRIS', 0, true); const o = S.order;
+            $('#v').innerHTML = `<div class="tm">Selesaikan sebelum <b id="cd">15:00</b></div>
+  <div class="c" style="text-align:center"><div style="font-size:12px;color:var(--mut)">Order #${esc(o.id)}</div><div style="font-size:22px;font-weight:800;margin:4px 0 10px">${rp(o.total || total())}</div><div class="qr" id="qr"></div></div>
+  ${steps.replace('@@', '<li>Buka e-wallet atau m-banking</li><li>Pilih Scan / QRIS, lalu scan kode di atas</li><li>Konfirmasi nominal dan selesaikan</li>')}
+  <div class="err" id="msg" role="status" style="background:none;color:var(--mut)"></div>
+  <button class="btn" id="chk">Saya Sudah Bayar</button>`;
+            if (o.qrImg) $('#qr').innerHTML = `<img src="${esc(o.qrImg)}" alt="Kode QRIS" width="210" height="210">`;
+            else if (o.qrString && window.QRCode) new QRCode($('#qr'), { text: o.qrString, width: 210, height: 210 });
+            else $('#qr').textContent = 'QR tidak tersedia';
+            $('#chk').onclick = () => checkStatus(true); payTimers();
+        }
+        function stepVa() {
+            S.step = 4; shell('Transfer Virtual Account', 0, true); const o = S.order, bank = o.bank || S.bank;
+            $('#v').innerHTML = `<div class="tm">Bayar sebelum <b id="cd">15:00</b></div>
+  <div class="c"><div class="r"><span>Bank</span><b>${esc(bank)} Virtual Account</b></div>
+  <div style="font-size:12px;color:var(--mut);margin-top:8px">Nomor Virtual Account</div><div class="k"><span id="va">${esc(o.va)}</span><button data-c="${esc(o.va)}">Salin</button></div>
+  <div style="font-size:12px;color:var(--mut)">Total pembayaran</div><div class="k"><span>${rp(o.total || total())}</span><button data-c="${o.total || total()}">Salin</button></div></div>
+  ${steps.replace('@@', '<li>Buka m-banking atau ATM, pilih Transfer ke Virtual Account</li><li>Masukkan nomor VA di atas</li><li>Pastikan nominal sesuai, lalu konfirmasi</li>')}
+  <div class="err" id="msg" role="status" style="background:none;color:var(--mut)"></div>
+  <button class="btn" id="chk">Cek Status Pembayaran</button>`;
+            document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(b.dataset.c); b.textContent = 'Tersalin'; setTimeout(() => b.textContent = 'Salin', 1500); });
+            $('#chk').onclick = () => checkStatus(true); payTimers();
+        }
+        function expired() {
+            stopTimers(); shell('Waktu Habis', 0, false);
+            $('#v').innerHTML = `<div class="ctr"><div style="font-size:20px;font-weight:800">Waktu pembayaran habis</div><div style="font-size:13px;color:var(--mut);margin:6px 0 16px">Pesanan #${esc(S.order.id)} tidak dibayar tepat waktu. Silakan buat pesanan ulang.</div></div><button class="btn" id="again">Buat Pesanan Ulang</button>`;
+            $('#again').onclick = () => step3();   // jangan kirim objek event ke step3
+        }
+        function done() {
+            stopTimers(); S.step = 5; shell('Pembayaran Berhasil', 4, false); const o = S.order, f = S.f;
+            $('#v').innerHTML = `<div class="ctr"><div class="ok"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div><div style="font-size:20px;font-weight:800">Pembayaran Berhasil</div><div style="font-size:13px;color:var(--mut);margin-top:4px">Terima kasih, pesanan Anda sudah kami terima</div></div>
+  <div class="c"><h3>Detail Pesanan</h3>${row('No. Pesanan', o.id)}${row('Layanan', SERVICES[f.svc])}${row('Mobil', car().name)}${row('Lama sewa', days() + ' hari')}${row('Jadwal', rentRange() + ' · ' + f.jam)}${row('Metode', S.m === 'QRIS' ? 'QRIS' : (o.bank || S.bank) + ' VA')}${row('Total dibayar', rp(o.total || total()), 't')}</div>
+  <a class="btn alt" style="display:grid;place-items:center;text-decoration:none;margin-top:auto" href="https://wa.me/${CONFIG.WA_ADMIN}?text=${encodeURIComponent('Halo LinkU, saya sudah bayar rental mobil. No. pesanan ' + o.id)}">Hubungi Admin via WhatsApp</a>
+  <button class="btn" id="home">Pesan Lagi</button>`;
+            $('#home').onclick = () => { S.f.tgl = ''; S.f.jam = ''; S.f.days = '1'; S.order = null; step1(); };
+        }
+
+        $('#back').onclick = () => { S.step === 2 ? step1() : S.step === 3 ? step2() : S.step === 4 ? (stopTimers(), step3()) : 0; };
+        step1();
+    </script>
+</body>
+
+</html>
