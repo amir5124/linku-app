@@ -123,6 +123,18 @@
             background: #e5e7eb;
             color: #334155
         }
+
+        .size-badge {
+            display: inline-block;
+            min-width: 28px;
+            text-align: center;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #dbeafe;
+            color: #1d4ed8
+        }
     </style>
 </head>
 
@@ -211,6 +223,7 @@
                                 <th>Invoice</th>
                                 <th>Nama Peserta</th>
                                 <th>NIK</th>
+                                <th>Ukuran Kaos</th>
                                 <th>No. WhatsApp</th>
                                 <th>Kategori</th>
                                 <th>Paket</th>
@@ -259,7 +272,8 @@
                     </table>
                 </div>
                 <p class="text-xs text-slate-400">Kategori berlaku untuk semua paket. Harga tiap paket diatur di tab
-                    <b>📦 Paket</b>.</p>
+                    <b>📦 Paket</b>.
+                </p>
             </section>
         </div>
 
@@ -517,7 +531,7 @@
                 if (to && d > to) return false;
                 if (q) {
                     const hay = [r.invoice, r.phone, r.bank_ref, r.customer_name, r.combo_label,
-                    ...(r.participants || []).flatMap(p => [p.name, p.nik])].join(" ").toLowerCase();
+                    ...(r.participants || []).flatMap(p => [p.name, p.nik, p.size])].join(" ").toLowerCase();
                     if (!hay.includes(q)) return false;
                 }
                 return true;
@@ -544,27 +558,41 @@
             const per = {};
             paid.forEach(r => {
                 const k = r.combo_label || "-";
-                per[k] ??= { inv: 0, org: 0, rp: 0 };
+                per[k] ??= { inv: 0, org: 0, rp: 0, sizes: {} };
                 per[k].inv++; per[k].org += (r.participants || []).length; per[k].rp += Number(r.amount || 0);
+                (r.participants || []).forEach(p => {
+                    if (p.size) per[k].sizes[p.size] = (per[k].sizes[p.size] || 0) + 1;
+                });
             });
             $("perPkg").innerHTML = `<b>Rekap per kategori × paket (lunas)</b><div class="mt-2 grid sm:grid-cols-2 lg:grid-cols-4 gap-2">` +
-                (Object.entries(per).map(([k, v]) => `<div class="border rounded-lg p-3"><div class="font-semibold">${esc(k)}</div><div class="text-xs text-slate-500">${v.inv} invoice · ${v.org} peserta</div><div class="text-amber-600 font-semibold">${rp(v.rp)}</div></div>`).join("") || `<span class="text-slate-400">Belum ada pembayaran lunas.</span>`) + `</div>`;
+                (Object.entries(per).map(([k, v]) => {
+                    const sizeTxt = Object.entries(v.sizes).sort((a, b) => ['S', 'M', 'L', 'XL', 'XXL'].indexOf(a[0]) - ['S', 'M', 'L', 'XL', 'XXL'].indexOf(b[0])).map(([s, c]) => `${s}:${c}`).join(' · ');
+                    return `<div class="border rounded-lg p-3">
+                        <div class="font-semibold">${esc(k)}</div>
+                        <div class="text-xs text-slate-500">${v.inv} invoice · ${v.org} peserta</div>
+                        ${sizeTxt ? `<div class="text-xs text-blue-600 mt-1">Kaos → ${sizeTxt}</div>` : ''}
+                        <div class="text-amber-600 font-semibold">${rp(v.rp)}</div>
+                    </div>`;
+                }).join("") || `<span class="text-slate-400">Belum ada pembayaran lunas.</span>`) + `</div>`;
 
             VIEW = applyFilter();
             let n = 0, html = "";
             VIEW.forEach(r => {
-                (r.participants?.length ? r.participants : [{ name: r.customer_name || "-", nik: "-" }]).forEach((p, i) => {
+                (r.participants?.length ? r.participants : [{ name: r.customer_name || "-", nik: "-", size: null }]).forEach((p, i) => {
                     n++;
+                    const sizeCell = p.size ? `<span class="size-badge">${esc(p.size)}</span>` : `<span class="text-slate-300">-</span>`;
                     html += `<tr class="${i === 0 ? "sep" : ""}">
         <td>${n}</td><td>${esc(fmt(r._date))}</td><td class="font-mono text-xs">${esc(r.invoice)}</td>
-        <td class="font-medium">${esc(p.name)}</td><td class="font-mono">${esc(p.nik)}</td><td>${esc(r.phone || "-")}</td>
+        <td class="font-medium">${esc(p.name)}</td><td class="font-mono">${esc(p.nik)}</td>
+        <td>${sizeCell}</td>
+        <td>${esc(r.phone || "-")}</td>
         <td>${esc(r.category_label)}</td><td>${esc(r.package_name)}</td><td>${rp(r.amount)}</td>
         <td>${esc(r.method)}</td><td class="font-mono text-xs">${esc(r.bank_ref || "-")}</td>
         <td>${i === 0 ? ktpLink(r.ktp_file) : "-"}</td>
         <td><span class="badge ${STATUS_CLS[r._st]}">${STATUS_LABEL[r._st]}</span></td></tr>`;
                 });
             });
-            $("tbody").innerHTML = html || `<tr><td colspan="13" class="text-center text-slate-400 py-10">Tidak ada data.</td></tr>`;
+            $("tbody").innerHTML = html || `<tr><td colspan="14" class="text-center text-slate-400 py-10">Tidak ada data.</td></tr>`;
             $("countInfo").textContent = `${VIEW.length} invoice · ${n} peserta ditampilkan`;
         }
 
@@ -581,10 +609,11 @@
                     "No. VA": r.va_number || "", "Ref Bank": r.bank_ref || "",
                     "WhatsApp": r.phone || "", "Status": STATUS_LABEL[r._st]
                 });
-                (r.participants?.length ? r.participants : [{ name: r.customer_name || "", nik: "" }]).forEach(p => {
+                (r.participants?.length ? r.participants : [{ name: r.customer_name || "", nik: "", size: null }]).forEach(p => {
                     peserta.push({
                         "No": ++no, "Tgl Bayar": fmt(r._date), "No. Invoice": r.invoice,
                         "Nama Peserta": p.name, "NIK": String(p.nik),
+                        "Ukuran Kaos": p.size || "-",
                         "No. WhatsApp": r.phone || "", "Kategori": r.category_label, "Paket": r.package_name,
                         "Nominal Invoice": Number(r.amount || 0), "Metode Bayar": r.method,
                         "Ref Bank": r.bank_ref || "", "Status": STATUS_LABEL[r._st]
@@ -601,7 +630,9 @@
                 for (let R = 1; R <= range.e.r; R++) moneyCols.forEach(C => { const c = ws[XLSX.utils.encode_cell({ r: R, c: C })]; if (c && typeof c.v === "number") c.z = "#,##0"; });
                 XLSX.utils.book_append_sheet(wb, ws, name);
             };
-            add(peserta, "Peserta", [5, 20, 34, 28, 20, 16, 14, 24, 16, 18, 22, 12], [8]);
+            // Kolom Peserta sekarang: No, Tgl Bayar, Invoice, Nama, NIK, Ukuran Kaos, WA, Kategori, Paket, Nominal, Metode, Ref Bank, Status
+            // index Nominal Invoice = 9 (0-based), bukan 8 lagi.
+            add(peserta, "Peserta", [5, 20, 34, 28, 20, 12, 16, 14, 24, 16, 18, 22, 12], [9]);
             add(rekap, "Rekap Pembayaran", [20, 34, 14, 24, 14, 14, 18, 20, 22, 16, 12], [5]);
             XLSX.writeFile(wb, `pendaftar-catur-${new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Jakarta" })}.xlsx`);
         }
