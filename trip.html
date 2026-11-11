@@ -4,9 +4,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Open Trip Ibu Kota Nusantara</title>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://unpkg.com/sweetalert@2.1.2/dist/sweetalert.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url(https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap);
@@ -76,6 +77,11 @@
 
         button {
             border: none !important
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed
         }
 
         .video-slider-btn:active,
@@ -380,7 +386,7 @@
 
                 <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800">
                     📌 <strong>Kuota Terbatas!</strong> Hanya 14 seat per keberangkatan. Info &amp; pemesanan:
-                    <a href="https://wa.me/6281347423737" class="font-bold underline">081347423737</a>
+                    <a href="https://wa.me/6281347423737" rel="noopener" class="font-bold underline">081347423737</a>
                 </div>
 
                 <br><br><br>
@@ -408,15 +414,16 @@
                 <h3 class="font-semibold text-slate-800">Formulir Pemesanan - OPEN TRIP IKN</h3>
                 <button id="closeModal" type="button" class="text-slate-500 hover:text-slate-700">✕</button>
             </div>
-            <form id="orderForm" class="p-5 space-y-4">
+            <form id="orderForm" class="p-5 space-y-4" autocomplete="on">
                 <div>
                     <label class="block text-sm text-slate-600">Nama</label>
-                    <input name="name" required type="text"
+                    <input name="name" required type="text" minlength="2" maxlength="60" autocomplete="name"
                         class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200" />
                 </div>
                 <div>
                     <label class="block text-sm text-slate-600">No. HP / WA</label>
-                    <input name="phone" required type="tel" placeholder="0812..."
+                    <input name="phone" required type="tel" placeholder="0812..." inputmode="numeric"
+                        pattern="^(\+?62|0)[0-9]{8,13}$" maxlength="16" autocomplete="tel"
                         class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200" />
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -439,7 +446,7 @@
                 </div>
                 <div>
                     <label class="block text-sm text-slate-600">Titik Jemput / Catatan</label>
-                    <textarea name="note" rows="3" placeholder="Contoh: dijemput di Klandasan"
+                    <textarea name="note" rows="3" maxlength="200" placeholder="Contoh: dijemput di Klandasan"
                         class="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200"></textarea>
                 </div>
 
@@ -543,7 +550,7 @@
 
         <div class="video-slider-btn"
             style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; z-index: 998; box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);">
-            <button onclick="createPayment()" type="button"
+            <button id="payBtn" onclick="createPayment()" type="button"
                 style="width: calc(100% - 20px); margin: 0 auto; display: block; background-color: #24b3ae; color: white; padding: 12px; border-radius: 5px; outline: none;">
                 LANJUTKAN
             </button>
@@ -671,47 +678,44 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
         // ================== KONFIGURASI TRIP ==================
-        const TRIP_NAME = "OPEN TRIP IKN";
+        // Harga hanya untuk TAMPILAN. Harga sebenarnya dihitung di server.
         const PRICE_PER_PAX = 250000;
         const MAX_PAX = 14;
-        const API_BASE = "https://wisata.siappgo.id";
+        const API_BASE = "https://wisata.ojeksinjab.tech";
 
         // Ganti dengan URL gambar flyer / foto IKN kamu (boleh lebih dari satu)
         const IMAGES = [
             "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1790887987/WhatsApp_Image_2026-10-02_at_00.33.54_im3fl5.jpg"
         ];
 
-        // ================== FIREBASE ==================
-        const firebaseConfig = {
-            apiKey: "AIzaSyD8P9au26mC8xx8UcjNsm-NMW5JUgTHUBU",
-            authDomain: "linku-3ca65.firebaseapp.com",
-            databaseURL: "https://linku-3ca65-default-rtdb.firebaseio.com",
-            projectId: "linku-3ca65",
-            storageBucket: "linku-3ca65.appspot.com",
-            messagingSenderId: "759194220603",
-            appId: "1:759194220603:web:33e2327dfa94af2552841e"
-        };
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database(app);
+        // ================== HELPER ==================
+        const $ = (id) => document.getElementById(id);
+        const rupiah = (n) => "Rp " + Number(n).toLocaleString("id-ID");
+        const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, c =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+        // Tanggal lokal (bukan UTC) supaya tidak mundur sehari di pagi hari WIB
+        function todayLocal() {
+            const d = new Date();
+            const p = (n) => String(n).padStart(2, "0");
+            return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+        }
 
         // ================== ELEMEN ==================
-        const orderBtn = document.getElementById('orderBtn');
-        const modal = document.getElementById('modal');
-        const closeModal = document.getElementById('closeModal');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const orderForm = document.getElementById('orderForm');
-        const utamaHal = document.getElementById('utamaHal');
-        const paymentMethodsContainer = document.getElementById('paymentMethodsContainer');
-        const paxInput = document.getElementById('paxInput');
-        const plusBtn = document.getElementById('plusBtn');
-        const minusBtn = document.getElementById('minusBtn');
-        const totalPreview = document.getElementById('totalPreview');
-
-        const rupiah = (n) => "Rp " + Number(n).toLocaleString("id-ID");
+        const orderBtn = $('orderBtn');
+        const modal = $('modal');
+        const closeModal = $('closeModal');
+        const cancelBtn = $('cancelBtn');
+        const orderForm = $('orderForm');
+        const utamaHal = $('utamaHal');
+        const paymentMethodsContainer = $('paymentMethodsContainer');
+        const paxInput = $('paxInput');
+        const plusBtn = $('plusBtn');
+        const minusBtn = $('minusBtn');
+        const totalPreview = $('totalPreview');
+        const payBtn = $('payBtn');
 
         function openModal() { modal.classList.remove('hidden'); modal.classList.add('flex'); }
         function hideModal() { modal.classList.add('hidden'); modal.classList.remove('flex'); }
@@ -720,8 +724,7 @@
         closeModal.addEventListener('click', hideModal);
         cancelBtn.addEventListener('click', hideModal);
 
-        // Tanggal minimal = hari ini
-        document.getElementById('bookingDate').setAttribute('min', new Date().toISOString().split('T')[0]);
+        $('bookingDate').setAttribute('min', todayLocal());
 
         // Nilai default (di-replace oleh aplikasi LinkU)
         const defaultNama = "{nama}";
@@ -756,8 +759,9 @@
         // Kembali dari halaman pembayaran
         function goBackToInputs() {
             stopPolling();
+            Object.values(countdownTimers).forEach(clearInterval);
             ["vaPage", "qrisPage", "paymentMethodsContainer"].forEach(id => {
-                document.getElementById(id).style.display = "none";
+                $(id).style.display = "none";
             });
             modal.style.display = '';
             hideModal();
@@ -767,6 +771,7 @@
         // ================== POLLING STATUS ==================
         let activePartnerReff = "";
         let pollingInterval = null;
+        let pollingTimeout = null;
 
         function startPolling(partnerReff) {
             if (!partnerReff) return;
@@ -775,11 +780,12 @@
 
             stopPolling();
             pollingInterval = setInterval(() => cekStatusPembayaranOtomatis(activePartnerReff), 5000);
-            setTimeout(() => stopPolling(), 15 * 60 * 1000);
+            pollingTimeout = setTimeout(() => stopPolling(), 16 * 60 * 1000);
         }
 
         function stopPolling() {
             if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+            if (pollingTimeout) { clearTimeout(pollingTimeout); pollingTimeout = null; }
         }
 
         async function handleManualCheck(btn) {
@@ -796,56 +802,26 @@
 
             btn.disabled = true;
             btn.innerHTML = "⏳ Mengecek...";
-            try { await cekStatusPembayaranOtomatis(partnerReff, true); } catch (err) { console.error(err); }
+            try { await cekStatusPembayaranOtomatis(partnerReff, true); } catch (err) { /* diam */ }
             btn.disabled = false;
             btn.innerHTML = originalText;
         }
 
-        // async function cekStatusPembayaranOtomatis(partnerReff, manual = false) {
-        //     try {
-        //         const response = await fetch(`${API_BASE}/check-status/${partnerReff}`);
-        //         if (!response.ok) return;
-        //         const resData = await response.json();
-
-        //         const isPaid = resData.rc === '00' && resData.data &&
-        //             (resData.data.status_trx === 'success' || resData.data.status_paid === 'paid');
-
-        //         if (isPaid) {
-        //             stopPolling();
-        //             ["qrisPage", "vaPage", "paymentMethodsContainer"].forEach(id => {
-        //                 document.getElementById(id).style.display = "none";
-        //             });
-        //             utamaHal.style.display = "block";
-
-        //             swal({
-        //                 title: "Pembayaran Berhasil!",
-        //                 text: "Terima kasih, pesanan Open Trip IKN Anda telah diproses. Kami akan menghubungi Anda via WhatsApp.",
-        //                 icon: "success",
-        //                 button: "Selesai",
-        //                 closeOnClickOutside: false
-        //             });
-        //         } else if (manual) {
-        //             swal("Belum Masuk", "Pembayaran belum kami terima. Silakan coba lagi sesaat kemudian.", "info");
-        //         }
-        //     } catch (err) {
-        //         console.error("Error polling:", err);
-        //     }
-        // }
-
         async function cekStatusPembayaranOtomatis(partnerReff, manual = false) {
             try {
-                // ✅ Polling ke backend sendiri (Firebase), bukan LinkQu
-                const response = await fetch(`${API_BASE}/check-local-status/${partnerReff}`);
-                if (!response.ok) return;
-
+                const response = await fetch(`${API_BASE}/check-local-status/${encodeURIComponent(partnerReff)}`);
+                if (!response.ok) {
+                    if (manual) swal("Gagal", "Tidak dapat mengecek status saat ini. Coba lagi sesaat kemudian.", "error");
+                    return;
+                }
                 const resData = await response.json();
-                console.log("📊 Local Status:", resData);
 
-                // Cek apakah sudah SUKSES
                 if (resData.success && resData.is_paid === true) {
                     stopPolling();
+                    Object.values(countdownTimers).forEach(clearInterval);
+                    try { localStorage.removeItem('last_partner_reff'); } catch (e) { }
                     ["qrisPage", "vaPage", "paymentMethodsContainer"].forEach(id => {
-                        document.getElementById(id).style.display = "none";
+                        $(id).style.display = "none";
                     });
                     utamaHal.style.display = "block";
 
@@ -860,12 +836,16 @@
                     swal("Belum Masuk", "Pembayaran belum kami terima. Silakan coba lagi sesaat kemudian.", "info");
                 }
             } catch (err) {
-                console.error("Error polling:", err);
+                if (manual) swal("Error", "Terjadi kesalahan jaringan.", "error");
             }
         }
 
         // ================== BUAT PEMBAYARAN ==================
+        let isSubmitting = false;
+
         async function createPayment() {
+            if (isSubmitting) return;
+
             const selectedRadio = document.querySelector('input[name="payment"]:checked');
             if (!selectedRadio) {
                 swal("Warning!", "Silahkan pilih metode pembayaran terlebih dahulu", "warning");
@@ -875,159 +855,180 @@
             const formValues = Object.fromEntries(new FormData(orderForm).entries());
             const method = selectedRadio.dataset.method;
             const bankCode = selectedRadio.value;
+            const paxCount = Math.min(Math.max(parseInt(paxInput.value) || 1, 1), MAX_PAX);
 
-            const paxCount = Math.min(parseInt(paxInput.value) || 1, MAX_PAX);
-            const totalAmount = paxCount * PRICE_PER_PAX;
-
-            let endpoint = "";
+            // Harga TIDAK dikirim; server menghitung sendiri dari jumlah peserta.
             const payload = {
-                amount: totalAmount,
                 date: formValues.date,
-                name: TRIP_NAME,
                 note: formValues.note || "",
-                pax: paxCount.toString(),
-                customer_name: formValues.name,        // ✅ dari input "Nama"
-                customer_phone: formValues.phone,      // ✅ dari input "No. HP / WA"
-                customer_email: "bocahangon64@gmail.com",
-                customer_id: `CUST-${Date.now()}`      // ✅ generate unik
+                pax: paxCount,
+                customer_name: formValues.name,
+                customer_phone: formValues.phone
             };
 
+            let endpoint;
             if (method === "va") {
                 endpoint = API_BASE + "/create-va";
-                payload.metode_pembayaran = "VA";
                 payload.bank_code = bankCode;
             } else {
                 endpoint = API_BASE + "/create-qris";
-                payload.metode_pembayaran = "QRIS";
             }
 
-            document.getElementById("loadingOverlay").classList.remove("hidden");
+            isSubmitting = true;
+            payBtn.disabled = true;
+            $("loadingOverlay").classList.remove("hidden");
+
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 30000);
 
             try {
                 const response = await fetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
                 });
-                const res = await response.json();
-                console.log("Response:", res);
+                const res = await response.json().catch(() => ({}));
 
-                if (res.partner_reff) {
-                    startPolling(res.partner_reff);
-
-                    // ---- VA ----
-                    if (method === "va" && res.response_code === "00") {
-                        paymentMethodsContainer.style.display = "none";
-                        const vaPage = document.getElementById("vaPage");
-                        vaPage.style.display = "block";
-
-                        vaPage.querySelector(".total-payment").textContent = rupiah(res.amount);
-                        vaPage.querySelector(".total-harga").textContent = Number(res.amount).toLocaleString("id-ID");
-
-                        const bankLogoMap = {
-                            "BANK BRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png",
-                            "BANK MANDIRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png",
-                            "BANK BNI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png",
-                            "BANK BSI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png",
-                            "BANK CIMB NIAGA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png",
-                            "DANAMON": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png",
-                            "BANK PERMATA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg",
-                            "BANK OCBC": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png"
-                        };
-
-                        const mobileBankingSteps = {
-                            "BANK BRI": ["Login ke aplikasi BRImo.", "Pilih menu BRIVA.", "Masukkan nomor Virtual Account.", "Masukkan nominal jika diperlukan.", "Konfirmasi dan selesaikan pembayaran."],
-                            "BANK MANDIRI": ["Login ke aplikasi Livin' by Mandiri.", "Pilih menu Bayar.", "Pilih Multi Payment.", "Pilih penyedia jasa dan masukkan nomor Virtual Account.", "Konfirmasi dan bayar."],
-                            "DANAMON": ["Login ke aplikasi D-Bank PRO.", "Pilih Transfer > Virtual Account.", "Masukkan nomor VA dan jumlah pembayaran.", "Konfirmasi detail dan selesaikan pembayaran."],
-                            "BANK PERMATA": ["Login ke PermataMobile X.", "Pilih menu Bayar > Virtual Account.", "Masukkan nomor Virtual Account.", "Cek detail pembayaran lalu konfirmasi dan bayar."],
-                            "BANK BNI": ["Login ke aplikasi BNI Mobile Banking.", "Pilih menu Transfer.", "Pilih Virtual Account Billing.", "Masukkan nomor VA dan pilih Lanjut.", "Periksa informasi dan konfirmasi pembayaran."],
-                            "BANK BSI": ["Login ke aplikasi BSI Mobile.", "Pilih menu Bayar.", "Pilih Virtual Account.", "Masukkan nomor VA dan pilih Sumber Dana.", "Periksa detail pembayaran dan konfirmasi."]
-                        };
-
-                        const bankLogo = vaPage.querySelector(".bank-logo img");
-                        const bankName = vaPage.querySelector(".bank-name");
-                        if (bankLogo) bankLogo.src = bankLogoMap[res.bank_name] || "https://via.placeholder.com/80x40?text=Bank";
-                        if (bankName) bankName.textContent = res.bank_name;
-
-                        document.getElementById("vaDana").textContent = res.virtual_account;
-
-                        const panduan = document.getElementById("panduan-pembayaran-va");
-                        panduan.innerHTML = "";
-                        if (mobileBankingSteps[res.bank_name]) {
-                            const steps = mobileBankingSteps[res.bank_name].map(s => `<li class="mb-1">${s}</li>`).join("");
-                            panduan.innerHTML = `
-                                <div class="mt-4 p-4 bg-slate-50 rounded-lg">
-                                    <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran ${res.bank_name}</h3>
-                                    <ol class="list-decimal pl-5 text-sm text-gray-700">${steps}</ol>
-                                </div>`;
-                        }
-                        startCountdown('countdown', 15);
-                    }
-
-                    // ---- QRIS ----
-                    if (method === "qris" && res.response_code === "00") {
-                        paymentMethodsContainer.style.display = "none";
-                        const qrisPage = document.getElementById("qrisPage");
-                        qrisPage.style.display = "block";
-
-                        qrisPage.querySelector(".total-payment").textContent = rupiah(res.amount);
-
-                        const qrImage = document.getElementById("qrisImage");
-                        qrImage.src = res.imageqris;
-                        qrImage.style.display = "block";
-                        document.getElementById("qrShimmer").style.display = "none";
-
-                        const downloadBtn = document.getElementById("downloadQR");
-                        downloadBtn.style.display = "block";
-                        downloadBtn.onclick = () => {
-                            const link = document.createElement('a');
-                            link.href = `${API_BASE}/download-qr/${res.partner_reff}`;
-                            link.target = "_blank";
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        };
-
-                        document.getElementById("panduan-pembayaran-qris").innerHTML = `
-                            <div class="mt-2 p-4 bg-slate-50 rounded-lg">
-                                <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran QRIS</h3>
-                                <ol class="list-decimal pl-5 text-sm text-gray-700 space-y-1">
-                                    <li>Buka aplikasi e-Wallet atau Mobile Banking Anda.</li>
-                                    <li>Pilih menu <strong>Scan / Bayar</strong>.</li>
-                                    <li>Scan kode QR di atas atau gunakan hasil download.</li>
-                                    <li>Periksa nominal dan selesaikan pembayaran.</li>
-                                </ol>
-                            </div>`;
-                        startCountdown('countdown-qris', 15);
-                    }
-                } else {
+                if (!response.ok || !res.partner_reff) {
                     swal("Gagal", res.response_desc || "Gagal membuat pembayaran", "error");
+                    return;
                 }
+
+                startPolling(res.partner_reff);
+
+                // ---- VA ----
+                if (method === "va" && res.response_code === "00") {
+                    paymentMethodsContainer.style.display = "none";
+                    const vaPage = $("vaPage");
+                    vaPage.style.display = "block";
+
+                    vaPage.querySelector(".total-payment").textContent = rupiah(res.amount);
+                    vaPage.querySelector(".total-harga").textContent = Number(res.amount).toLocaleString("id-ID");
+
+                    const bankLogoMap = {
+                        "BANK BRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752684192/Logo_BRI_y11no2.png",
+                        "BANK MANDIRI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/pngwing.com_uxbbel.png",
+                        "BANK BNI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/Logo-Bank-BNI-PNG_y3tsoa.png",
+                        "BANK BSI": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1753065756/bsi_qupwbg.png",
+                        "BANK CIMB NIAGA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1745546402/CIMB-Logo-1280x800_wnqkva.png",
+                        "DANAMON": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683105/danamon_ixlwhv.png",
+                        "BANK PERMATA": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683099/permata_cqfy8w.jpg",
+                        "BANK OCBC": "https://res.cloudinary.com/dgsdmgcc7/image/upload/v1752683103/ocbc_jxxoy6.png"
+                    };
+
+                    const mobileBankingSteps = {
+                        "BANK BRI": ["Login ke aplikasi BRImo.", "Pilih menu BRIVA.", "Masukkan nomor Virtual Account.", "Masukkan nominal jika diperlukan.", "Konfirmasi dan selesaikan pembayaran."],
+                        "BANK MANDIRI": ["Login ke aplikasi Livin' by Mandiri.", "Pilih menu Bayar.", "Pilih Multi Payment.", "Pilih penyedia jasa dan masukkan nomor Virtual Account.", "Konfirmasi dan bayar."],
+                        "DANAMON": ["Login ke aplikasi D-Bank PRO.", "Pilih Transfer > Virtual Account.", "Masukkan nomor VA dan jumlah pembayaran.", "Konfirmasi detail dan selesaikan pembayaran."],
+                        "BANK PERMATA": ["Login ke PermataMobile X.", "Pilih menu Bayar > Virtual Account.", "Masukkan nomor Virtual Account.", "Cek detail pembayaran lalu konfirmasi dan bayar."],
+                        "BANK BNI": ["Login ke aplikasi BNI Mobile Banking.", "Pilih menu Transfer.", "Pilih Virtual Account Billing.", "Masukkan nomor VA dan pilih Lanjut.", "Periksa informasi dan konfirmasi pembayaran."],
+                        "BANK BSI": ["Login ke aplikasi BSI Mobile.", "Pilih menu Bayar.", "Pilih Virtual Account.", "Masukkan nomor VA dan pilih Sumber Dana.", "Periksa detail pembayaran dan konfirmasi."]
+                    };
+
+                    const bankLogo = vaPage.querySelector(".bank-logo img");
+                    const bankName = vaPage.querySelector(".bank-name");
+                    if (bankLogo) bankLogo.src = bankLogoMap[res.bank_name] || "https://via.placeholder.com/80x40?text=Bank";
+                    if (bankName) bankName.textContent = res.bank_name || "";
+
+                    $("vaDana").textContent = res.virtual_account || "";
+
+                    const panduan = $("panduan-pembayaran-va");
+                    panduan.innerHTML = "";
+                    if (Object.prototype.hasOwnProperty.call(mobileBankingSteps, res.bank_name)) {
+                        const steps = mobileBankingSteps[res.bank_name].map(s => `<li class="mb-1">${escapeHtml(s)}</li>`).join("");
+                        panduan.innerHTML = `
+                            <div class="mt-4 p-4 bg-slate-50 rounded-lg">
+                                <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran ${escapeHtml(res.bank_name)}</h3>
+                                <ol class="list-decimal pl-5 text-sm text-gray-700">${steps}</ol>
+                            </div>`;
+                    }
+                    startCountdown('countdown', 15);
+                    return;
+                }
+
+                // ---- QRIS ----
+                if (method === "qris" && res.response_code === "00") {
+                    const qrUrl = String(res.imageqris || "").trim();
+                    if (!/^https:\/\//i.test(qrUrl)) {
+                        swal("Gagal", "QRIS tidak valid, silakan coba lagi.", "error");
+                        return;
+                    }
+
+                    paymentMethodsContainer.style.display = "none";
+                    const qrisPage = $("qrisPage");
+                    qrisPage.style.display = "block";
+
+                    qrisPage.querySelector(".total-payment").textContent = rupiah(res.amount);
+
+                    const qrImage = $("qrisImage");
+                    qrImage.src = qrUrl;
+                    qrImage.style.display = "block";
+                    $("qrShimmer").style.display = "none";
+
+                    const downloadBtn = $("downloadQR");
+                    downloadBtn.style.display = "block";
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = `${API_BASE}/download-qr/${encodeURIComponent(res.partner_reff)}`;
+                        link.target = "_blank";
+                        link.rel = "noopener";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
+
+                    $("panduan-pembayaran-qris").innerHTML = `
+                        <div class="mt-2 p-4 bg-slate-50 rounded-lg">
+                            <h3 class="font-semibold text-teal-800 mb-2">Panduan Pembayaran QRIS</h3>
+                            <ol class="list-decimal pl-5 text-sm text-gray-700 space-y-1">
+                                <li>Buka aplikasi e-Wallet atau Mobile Banking Anda.</li>
+                                <li>Pilih menu <strong>Scan / Bayar</strong>.</li>
+                                <li>Scan kode QR di atas atau gunakan hasil download.</li>
+                                <li>Periksa nominal dan selesaikan pembayaran.</li>
+                            </ol>
+                        </div>`;
+                    startCountdown('countdown-qris', 15);
+                    return;
+                }
+
+                swal("Gagal", res.response_desc || "Gagal membuat pembayaran", "error");
             } catch (error) {
-                console.error("Gagal membuat pembayaran:", error);
-                swal("Error", "Terjadi kesalahan jaringan atau server.", "error");
+                const msg = error.name === "AbortError"
+                    ? "Server terlalu lama merespons. Silakan coba lagi."
+                    : "Terjadi kesalahan jaringan atau server.";
+                swal("Error", msg, "error");
             } finally {
-                document.getElementById("loadingOverlay").classList.add("hidden");
+                clearTimeout(timer);
+                isSubmitting = false;
+                payBtn.disabled = false;
+                $("loadingOverlay").classList.add("hidden");
             }
         }
 
         function copyVaCode() {
-            const code = document.getElementById('vaDana')?.innerText;
+            const code = $('vaDana')?.innerText;
             if (!code || code.trim() === "") { swal("Gagal", "Nomor Rekening tidak ditemukan", "error"); return; }
-            const tmp = document.createElement('input');
-            document.body.appendChild(tmp);
-            tmp.value = code;
-            tmp.select();
-            document.execCommand('copy');
-            document.body.removeChild(tmp);
-            swal({ title: 'Berhasil Disalin !', text: 'Nomor Rekening telah disalin.', icon: 'success' });
+
+            const done = () => swal({ title: 'Berhasil Disalin !', text: 'Nomor Rekening telah disalin.', icon: 'success' });
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code.trim()).then(done).catch(() => swal("Gagal", "Tidak dapat menyalin.", "error"));
+            } else {
+                const tmp = document.createElement('input');
+                document.body.appendChild(tmp);
+                tmp.value = code.trim();
+                tmp.select();
+                document.execCommand('copy');
+                document.body.removeChild(tmp);
+                done();
+            }
         }
 
         // Countdown umum (VA & QRIS)
         const countdownTimers = {};
         function startCountdown(elId, minutes) {
             let time = minutes * 60;
-            const el = document.getElementById(elId);
+            const el = $(elId);
             clearInterval(countdownTimers[elId]);
             el.classList.remove("bg-red-100", "text-red-700");
             el.classList.add("bg-teal-100", "text-teal-700");
@@ -1049,9 +1050,9 @@
 
         // ================== SLIDER ==================
         let currentSlide = 0;
-        const sliderImg = document.getElementById('sliderImg');
-        const prevSlide = document.getElementById('prevSlide');
-        const nextSlide = document.getElementById('nextSlide');
+        const sliderImg = $('sliderImg');
+        const prevSlide = $('prevSlide');
+        const nextSlide = $('nextSlide');
 
         function showSlide(i) { sliderImg.src = IMAGES[i]; }
         prevSlide.onclick = () => { currentSlide = (currentSlide - 1 + IMAGES.length) % IMAGES.length; showSlide(currentSlide); };
