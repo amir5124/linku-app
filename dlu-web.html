@@ -1188,7 +1188,7 @@
                         this.loading = true;
                         this.loadingText = 'Loading...';
                         try {
-                            const baseUrl = 'https://darma.siappgo.id/api/shipdlu';
+                            const baseUrl = 'https://darma.ojeksinjab.tech/api/shipdlu';
                             const [resRoute, resClass, resVehicle, resTicket, resRoom] = await Promise.all([
                                 fetch(`${baseUrl}/route`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
                                 fetch(`${baseUrl}/class-types`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }),
@@ -1380,7 +1380,7 @@
                                 fares: selectedFares
                             };
 
-                            const res = await fetch('https://darma.siappgo.id/api/shipdlu/select-schedule', {
+                            const res = await fetch('https://darma.ojeksinjab.tech/api/shipdlu/select-schedule', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(payload)
@@ -1487,7 +1487,7 @@
 
                             console.log("📤 Payload Terkirim:", JSON.stringify(payload, null, 2));
 
-                            const res = await fetch('https://darma.siappgo.id/api/shipdlu/schedule', {
+                            const res = await fetch('https://darma.ojeksinjab.tech/api/shipdlu/schedule', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(payload)
@@ -1570,7 +1570,7 @@
                             this.persistFormData();
 
                             // Simpan DRAFT ke DB → dapat booking_id integer
-                            const resDraft = await fetch('https://darma.siappgo.id/api/shipdlu/dlu-bookings/draft', {
+                            const resDraft = await fetch('https://darma.ojeksinjab.tech/api/shipdlu/dlu-bookings/draft', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
@@ -1657,7 +1657,7 @@
                         };
 
                         try {
-                            const response = await fetch('https://darma.siappgo.id/api/dlu-payments/create', {
+                            const response = await fetch('https://darma.ojeksinjab.tech/api/dlu-payments/create', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(payload)
@@ -1704,7 +1704,7 @@
                         this.paymentInterval = setInterval(async () => {
                             try {
                                 const response = await fetch(
-                                    `https://darma.siappgo.id/api/dlu-payments/check-status/${reff}`
+                                    `https://darma.ojeksinjab.tech/api/dlu-payments/check-status/${reff}`
                                 );
                                 const result = await response.json();
 
@@ -1854,7 +1854,7 @@
 
                             // ── STEP A: Validasi Harga Vendor ──────────────────────────
                             this.loadingText = 'Memvalidasi Harga...';
-                            const resPrice = await fetch('https://darma.siappgo.id/api/shipdlu/price', {
+                            const resPrice = await fetch('https://darma.ojeksinjab.tech/api/shipdlu/price', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(finalPayload)
@@ -1873,7 +1873,7 @@
                             finalPayload.numCode = "LINKU-" + Date.now().toString().slice(-6)
                                 + Math.random().toString(36).substring(2, 5).toUpperCase();
 
-                            const resIssued = await fetch('https://darma.siappgo.id/api/shipdlu/issued', {
+                            const resIssued = await fetch('https://darma.ojeksinjab.tech/api/shipdlu/issued', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(finalPayload)
@@ -1886,7 +1886,7 @@
                                 // ── STEP C: Finalize DB + Kirim Email PDF ──────────────
                                 try {
                                     this.loadingText = 'Menyimpan & Mengirim Tiket...';
-                                    await fetch('https://darma.siappgo.id/api/dlu-payments/finalize', {
+                                    await fetch('https://darma.ojeksinjab.tech/api/dlu-payments/finalize', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
@@ -1922,7 +1922,7 @@
                         this.loading = true;
                         this.loadingText = 'Membuka Tiket...';
                         try {
-                            const res = await fetch('https://darma.siappgo.id/api/shipdlu/get-eticket', {
+                            const res = await fetch('https://darma.ojeksinjab.tech/api/shipdlu/get-eticket', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ bookingNumber: bookingNumber })

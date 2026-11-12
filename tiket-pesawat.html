@@ -3274,7 +3274,7 @@
                     this.btnLabel = "PROSES...";
 
                     try {
-                        const shareUrl = `https://darma.siappgo.id/api/flights/generate-ticket/${bookingCode}`;
+                        const shareUrl = `https://darma.ojeksinjab.tech/api/flights/generate-ticket/${bookingCode}`;
                         console.log("Mengambil PDF dari:", shareUrl);
 
                         const response = await fetch(shareUrl);
@@ -3362,7 +3362,7 @@
 
                 async fetchAirlineList() {
                     try {
-                        const res = await fetch('https://darma.siappgo.id/api/flights/airline-list', {
+                        const res = await fetch('https://darma.ojeksinjab.tech/api/flights/airline-list', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' }
                         });
@@ -3428,8 +3428,8 @@
                     const isStreamingMode = !this.search.airlineID || this.search.airlineID === "";
 
                     let url = isStreamingMode
-                        ? `https://darma.siappgo.id/api/flights/get-all-schedules?${commonParams}`
-                        : `https://darma.siappgo.id/api/flights/schedules?airlineID=${this.search.airlineID}&${commonParams}`;
+                        ? `https://darma.ojeksinjab.tech/api/flights/get-all-schedules?${commonParams}`
+                        : `https://darma.ojeksinjab.tech/api/flights/schedules?airlineID=${this.search.airlineID}&${commonParams}`;
 
                     try {
                         const response = await fetch(url);
@@ -3690,8 +3690,8 @@
 
                     // 3. Gunakan URL yang sesuai
                     let url = isAllAirlineMode
-                        ? 'https://darma.siappgo.id/api/flights/get-all-price'
-                        : 'https://darma.siappgo.id/api/flights/get-price';
+                        ? 'https://darma.ojeksinjab.tech/api/flights/get-all-price'
+                        : 'https://darma.ojeksinjab.tech/api/flights/get-price';
 
                     // 4. Normalisasi Tanggal (Menghapus 'Z' dan milidetik agar server tidak bingung)
                     const cleanDate = (dateStr) => {
@@ -3863,8 +3863,8 @@
                         };
 
                         const [resAdd, resSea] = await Promise.all([
-                            fetch('https://darma.siappgo.id/api/flights/get-addons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }),
-                            fetch('https://darma.siappgo.id/api/flights/get-seats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+                            fetch('https://darma.ojeksinjab.tech/api/flights/get-addons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }),
+                            fetch('https://darma.ojeksinjab.tech/api/flights/get-seats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
                         ]);
 
                         const dAdd = await resAdd.json();
@@ -4035,7 +4035,7 @@
                         console.log("🚀 [START] createBooking...");
 
                         // --- CEK SALDO VENDOR TERLEBIH DAHULU ---
-                        const balanceRes = await fetch('https://darma.siappgo.id/api/agent/get-balance', {
+                        const balanceRes = await fetch('https://darma.ojeksinjab.tech/api/agent/get-balance', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({})
@@ -4091,7 +4091,7 @@
                                 });
                             }
 
-                            const res = await fetch('https://darma.siappgo.id/api/flights/create-booking', {
+                            const res = await fetch('https://darma.ojeksinjab.tech/api/flights/create-booking', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(payload)
@@ -4125,7 +4125,7 @@
                             const dep = this.prepareSinglePayload("depart");
                             const depPayload = { ...dep, usernameFromFrontend: currentOperator };
 
-                            const resDep = await fetch('https://darma.siappgo.id/api/flights/create-booking', {
+                            const resDep = await fetch('https://darma.ojeksinjab.tech/api/flights/create-booking', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(depPayload)
@@ -4149,7 +4149,7 @@
                             const ret = this.prepareSinglePayload("return");
                             const retPayload = { ...ret, usernameFromFrontend: currentOperator };
 
-                            const resRet = await fetch('https://darma.siappgo.id/api/flights/create-booking', {
+                            const resRet = await fetch('https://darma.ojeksinjab.tech/api/flights/create-booking', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(retPayload)
@@ -4326,7 +4326,7 @@
 
                     this.isLoading = true;
 
-                    fetch('https://darma.siappgo.id/api/create', {
+                    fetch('https://darma.ojeksinjab.tech/api/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -4372,7 +4372,7 @@
 
                     this.paymentInterval = setInterval(async () => {
                         try {
-                            const response = await fetch(`https://darma.siappgo.id/api/status/${reff}`);
+                            const response = await fetch(`https://darma.ojeksinjab.tech/api/status/${reff}`);
 
                             if (!response.ok) {
                                 console.warn("⚠️ Server belum siap/error 500, mencoba lagi...");
@@ -4402,14 +4402,14 @@
 
                 downloadQR(url, reff) {
                     if (!url) return;
-                    window.location.href = `https://darma.siappgo.id/api/download-qris?qr_url=${encodeURIComponent(url)}&reff=${reff}`;
+                    window.location.href = `https://darma.ojeksinjab.tech/api/download-qris?qr_url=${encodeURIComponent(url)}&reff=${reff}`;
                 },
                 async getDetail() {
                     if (!this.bookingResult?.bookingCode) return;
 
                     this.loading = true;
                     try {
-                        const res = await fetch('https://darma.siappgo.id/api/flights/booking-detail', {
+                        const res = await fetch('https://darma.ojeksinjab.tech/api/flights/booking-detail', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -4777,7 +4777,7 @@
                     try {
                         // 2. Fetch data sebagai Blob
                         // Menggunakan fetch memberikan kontrol penuh atas header jika nanti diperlukan
-                        const response = await fetch(`https://darma.siappgo.id/api/flights/generate-ticket/${bCode}`, {
+                        const response = await fetch(`https://darma.ojeksinjab.tech/api/flights/generate-ticket/${bCode}`, {
                             method: 'GET',
                             headers: {
                                 'Accept': 'application/pdf'

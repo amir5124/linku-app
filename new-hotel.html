@@ -1987,7 +1987,7 @@
                         roomRequest: this.buildRoomRequest()
                     };
 
-                    const res = await fetch('https://darma.siappgo.id/api/hotels/search', {
+                    const res = await fetch('https://darma.ojeksinjab.tech/api/hotels/search', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -2049,7 +2049,7 @@
                 this.activePhotoIndex = index;
                 this.showLightbox = true;
             },
-            onSearchByNameInput() { if (this.searchByNameQuery.trim().length === 0) { this.searchByNameResults = []; this.searchByNameHasSearched = !1 } }, async searchHotelByName() { if (!this.searchByNameQuery || this.searchByNameQuery.trim().length < 2) return; this.searchByNameLoading = !0; this.searchByNameHasSearched = !1; this.searchByNameResults = []; try { const res = await fetch('https://darma.siappgo.id/api/hotels/search-by-name', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hotelName: this.searchByNameQuery.trim() }) }); const data = await res.json(); this.searchByNameResults = Array.isArray(data.hotels) ? data.hotels : []; if (this.searchByNameResults.length === 0) { this.showToast("Hotel tidak ditemukan...") } } catch (e) { this.showToast("Gagal: " + e.message) } finally { this.searchByNameLoading = !1; this.searchByNameHasSearched = !0; this.refreshIcons() } }, async selectHotelByName(hotel) {
+            onSearchByNameInput() { if (this.searchByNameQuery.trim().length === 0) { this.searchByNameResults = []; this.searchByNameHasSearched = !1 } }, async searchHotelByName() { if (!this.searchByNameQuery || this.searchByNameQuery.trim().length < 2) return; this.searchByNameLoading = !0; this.searchByNameHasSearched = !1; this.searchByNameResults = []; try { const res = await fetch('https://darma.ojeksinjab.tech/api/hotels/search-by-name', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hotelName: this.searchByNameQuery.trim() }) }); const data = await res.json(); this.searchByNameResults = Array.isArray(data.hotels) ? data.hotels : []; if (this.searchByNameResults.length === 0) { this.showToast("Hotel tidak ditemukan...") } } catch (e) { this.showToast("Gagal: " + e.message) } finally { this.searchByNameLoading = !1; this.searchByNameHasSearched = !0; this.refreshIcons() } }, async selectHotelByName(hotel) {
                 const nameParts = hotel.Name.split(' - ');
                 const cityGuess = nameParts.length >= 2 ? nameParts[nameParts.length - 1].replace(', Indonesia', '').trim() : '';
 
@@ -2092,7 +2092,7 @@
                         roomRequest: currentRoomRequest
                     };
 
-                    const res = await fetch('https://darma.siappgo.id/api/hotels/available-rooms', {
+                    const res = await fetch('https://darma.ojeksinjab.tech/api/hotels/available-rooms', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -2132,7 +2132,7 @@
                                 const safeImage = this.roomList[index].image;
 
                                 try {
-                                    const priceRes = await fetch('https://darma.siappgo.id/api/hotels/price-info', {
+                                    const priceRes = await fetch('https://darma.ojeksinjab.tech/api/hotels/price-info', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
@@ -2612,7 +2612,7 @@
 
                     console.log("📤 Sending Draft Payload:", draftPayload);
 
-                    const draftRes = await fetch('https://darma.siappgo.id/api/hotels/hotel-bookings/draft', {
+                    const draftRes = await fetch('https://darma.ojeksinjab.tech/api/hotels/hotel-bookings/draft', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(draftPayload)
@@ -2636,7 +2636,7 @@
                         admin_fee_applied: additionalFee
                     };
 
-                    const payRes = await fetch('https://darma.siappgo.id/api/hotel-payments/create', {
+                    const payRes = await fetch('https://darma.ojeksinjab.tech/api/hotel-payments/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(paymentPayload)
@@ -2665,14 +2665,14 @@
                     this.isLoading = false;
                 }
             },
-           
+
             startPollingStatus(reff) {
                 console.log(`⏳ Monitoring pembayaran [${reff}] setiap 5 detik...`);
                 if (this.paymentInterval) clearInterval(this.paymentInterval);
 
                 this.paymentInterval = setInterval(async () => {
                     try {
-                        const response = await fetch(`https://darma.siappgo.id/api/hotel-payments/check-status/${reff}`);
+                        const response = await fetch(`https://darma.ojeksinjab.tech/api/hotel-payments/check-status/${reff}`);
                         if (!response.ok) return; // skip sementara kalau server lagi bermasalah, coba lagi 5 detik berikutnya
 
                         const result = await response.json();
@@ -2707,7 +2707,7 @@
                 const checkOnce = async () => {
                     attempts++;
                     try {
-                        const res = await fetch(`https://darma.siappgo.id/api/hotels/booking-status/${bookingId}`);
+                        const res = await fetch(`https://darma.ojeksinjab.tech/api/hotels/booking-status/${bookingId}`);
                         const json = await res.json();
 
                         if (json.status !== "SUCCESS" || !json.data) {
@@ -2773,10 +2773,10 @@
 
                     } catch (e) {
                         console.error("pollBookingConfirmation Error:", e.message);
-                       
-                            this.loading = false;
-                            this.showToast("Gagal memuat status booking. Silakan cek Riwayat Booking Anda.", "error");
-                        
+
+                        this.loading = false;
+                        this.showToast("Gagal memuat status booking. Silakan cek Riwayat Booking Anda.", "error");
+
                     }
                 };
 
