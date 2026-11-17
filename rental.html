@@ -42,8 +42,9 @@
         header {
             background: var(--teal);
             color: #fff;
+            height: auto;
+            min-height: 0;
             padding: 14px 16px;
-            padding-top: min(calc(14px + env(safe-area-inset-top, 0px)), 24px);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -53,6 +54,12 @@
             position: sticky;
             top: 0;
             z-index: 5;
+        }
+
+        header h1,
+        header h2 {
+            margin: 0;
+            font-size: inherit;
         }
 
         header button {
